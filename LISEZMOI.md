@@ -2,10 +2,10 @@
 
 [English version](README.md)
 
-Une intégration personnalisée qui lit et règle une carte de régulation SolisArt
-(chauffage solaire) depuis Home Assistant. Je l'ai écrite pour ma propre installation
-et je l'ai gardée générique. Les zones, leurs libellés et leurs bornes se lisent sur la
-carte : rien de ma maison n'est écrit dans le code.
+Une intégration Home Assistant pour suivre et piloter un régulateur de chauffage solaire
+SolisArt. Je l'ai écrite pour mon propre système en gardant une approche générique : les
+zones, les libellés et les limites sont lus directement depuis le régulateur. Rien de
+spécifique à ma maison n'est codé en dur.
 
 ## Avertissement
 
@@ -16,132 +16,142 @@ aucune responsabilité en cas de mauvais usage, de réglage inadapté, de dommag
 l'installation, de surcoût d'énergie ou de toute autre conséquence de son utilisation.
 La licence MIT dit la même chose.
 
-## Ce qu'elle lit
+## Ce que ça lit
 
-La carte publie `/XML/status.xml` sur son interface web. Chaque valeur de cette page
-devient une entité :
+Le régulateur publie un fichier `/XML/status.xml` sur son interface web. Chaque valeur
+reconnue devient une entité dans Home Assistant :
 
-- sondes de température `T1` à `T16` (°C). Une sonde que la carte signale débranchée
-  (`Dsc`) est créée désactivée, et devient indisponible si elle se débranche plus tard ;
-- circulateurs `TRIAC1` à `TRIAC13` et les deux vannes trois voies, en % ;
-- débitmètres `FL1` à `FL5`, en L/min ;
-- relais (`MREL1`, `SREL1`...), marche ou arrêt.
+- Les sondes de température (`T1` à `T16`) en °C. Une sonde déclarée déconnectée (`Dsc`)
+  est créée désactivée, et passe à l'état indisponible si elle se déconnecte en cours de
+  route.
+- Les circulateurs (`TRIAC1` à `TRIAC13`) et les deux vannes trois voies, en %.
+- Les débitmètres (`FL1` à `FL5`), en L/min.
+- Les relais (`MREL1`, `SREL1`...), en marche ou à l'arrêt.
 
-Les entités portent le nom des balises de la carte. Ce que mesure chaque sonde dépend du
-montage de votre installation : la page Visualisation de la carte l'indique. Renommez-les
-dans Home Assistant une fois que vous le savez.
+Les entités prennent le nom des balises du régulateur. Le rôle de chaque sonde dépend de
+votre installation (visible sur la page Visualisation du régulateur). Vous pourrez les
+renommer facilement dans Home Assistant.
 
-L'intégration lit aussi `/param.htm` (la page Utilisateur) toutes les 5 minutes : zones,
-libellés, modes, consignes, ainsi que les versions de la carte et de son interface web.
+L'intégration lit aussi la page Utilisateur (`/param.htm`) toutes les 5 minutes pour
+récupérer les zones, leurs libellés, leurs modes, leurs consignes, ainsi que les versions
+du régulateur et de l'interface web.
 
-## Ce qu'elle règle
+## Ce que ça pilote
 
-Pour chaque zone présente sur la carte (zones de chauffage et eau chaude), l'intégration
-ajoute :
+Pour chaque zone gérée par le régulateur (chauffage et eau chaude sanitaire),
+l'intégration ajoute :
 
-- le choix du mode : arrêt, soleil seul, ou soleil et appoint ;
-- les consignes de confort et de réduit, en °C. Leurs bornes viennent de la page de la
-  carte. Elles sont indisponibles tant que la zone est à l'arrêt, car la carte les
-  verrouille alors ;
-- le planning confort/réduit, une entité texte par jour (par exemple « Planning RDC
-  lundi »). Elle liste les plages de confort, comme `06:00-08:30, 18:00-22:00`, et le
-  reste de la journée est en réduit. Une valeur vide veut dire réduit toute la journée.
-  Les heures vont à la demi-heure, et `6-8:30` ou `18h-22h` conviennent aussi. Ces
-  entités sont rangées dans la partie Configuration de l'appareil.
+- Un sélecteur de mode : Arrêt, Soleil seul, ou Soleil et appoint.
+- Les consignes de confort et de réduit (en °C). Leurs limites proviennent directement du
+  régulateur. Elles s'affichent comme indisponibles quand la zone est à l'arrêt, car le
+  régulateur les verrouille alors.
+- Le planning horaire (confort/réduit), sous forme d'une entité texte par jour (par
+  exemple « Planning Rez-de-chaussée lundi »). On y indique les plages de confort comme
+  `06:00-08:30, 18:00-22:00`, le reste de la journée étant en réduit. Une valeur vide
+  signifie « réduit toute la journée ». Les heures vont à la demi-heure, et `6-8:30` ou
+  `18h-22h` conviennent aussi. Ces entités sont rangées dans la partie Configuration de
+  l'appareil.
 
-L'action `solisart.copier_planning` copie un jour de planning sur d'autres jours ou
-d'autres zones en un seul envoi, par exemple le lundi sur le reste de la semaine.
+Les entités prennent les libellés des zones saisis sur le régulateur (par exemple « Mode
+Rez-de-chaussée »).
 
-Les entités prennent les libellés des zones saisis sur la carte (par exemple « Mode
-RDC »).
+L'action `solisart.copier_planning` permet de copier un planning d'un jour sur d'autres
+jours ou d'autres zones en une seule fois (par exemple, du lundi pour tout le reste de la
+semaine).
 
-Pour changer une valeur, l'intégration fait comme votre navigateur sur la page
-Utilisateur. Elle lit `param.htm`, renvoie le formulaire complet avec la nouvelle valeur,
-puis relit la page pour vérifier que la carte l'a gardée. Si la valeur n'a pas été prise,
-Home Assistant affiche une erreur. Les changements faits à moins de 1,5 s d'intervalle
-partent ensemble en un seul envoi : cinq clics sur les flèches d'une consigne n'envoient
-que la dernière valeur.
+Pour modifier une valeur, l'intégration se comporte comme votre navigateur : elle lit
+`param.htm`, renvoie le formulaire complet avec la nouvelle valeur, puis relit la page
+pour s'assurer que le régulateur l'a bien enregistrée. Si la modification échoue, Home
+Assistant affiche une erreur.
+
+Les modifications espacées de moins de 1,5 seconde sont regroupées en une seule requête :
+si vous cliquez cinq fois d'affilée sur les flèches d'une consigne, seule la dernière
+valeur est envoyée.
 
 ## Prérequis
 
-- Une carte SolisArt joignable sur le réseau local, avec son interface web. Je l'ai
-  essayée avec le logiciel de carte `SRB_32MX_vD.50-5` et l'interface web `WEB_vA.98`.
-- L'identifiant de la page Utilisateur de la carte.
-- Home Assistant 2026.10. Je n'ai pas essayé les versions plus anciennes.
+- Un régulateur SolisArt accessible sur votre réseau local (testé avec le logiciel
+  `SRB_32MX_vD.50-5` et l'interface web `WEB_vA.98`).
+- Les identifiants de la page Utilisateur de votre régulateur.
+- Home Assistant 2026.10 ou plus récent. HACS refuse les versions plus anciennes.
 
 ## Installation
 
-### Avec HACS
+### Via HACS (recommandé)
 
 HACS doit déjà être installé dans votre Home Assistant.
 
-1. Dans Home Assistant, ouvrez HACS dans la barre latérale.
-2. Ouvrez le menu aux trois points en haut à droite et choisissez Dépôts personnalisés.
-3. Collez `https://github.com/Bagu/solisart`, choisissez le type Intégration, puis
-   cliquez sur Ajouter.
-4. Cherchez SolisArt dans HACS, ouvrez-le et cliquez sur Télécharger.
+1. Ouvrez HACS dans la barre latérale de Home Assistant.
+2. Cliquez sur les trois points en haut à droite, puis sur Dépôts personnalisés.
+3. Collez l'adresse `https://github.com/Bagu/solisart`, sélectionnez le type Intégration,
+   puis cliquez sur Ajouter.
+4. Recherchez SolisArt dans HACS et téléchargez-la.
 5. Redémarrez Home Assistant.
 
 Ce bouton ouvre directement le dépôt dans votre HACS :
 
 [![Ouvrir le dépôt SolisArt dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Bagu&repository=solisart&category=integration)
 
-### À la main
+### Installation manuelle
 
-Copiez `custom_components/solisart` dans le dossier `custom_components` de votre
-configuration Home Assistant, puis redémarrez.
+Copiez le dossier `custom_components/solisart` dans le répertoire `custom_components` de
+votre configuration Home Assistant, puis redémarrez.
 
-### Ajouter la carte
+### Configuration
 
-Ensuite : Paramètres, Appareils et services, Ajouter une intégration, SolisArt. Saisissez
-l'adresse de la carte (par exemple `192.168.1.20`) et l'identifiant de son interface web.
+Dans Home Assistant, allez dans Paramètres > Appareils et services > Ajouter une
+intégration, cherchez SolisArt et entrez l'adresse IP du régulateur (par exemple
+`192.168.1.20`) ainsi que vos identifiants.
 
-Options : rythme de lecture de `status.xml` (30 s par défaut) et de `param.htm` (300 s
-par défaut). La carte met près d'une seconde à produire `param.htm` : je ne la lirais
-pas beaucoup plus souvent.
+Dans les options, vous pouvez régler le rythme de lecture de `status.xml` (30 s par
+défaut) et de `param.htm` (300 s par défaut). Le régulateur met près d'une seconde à
+produire `param.htm` : je ne la lirais pas beaucoup plus souvent.
 
-## Avant de vous y fier
+## À savoir avant de l'utiliser
 
-- SolisArt ne publie pas d'interface de programmation. L'intégration lit les mêmes pages
-  que votre navigateur. Une mise à jour du logiciel de la carte peut les changer et la
-  casser.
-- Un seul outil doit modifier les réglages de la carte. Si deux outils écrivent sur
+- Pas d'API officielle : SolisArt ne propose pas d'API. Cette intégration lit et écrit
+  sur les pages de l'interface web. Une mise à jour logicielle du régulateur peut casser
+  son fonctionnement.
+- Un seul pilote : un seul outil doit modifier les réglages du régulateur. Chaque
+  modification renvoie tout le formulaire de la page Utilisateur, avec les autres
+  réglages tels que l'intégration vient de les lire. Si un autre outil écrit aussi sur
   `param.htm`, chacun écrase ce que l'autre vient de régler.
-- Chaque changement renvoie tout le formulaire de la page Utilisateur. Les autres
-  réglages de cette page repartent tels que l'intégration vient de les lire.
-- L'intégration donne à Home Assistant l'accès à la carte, rien de plus. Décider quand
-  chauffer avec le surplus solaire ou en heures creuses revient à vos automatisations.
+- Gestion externe : l'intégration donne accès au matériel depuis Home Assistant, mais
+  c'est à vous de créer vos automatisations (par exemple pour chauffer en heures creuses
+  ou profiter du surplus solaire).
 
-## Développement
+## Développement et tests
 
 ```
 python -m unittest discover tests
 .venv/Scripts/python -m pytest
 ```
 
-La première commande vérifie la lecture des pages, sur de vraies pages enregistrées
-depuis une carte et anonymisées. La seconde fait tourner l'intégration dans un Home
-Assistant de test ; elle demande `pytest-homeassistant-custom-component` dans un
-environnement virtuel. Sous Windows, la précéder de `PYTHONPATH=tests/ha/windows` : ce
-dossier contient des remplaçants vides de deux modules propres à Unix que Home Assistant
-importe.
+Le premier jeu de tests vérifie la lecture des pages à partir de fichiers de référence
+enregistrés sur un vrai régulateur et anonymisés. Le second lance l'intégration au sein
+d'un environnement de test Home Assistant (nécessite
+`pytest-homeassistant-custom-component` dans un environnement virtuel). Sous Windows,
+précédez-le de `PYTHONPATH=tests/ha/windows` : ce dossier contient des remplaçants vides
+de deux modules propres à Unix que Home Assistant importe.
 
 `outils/contre_epreuve.py` et `outils/contre_epreuve_ha.py` cassent le code exprès, un
 défaut à la fois, et vérifient que les tests attrapent chacun d'eux. Le premier prend le
 Python de `.venv` s'il existe, car les tests du client demandent aiohttp.
 
-`tests/fixtures/corps_reference.json` garde les corps du formulaire qu'un script déjà
-éprouvé sur une vraie carte construit à partir de la page de test et de ses variantes.
-Les tests vérifient que l'intégration produit les mêmes octets.
+`tests/fixtures/corps_reference.json` conserve les corps du formulaire qu'un script déjà
+éprouvé sur un vrai régulateur construit à partir de la page de test et de ses variantes.
+Les tests vérifient que l'intégration produit exactement les mêmes octets.
 `outils/parite_reference.py` refait ce fichier.
 
-`outils/anonymiser.py` transforme une page `param.htm` enregistrée depuis votre carte en
-page de test. Il masque le nom de l'installation et les identifiants. Il refuse d'écrire
-le fichier s'il y reste une adresse IP, une adresse MAC ou un courriel.
+`outils/anonymiser.py` transforme une page `param.htm` enregistrée depuis votre
+régulateur en page de test. Il masque le nom de l'installation et les identifiants. Il
+refuse d'écrire le fichier s'il y reste une adresse IP, une adresse MAC ou un courriel.
 
 ## Licence
 
-Le code est sous licence MIT (voir [LICENSE](LICENSE) et [NOTICE](NOTICE)). Le nom
-et le logo SolisArt, y compris les images de `custom_components/solisart/brand`,
-appartiennent à SolisArt. La licence ne les couvre pas : ils servent seulement à
-reconnaître la carte dans Home Assistant.
+Ce projet est sous licence MIT (voir [LICENSE](LICENSE) et [NOTICE](NOTICE)).
+
+Note concernant la marque : le nom et le logo SolisArt (ainsi que les images du dossier
+`custom_components/solisart/brand`) appartiennent à la société SolisArt. La licence ne
+les couvre pas : ils sont uniquement présents pour vous permettre de reconnaître
+facilement le matériel dans Home Assistant.

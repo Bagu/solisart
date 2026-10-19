@@ -16,8 +16,8 @@ using it. The MIT license says the same.
 
 ## What it reads
 
-The controller publishes `/XML/status.xml` on its web interface. Every value in it
-becomes an entity:
+The controller publishes `/XML/status.xml` on its web interface. Every value in it that
+the integration recognises becomes an entity:
 
 - temperature probes `T1` to `T16` (°C). A probe the controller reports as disconnected
   (`Dsc`) is created disabled, and shows as unavailable if it disconnects later;
@@ -45,11 +45,11 @@ For each zone the controller has (heating zones and hot water), the integration 
   hours, and `6-8:30` or `18h-22h` work too. These entities sit in the Configuration
   section of the device.
 
-The `solisart.copier_planning` action copies one schedule day to other days or zones in a
-single write, for example Monday to the rest of the week.
-
 The entities take the zone labels set on the controller (for example "Mode Ground
 floor").
+
+The `solisart.copier_planning` action copies one schedule day to other days or zones in a
+single write, for example Monday to the rest of the week.
 
 To change a value, the integration does what your browser does on the User page. It reads
 `param.htm`, sends the whole form back with the new value, then reads the page again to
@@ -62,7 +62,7 @@ arrows of a setpoint five times sends only the last value.
 - A SolisArt controller reachable on your local network, with its web interface.
   Tested with controller software `SRB_32MX_vD.50-5` and web interface `WEB_vA.98`.
 - The login of the controller's User page.
-- Home Assistant 2026.10. Older versions have not been tested.
+- Home Assistant 2026.10 or later. HACS refuses older versions.
 
 ## Installation
 
