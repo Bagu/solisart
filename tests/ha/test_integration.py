@@ -13,6 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
+from homeassistant.loader import async_get_custom_components
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.components.diagnostics import (
     get_diagnostics_for_config_entry,
@@ -293,3 +294,11 @@ async def test_lot_annule_au_dechargement(hass, aioclient_mock):
     with pytest.raises(HomeAssistantError, match="annulée"):
         await asyncio.wait_for(appel, 5)
     assert recus == []
+
+
+async def test_logo_fourni(hass):
+    integration = (await async_get_custom_components(hass))[DOMAIN]
+    assert integration.has_branding
+    dossier = Path(integration.file_path) / "brand"
+    for nom in ("icon.png", "icon@2x.png", "logo.png", "logo@2x.png", "dark_logo.png", "dark_logo@2x.png"):
+        assert (dossier / nom).read_bytes()[:8] == b"\x89PNG\r\n\x1a\n", nom

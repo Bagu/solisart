@@ -6,7 +6,7 @@ A custom integration that reads and adjusts a SolisArt solar heating controller 
 Home Assistant. I wrote it for my own SolisArt system, and kept it generic: zones, labels
 and limits are read from the controller, nothing about my house is hard-coded.
 
-This project is not affiliated with SolisArt.
+This project is not affiliated with SolisArt. The logo shown in Home Assistant is theirs.
 
 ## What it reads
 

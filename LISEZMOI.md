@@ -7,7 +7,8 @@ Une intégration personnalisée qui lit et règle une carte de régulation Solis
 et je l'ai gardée générique. Les zones, leurs libellés et leurs bornes se lisent sur la
 carte : rien de ma maison n'est écrit dans le code.
 
-Ce projet n'a aucun lien avec la société SolisArt.
+Ce projet n'a aucun lien avec la société SolisArt. Le logo affiché dans Home Assistant
+est le sien.
 
 ## Ce qu'elle lit
 
