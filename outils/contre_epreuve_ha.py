@@ -35,7 +35,9 @@ SABOTAGES = [
 
 
 def tests_passent() -> bool:
-    env = dict(os.environ, PYTHONPATH=os.path.join(RACINE, "tests", "ha", "windows"))
+    env = dict(os.environ)
+    if sys.platform == "win32":
+        env["PYTHONPATH"] = os.path.join(RACINE, "tests", "ha", "windows")
     r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-x", "-p", "no:cacheprovider"],
                        cwd=RACINE, capture_output=True, env=env)
     return r.returncode == 0
