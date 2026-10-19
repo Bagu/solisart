@@ -52,11 +52,26 @@ arrows of a setpoint five times sends only the last value.
 
 ## Installation
 
-With HACS: add this repository as a custom repository (type Integration), install
-"SolisArt", then restart Home Assistant.
+### With HACS
 
-By hand: copy `custom_components/solisart` into the `custom_components` folder of your
-Home Assistant configuration, then restart.
+HACS must already be installed in your Home Assistant.
+
+1. In Home Assistant, open HACS from the sidebar.
+2. Open the menu with the three dots at the top right and choose Custom repositories.
+3. Paste `https://github.com/Bagu/solisart`, pick the type Integration, then click Add.
+4. Search for SolisArt in HACS, open it and click Download.
+5. Restart Home Assistant.
+
+This button opens the repository straight in your HACS:
+
+[![Open the SolisArt repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Bagu&repository=solisart&category=integration)
+
+### By hand
+
+Copy `custom_components/solisart` into the `custom_components` folder of your Home
+Assistant configuration, then restart.
+
+### Adding the controller
 
 Then go to Settings, Devices & services, Add integration, SolisArt, and enter the
 controller's address (for example `192.168.1.20`) and the login of its web interface.
@@ -101,3 +116,10 @@ integration builds the same bytes. `outils/parite_reference.py` rebuilds that fi
 `outils/anonymiser.py` turns a `param.htm` saved from your controller into a test page.
 It masks the installation name and the logins. It refuses to write the file if an IP
 address, a MAC address or an email address is left in it.
+
+## License
+
+The code is under the MIT license (see [LICENSE](LICENSE)). The SolisArt name and logo,
+including the images in `custom_components/solisart/brand`, belong to SolisArt. The
+license does not cover them: they are only there so you recognise the controller in
+Home Assistant.

@@ -57,11 +57,27 @@ que la dernière valeur.
 
 ## Installation
 
-Avec HACS : ajoutez ce dépôt comme dépôt personnalisé (type Intégration), installez
-« SolisArt », puis redémarrez Home Assistant.
+### Avec HACS
 
-À la main : copiez `custom_components/solisart` dans le dossier `custom_components` de
-votre configuration Home Assistant, puis redémarrez.
+HACS doit déjà être installé dans votre Home Assistant.
+
+1. Dans Home Assistant, ouvrez HACS dans la barre latérale.
+2. Ouvrez le menu aux trois points en haut à droite et choisissez Dépôts personnalisés.
+3. Collez `https://github.com/Bagu/solisart`, choisissez le type Intégration, puis
+   cliquez sur Ajouter.
+4. Cherchez SolisArt dans HACS, ouvrez-le et cliquez sur Télécharger.
+5. Redémarrez Home Assistant.
+
+Ce bouton ouvre directement le dépôt dans votre HACS :
+
+[![Ouvrir le dépôt SolisArt dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Bagu&repository=solisart&category=integration)
+
+### À la main
+
+Copiez `custom_components/solisart` dans le dossier `custom_components` de votre
+configuration Home Assistant, puis redémarrez.
+
+### Ajouter la carte
 
 Ensuite : Paramètres, Appareils et services, Ajouter une intégration, SolisArt. Saisissez
 l'adresse de la carte (par exemple `192.168.1.20`) et l'identifiant de son interface web.
@@ -108,3 +124,10 @@ Les tests vérifient que l'intégration produit les mêmes octets.
 `outils/anonymiser.py` transforme une page `param.htm` enregistrée depuis votre carte en
 page de test. Il masque le nom de l'installation et les identifiants. Il refuse d'écrire
 le fichier s'il y reste une adresse IP, une adresse MAC ou un courriel.
+
+## Licence
+
+Le code est sous licence MIT (voir [LICENSE](LICENSE)). Le nom et le logo SolisArt, y
+compris les images de `custom_components/solisart/brand`, appartiennent à SolisArt. La
+licence ne les couvre pas : ils servent seulement à reconnaître la carte dans Home
+Assistant.
