@@ -35,13 +35,15 @@
   "options": {
     "step": {
       "init": {
-        "title": "Rythme de lecture",
+        "title": "Lecture et écriture",
         "data": {
           "intervalle_etat": "Mesures (status.xml), en secondes",
-          "intervalle_reglages": "Réglages (param.htm), en secondes"
+          "intervalle_reglages": "Réglages (param.htm), en secondes",
+          "ecriture_version_non_testee": "Autoriser les modifications sur une version non testée"
         },
         "data_description": {
-          "intervalle_reglages": "Cette page coûte près d'une seconde à la carte : ne pas la lire trop souvent."
+          "intervalle_reglages": "Cette page coûte près d'une seconde à la carte : ne pas la lire trop souvent.",
+          "ecriture_version_non_testee": "L'intégration ne modifie les réglages que sur les versions du logiciel de la carte et de son interface web inscrites dans sa liste des versions testées. Chaque modification renvoie tout le formulaire de la page Utilisateur : sur une autre version, elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive. Ne cochez cette case que si vous acceptez ce risque."
         }
       }
     }
@@ -157,6 +159,17 @@
           "description": "Entités planning qui reçoivent les mêmes plages de confort."
         }
       }
+    }
+  },
+  "exceptions": {
+    "version_non_testee": {
+      "message": "Modification refusée : la carte utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}). L'option « Autoriser les modifications sur une version non testée » lève ce blocage."
+    }
+  },
+  "issues": {
+    "version_non_testee": {
+      "title": "SolisArt : version de la carte non testée",
+      "description": "La carte {carte} utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}).\n\nLa lecture continue normalement, mais les modes, les consignes et les programmes ne peuvent plus être modifiés depuis Home Assistant. Chaque modification renvoie tout le formulaire de la page Utilisateur, et sur cette version elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive.\n\nSi tout vous semble correct, ouvrez un ticket avec ces deux versions pour qu'elles soient ajoutées à la liste. Vous pouvez aussi autoriser les modifications dans les options de l'intégration, à vos risques."
     }
   }
 }

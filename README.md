@@ -92,7 +92,8 @@ controller's address (for example `192.168.1.20`) and the login of its web inter
 
 Options: how often `status.xml` is read (30 s by default) and how often `param.htm` is
 read (300 s by default). The controller takes almost a second to build `param.htm`, so I
-would not read it much more often.
+would not read it much more often. The last option allows changes on an untested
+controller version (see below). It is off by default.
 
 ## Before you rely on it
 
@@ -102,6 +103,12 @@ would not read it much more often.
   `param.htm`, each one overwrites what the other just set.
 - Every change sends back the whole User page form. The other settings on that page are
   sent as they were read a moment before.
+- Tested versions: the integration only changes settings on controller software
+  `SRB_32MX_vD.50-5` with web interface `WEB_vA.98`. On any other version, reading goes
+  on, but every change is refused, and Home Assistant shows a message in Settings, System,
+  Repairs with the versions it found. If everything works on your side, open an issue
+  with those versions and I'll add them to the list. You can also allow changes on an
+  untested version in the options, at your own risk.
 - The integration gives Home Assistant access to the controller and nothing more.
   Deciding when to heat with the solar surplus or during off-peak hours belongs in your
   own automations.

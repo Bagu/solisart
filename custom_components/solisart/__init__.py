@@ -11,13 +11,14 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
 from .analyse import texte_planning
 from .api import SolisartClient
 from .const import DOMAIN
-from .coordinator import SolisartConfigEntry, SolisartCoordinator
+from .coordinator import SolisartConfigEntry, SolisartCoordinator, identifiant_probleme
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.TEXT]
 
@@ -84,6 +85,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> 
 
 async def async_unload_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> bool:
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> None:
+    """Retire de Réparations le problème de version laissé par l'entrée supprimée."""
+    ir.async_delete_issue(hass, DOMAIN, identifiant_probleme(entry.entry_id))
 
 
 async def _options_modifiees(hass: HomeAssistant, entry: SolisartConfigEntry) -> None:

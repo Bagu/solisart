@@ -3,6 +3,7 @@
     .venv/Scripts/python -m pytest
 """
 import asyncio
+import json
 from pathlib import Path
 
 import aiohttp
@@ -13,6 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.loader import async_get_custom_components
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.components.diagnostics import (
@@ -20,7 +22,13 @@ from pytest_homeassistant_custom_component.components.diagnostics import (
 )
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMockResponse
 
-from custom_components.solisart.const import CONF_INTERVALLE_ETAT, CONF_INTERVALLE_REGLAGES, DOMAIN
+from custom_components.solisart.const import (
+    CONF_ECRITURE_VERSION_NON_TESTEE,
+    CONF_INTERVALLE_ETAT,
+    CONF_INTERVALLE_REGLAGES,
+    DOMAIN,
+    URL_TICKETS,
+)
 from tests.carte_simulee import appliquer
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
@@ -37,10 +45,21 @@ def carte(aioclient_mock, status=200, param=200, param_corps=None, exc=None):
     aioclient_mock.get(PARAM, status=param, content=param_corps or (FIXTURES / "param_reel.htm").read_bytes())
 
 
-def carte_reglable(aioclient_mock, sourde=False):
+VERSIONS_REELLES = b"XXXX - SRB_32MX_vD.50-5 - WEB_vA.98"
+
+
+def page_version(versions):
+    """Page réelle dont la ligne des versions est remplacée par `versions` (octets)."""
+    page = (FIXTURES / "param_reel.htm").read_bytes()
+    assert page.count(VERSIONS_REELLES) == 1
+    return page.replace(VERSIONS_REELLES, versions)
+
+
+def carte_reglable(aioclient_mock, sourde=False, versions=VERSIONS_REELLES):
     """Simule une carte qui enregistre les POST de param.htm (sauf si `sourde`) et
-    répond 302. Rend la liste des corps reçus."""
-    page = [(FIXTURES / "param_reel.htm").read_bytes()]
+    répond 302. `versions` remplace la ligne des versions de la page. Rend la liste
+    des corps reçus."""
+    page = [page_version(versions)]
     recus = []
 
     async def lire(method, url, data):
@@ -59,11 +78,12 @@ def carte_reglable(aioclient_mock, sourde=False):
     return recus
 
 
-async def installer(hass, aioclient_mock, reglable=False, **carte_kw):
+async def installer(hass, aioclient_mock, reglable=False, options=None, **carte_kw):
     """Ajoute une entrée déjà configurée et la démarre."""
     if not reglable:
         carte(aioclient_mock, **carte_kw)
-    entree = MockConfigEntry(domain=DOMAIN, data=DONNEES, unique_id=f"http://{HOTE}")
+    entree = MockConfigEntry(domain=DOMAIN, data=DONNEES, unique_id=f"http://{HOTE}",
+                             options=options or {})
     entree.add_to_hass(hass)
     await hass.config_entries.async_setup(entree.entry_id)
     await hass.async_block_till_done()
@@ -356,3 +376,114 @@ async def test_copier_planning_vers_autre_entite(hass, aioclient_mock):
                                         "cibles": [entite(hass, entree, "U09_0")]},
                                        blocking=True)
     assert recus == []
+
+
+VERSION_INCONNUE = b"XXXX - SRB_32MX_vD.51-0 - WEB_vA.99"
+
+
+def probleme_version(hass, entree):
+    """Problème « version non testée » de l'entrée dans Réparations, ou None."""
+    return ir.async_get(hass).async_get_issue(DOMAIN, f"version_non_testee_{entree.entry_id}")
+
+
+async def _toutes_les_ecritures(hass, entree):
+    """Tente chaque sorte d'écriture et rend les erreurs levées."""
+    appels = [
+        ("select", "select_option", {"entity_id": entite(hass, entree, "U06_0"), "option": "soleil"}),
+        ("number", "set_value", {"entity_id": entite(hass, entree, "U09_6"), "value": 55}),
+        ("text", "set_value", {"entity_id": entite(hass, entree, "planning_1_2"), "value": "06:00-08:00"}),
+        (DOMAIN, "copier_planning", {"source": entite(hass, entree, "planning_6_0"),
+                                     "cibles": [entite(hass, entree, "planning_6_1")]}),
+    ]
+    erreurs = []
+    for domaine, service, donnees in appels:
+        with pytest.raises(HomeAssistantError) as err:
+            await hass.services.async_call(domaine, service, donnees, blocking=True)
+        erreurs.append(err.value)
+    return erreurs
+
+
+async def test_version_testee_sans_probleme(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    assert probleme_version(hass, entree) is None
+
+
+async def test_version_non_testee_ecriture_refusee(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    assert hass.states.get(entite(hass, entree, "t1")).state == "53.4"
+    erreurs = await _toutes_les_ecritures(hass, entree)
+    assert [e.translation_key for e in erreurs] == ["version_non_testee"] * 4
+    assert erreurs[0].translation_placeholders["version_web"] == "WEB_vA.99"
+    assert recus == [] and _postes(aioclient_mock) == []
+    probleme = probleme_version(hass, entree)
+    assert probleme is not None and probleme.translation_key == "version_non_testee"
+    assert probleme.translation_placeholders["version_carte"] == "SRB_32MX_vD.51-0"
+    assert probleme.translation_placeholders["versions_testees"] == "SRB_32MX_vD.50-5 / WEB_vA.98"
+    assert probleme.learn_more_url == URL_TICKETS
+
+
+async def test_version_illisible_ecriture_refusee(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock, versions=b"XXXX")
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    erreurs = await _toutes_les_ecritures(hass, entree)
+    assert erreurs[0].translation_placeholders["version_carte"] == "?"
+    assert recus == []
+    assert probleme_version(hass, entree).translation_placeholders["version_web"] == "?"
+
+
+async def test_option_autorise_ecriture(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
+    entree = await installer(hass, aioclient_mock, reglable=True,
+                             options={CONF_ECRITURE_VERSION_NON_TESTEE: True})
+    await hass.services.async_call("number", "set_value",
+                                   {"entity_id": entite(hass, entree, "U09_6"), "value": 55},
+                                   blocking=True)
+    assert len(recus) == 1
+    assert probleme_version(hass, entree) is None
+
+
+async def test_probleme_retire_quand_la_version_devient_testee(hass, aioclient_mock):
+    carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    assert probleme_version(hass, entree) is not None
+    carte_reglable(aioclient_mock)
+    entree.runtime_data.relire_reglages()
+    await entree.runtime_data.async_refresh()
+    assert probleme_version(hass, entree) is None
+
+
+async def test_version_changee_juste_avant_l_ecriture(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    recus = carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
+    for domaine, champ, valeur in (("number", "U09_6", 55), ("text", "planning_1_2", "06:00-08:00")):
+        with pytest.raises(HomeAssistantError) as err:
+            await hass.services.async_call(domaine, "set_value",
+                                           {"entity_id": entite(hass, entree, champ), "value": valeur},
+                                           blocking=True)
+        assert err.value.translation_key == "version_non_testee", domaine
+    assert recus == []
+
+
+async def test_probleme_retire_avec_l_entree(hass, aioclient_mock):
+    carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    assert probleme_version(hass, entree) is not None
+    await hass.config_entries.async_remove(entree.entry_id)
+    await hass.async_block_till_done()
+    assert probleme_version(hass, entree) is None
+
+
+async def test_option_proposee_desactivee(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    resultat = await hass.config_entries.options.async_init(entree.entry_id)
+    schema = resultat["data_schema"].schema
+    cle = next(c for c in schema if c == CONF_ECRITURE_VERSION_NON_TESTEE)
+    assert cle.default() is False
+
+
+def test_url_des_tickets_comme_le_manifeste():
+    manifeste = json.loads((Path(__file__).parents[2] / "custom_components" / "solisart" / "manifest.json").read_text())
+    assert URL_TICKETS == manifeste["issue_tracker"]

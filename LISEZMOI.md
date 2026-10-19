@@ -105,7 +105,9 @@ intégration, cherchez SolisArt et entrez l'adresse IP du régulateur (par exemp
 
 Dans les options, vous pouvez régler le rythme de lecture de `status.xml` (30 s par
 défaut) et de `param.htm` (300 s par défaut). Le régulateur met près d'une seconde à
-produire `param.htm` : je ne la lirais pas beaucoup plus souvent.
+produire `param.htm` : je ne la lirais pas beaucoup plus souvent. La dernière option
+autorise les modifications sur une version du régulateur non testée (voir plus bas).
+Par défaut, elle reste désactivée.
 
 ## À savoir avant de l'utiliser
 
@@ -116,6 +118,13 @@ produire `param.htm` : je ne la lirais pas beaucoup plus souvent.
   modification renvoie tout le formulaire de la page Utilisateur, avec les autres
   réglages tels que l'intégration vient de les lire. Si un autre outil écrit aussi sur
   `param.htm`, chacun écrase ce que l'autre vient de régler.
+- Versions testées : l'intégration ne modifie les réglages qu'avec le logiciel
+  `SRB_32MX_vD.50-5` et l'interface web `WEB_vA.98`. Sur une autre version, la lecture
+  continue, mais toute modification est refusée, et Home Assistant affiche un message
+  dans Paramètres, Système, Réparations avec les versions trouvées. Si tout fonctionne
+  chez vous, ouvrez un ticket avec ces versions pour que je les ajoute à la liste. Les
+  options permettent aussi d'autoriser les modifications sur une version non testée, à
+  vos risques.
 - Gestion externe : l'intégration donne accès au matériel depuis Home Assistant, mais
   c'est à vous de créer vos automatisations (par exemple pour chauffer en heures creuses
   ou profiter du surplus solaire).

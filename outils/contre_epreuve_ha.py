@@ -31,6 +31,15 @@ SABOTAGES = [
     ("valeur la plus ancienne gardée", "coordinator.py", "self._en_attente.update(demandes)", "self._en_attente = {**demandes, **self._en_attente}"),
     ("lot laissé en suspens au déchargement", "coordinator.py", '            self._lot.set_exception(HomeAssistantError("écriture SolisArt annulée : intégration arrêtée"))\n', "            pass\n"),
     ("confort et réduit confondus", "number.py", 'return zone.confort if self._cle == "confort" else zone.reduit', "return zone.confort"),
+    ("version jamais contrôlée", "coordinator.py", "        if self._ecriture_forcee or version_testee(reglages):\n            return\n", "        return\n"),
+    ("version contrôlée seulement avant le regroupement", "coordinator.py", "self.client.ecrire_reglages(ecriture, self._controler_version)", "self.client.ecrire_reglages(ecriture)"),
+    ("planning non contrôlé sur la page fraîche", "coordinator.py", "self.client.ecrire_plannings(demandes, self._controler_version)", "self.client.ecrire_plannings(demandes)"),
+    ("problème jamais ouvert", "coordinator.py", "        ir.async_create_issue(\n", "        (lambda *a, **k: None)(\n"),
+    ("problème jamais retiré", "coordinator.py", "            ir.async_delete_issue(self.hass, DOMAIN, ident)\n", "            pass\n"),
+    ("option d'écriture ignorée", "coordinator.py", "entree.options.get(CONF_ECRITURE_VERSION_NON_TESTEE, False)", "False"),
+    ("problème laissé après suppression", "__init__.py", "    ir.async_delete_issue(hass, DOMAIN, identifiant_probleme(entry.entry_id))\n", "    pass\n"),
+    ("option activée par défaut", "config_flow.py", "default=options.get(CONF_ECRITURE_VERSION_NON_TESTEE, False)", "default=options.get(CONF_ECRITURE_VERSION_NON_TESTEE, True)"),
+    ("version éprouvée oubliée", "const.py", '    ("SRB_32MX_vD.50-5", "WEB_vA.98"),\n', '    ("SRB_32MX_vD.50-5", "WEB_vA.97"),\n'),
 ]
 
 

@@ -143,6 +143,23 @@ class ClientFaceALaCarte(unittest.TestCase):
                 self.appeler("ecrire_reglages", demande)
         self.assertNotIn("POST", FausseCarte.journal)
 
+    def test_controle_qui_refuse_rien_envoye(self):
+        vues = []
+
+        def refuser(reglages):
+            vues.append((reglages.version_carte, reglages.version_web))
+            raise RuntimeError("version refusée")
+
+        for methode, demande in (("ecrire_reglages", {"U09_6": 55}), ("ecrire_plannings", {(1, 2): "6:00-8:00"})):
+            with self.subTest(methode=methode), self.assertRaises(RuntimeError):
+                self.appeler(methode, demande, refuser)
+        self.assertEqual(vues, [("SRB_32MX_vD.50-5", "WEB_vA.98")] * 2)
+        self.assertNotIn("POST", FausseCarte.journal)
+
+    def test_controle_qui_accepte(self):
+        self.appeler("ecrire_reglages", {"U09_6": 55}, lambda reglages: None)
+        self.assertEqual(FausseCarte.journal, ["GET", "POST", "GET"])
+
     def test_planning_ecrit_puis_confirme(self):
         reglages = self.appeler("ecrire_plannings", {(1, 2): "6:00-8:30, 21h-24h", (6, 6): ""})
         self.assertEqual(FausseCarte.journal, ["GET", "POST", "GET"])

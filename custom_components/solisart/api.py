@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+from collections.abc import Callable
 
 import aiohttp
 
@@ -116,6 +117,15 @@ class SolisartClient:
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise CarteInjoignable(f"POST {PAGE_REGLAGES} : {err!r}") from err
 
+    async def _page_controlee(self, controle: Callable[[Reglages], None] | None) -> tuple[str, Reglages]:
+        """Lit param.htm avant une écriture et soumet ses réglages à `controle`, qui lève
+        une exception pour arrêter l'écriture avant tout envoi."""
+        page = await self._lire_page_reglages()
+        actuels = lire_reglages(page)
+        if controle is not None:
+            controle(actuels)
+        return page, actuels
+
     async def lire_etat(self) -> Etat:
         """Mesures de /XML/status.xml."""
         return lire_etat(await self._lire("/XML/status.xml", None))
@@ -124,18 +134,20 @@ class SolisartClient:
         """Zones, modes et consignes de /param.htm."""
         return lire_reglages(await self._lire_page_reglages())
 
-    async def ecrire_reglages(self, demandes: dict[str, str | float]) -> Reglages:
+    async def ecrire_reglages(self, demandes: dict[str, str | float],
+                              controle: Callable[[Reglages], None] | None = None) -> Reglages:
         """Écrit des modes (U06_x) et des consignes (U09_x, U10_x) et rend les réglages
         relus après l'écriture.
 
-        Lit param.htm, contrôle les demandes, renvoie le formulaire complet avec les
-        valeurs changées, puis relit la page pour confirmer chaque valeur. Lève
+        Lit param.htm, la soumet à `controle`, contrôle les demandes, renvoie le
+        formulaire complet avec les valeurs changées, puis relit la page pour confirmer
+        chaque valeur. Lève
         ReglageRefuse avant tout envoi si une demande est invalide ou vise un champ
         désactivé, EcritureNonConfirmee si la page relue ne montre pas les valeurs.
         """
         async with self._verrou:
-            page = await self._lire_page_reglages()
-            changements = preparer_changements(lire_reglages(page), demandes)
+            page, actuels = await self._page_controlee(controle)
+            changements = preparer_changements(actuels, demandes)
             corps = corps_formulaire(page, changements)
             refuses = champs_refuses(corps, changements)
             if refuses:
@@ -147,7 +159,8 @@ class SolisartClient:
                 raise EcritureNonConfirmee(restants)
             return lire_reglages(relue)
 
-    async def ecrire_plannings(self, demandes: dict[tuple[int, int], str]) -> Reglages:
+    async def ecrire_plannings(self, demandes: dict[tuple[int, int], str],
+                               controle: Callable[[Reglages], None] | None = None) -> Reglages:
         """Écrit les plannings demandés ((zone, jour) vers plages de confort en texte,
         par exemple « 06:00-08:00, 18:00-22:30 ») et rend les réglages relus.
 
@@ -156,8 +169,8 @@ class SolisartClient:
         une plage illisible, EcritureNonConfirmee si la page relue diffère.
         """
         async with self._verrou:
-            page = await self._lire_page_reglages()
-            presentes = {zone.index for zone in lire_reglages(page).zones}
+            page, actuels = await self._page_controlee(controle)
+            presentes = {zone.index for zone in actuels.zones}
             changements = {}
             for (zone, jour), texte in demandes.items():
                 if zone not in presentes or not 0 <= jour < JOURS:

@@ -5,6 +5,7 @@ DOMAIN = "solisart"
 
 CONF_INTERVALLE_ETAT = "intervalle_etat"
 CONF_INTERVALLE_REGLAGES = "intervalle_reglages"
+CONF_ECRITURE_VERSION_NON_TESTEE = "ecriture_version_non_testee"
 
 INTERVALLE_ETAT = 30
 INTERVALLE_REGLAGES = 300
@@ -15,6 +16,13 @@ DELAI_REQUETE = 15
 DELAI_REGROUPEMENT = 1.5
 
 FABRICANT = "SolisArt"
+URL_TICKETS = "https://github.com/Bagu/solisart/issues"
+
+# Couples (logiciel de la carte, interface web) sur lesquels l'écriture a été éprouvée.
+# Sur tout autre couple, l'écriture est refusée sauf option contraire de l'utilisateur.
+VERSIONS_TESTEES = (
+    ("SRB_32MX_vD.50-5", "WEB_vA.98"),
+)
 
 
 def intervalle(secondes: int) -> timedelta:

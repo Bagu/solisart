@@ -14,6 +14,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .analyse import PageInattendue
 from .api import AuthentificationRefusee, CarteInjoignable, SolisartClient, adresse_de_base
 from .const import (
+    CONF_ECRITURE_VERSION_NON_TESTEE,
     CONF_INTERVALLE_ETAT,
     CONF_INTERVALLE_REGLAGES,
     DOMAIN,
@@ -95,7 +96,8 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class SolisartOptionsFlow(OptionsFlow):
-    """Rythme de lecture des deux pages."""
+    """Rythme de lecture des deux pages, et autorisation d'écrire sur une version de la
+    carte non testée (désactivée par défaut)."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
@@ -108,5 +110,7 @@ class SolisartOptionsFlow(OptionsFlow):
             vol.Required(CONF_INTERVALLE_REGLAGES,
                          default=options.get(CONF_INTERVALLE_REGLAGES, INTERVALLE_REGLAGES)):
                 vol.All(vol.Coerce(int), vol.Range(min=INTERVALLE_REGLAGES_MIN)),
+            vol.Required(CONF_ECRITURE_VERSION_NON_TESTEE,
+                         default=options.get(CONF_ECRITURE_VERSION_NON_TESTEE, False)): bool,
         })
         return self.async_show_form(step_id="init", data_schema=schema)

@@ -35,13 +35,15 @@
   "options": {
     "step": {
       "init": {
-        "title": "Polling",
+        "title": "Reading and writing",
         "data": {
           "intervalle_etat": "Measurements (status.xml), in seconds",
-          "intervalle_reglages": "Settings (param.htm), in seconds"
+          "intervalle_reglages": "Settings (param.htm), in seconds",
+          "ecriture_version_non_testee": "Allow changes on an untested version"
         },
         "data_description": {
-          "intervalle_reglages": "This page takes the controller almost a second to build: do not read it too often."
+          "intervalle_reglages": "This page takes the controller almost a second to build: do not read it too often.",
+          "ecriture_version_non_testee": "The integration only changes settings on the controller software and web interface versions in its list of tested versions. Every change sends back the whole User page form, so on another version it could alter other settings without anyone noticing. Tick this only if you accept that risk."
         }
       }
     }
@@ -157,6 +159,17 @@
           "description": "Schedule entities that receive the same comfort periods."
         }
       }
+    }
+  },
+  "exceptions": {
+    "version_non_testee": {
+      "message": "Change refused: the controller runs {version_carte} with web interface {version_web}, a combination missing from the list of tested versions ({versions_testees}). The option \"Allow changes on an untested version\" lifts this block."
+    }
+  },
+  "issues": {
+    "version_non_testee": {
+      "title": "SolisArt: untested controller version",
+      "description": "The controller {carte} runs software {version_carte} with web interface {version_web}, a combination missing from the list of tested versions ({versions_testees}).\n\nReading goes on as usual, but modes, setpoints and schedules can no longer be changed from Home Assistant. Every change sends back the whole User page form, and on this version it could alter other settings without anyone noticing.\n\nIf everything looks right on your side, open an issue with these two versions so they can be added to the list. You can also allow changes in the integration options, at your own risk."
     }
   }
 }
