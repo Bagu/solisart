@@ -2,6 +2,7 @@
 
     .venv/Scripts/python -m pytest
 """
+import asyncio
 from pathlib import Path
 
 import aiohttp
@@ -65,6 +66,8 @@ async def installer(hass, aioclient_mock, reglable=False, **carte_kw):
     entree.add_to_hass(hass)
     await hass.config_entries.async_setup(entree.entry_id)
     await hass.async_block_till_done()
+    if entree.state is ConfigEntryState.LOADED:
+        entree.runtime_data.delai_regroupement = 0.01
     return entree
 
 
@@ -265,3 +268,28 @@ async def test_carte_qui_n_applique_rien(hass, aioclient_mock):
     await hass.async_block_till_done()
     assert len(recus) == 1
     assert hass.states.get(entite(hass, entree, "U06_6")).state == "soleil_appoint"
+
+
+async def test_demandes_rapprochees_regroupees(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    entree.runtime_data.delai_regroupement = 0.2
+    regler = lambda champ, valeur: hass.services.async_call(  # noqa: E731
+        "number", "set_value", {"entity_id": entite(hass, entree, champ), "value": valeur}, blocking=True)
+    await asyncio.gather(regler("U09_6", 52), regler("U09_6", 53), regler("U10_6", 40))
+    assert len(recus) == 1
+    assert b"U09_6=53.0&" in recus[0] and b"U10_6=40.0&" in recus[0]
+    assert hass.states.get(entite(hass, entree, "U09_6")).state == "53.0"
+
+
+async def test_lot_annule_au_dechargement(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    entree.runtime_data.delai_regroupement = 30
+    appel = hass.async_create_task(hass.services.async_call(
+        "number", "set_value", {"entity_id": entite(hass, entree, "U09_6"), "value": 52}, blocking=True))
+    await asyncio.sleep(0)
+    await hass.config_entries.async_unload(entree.entry_id)
+    with pytest.raises(HomeAssistantError, match="annulée"):
+        await asyncio.wait_for(appel, 5)
+    assert recus == []

@@ -43,7 +43,9 @@ RDC »).
 Pour changer une valeur, l'intégration fait comme votre navigateur sur la page
 Utilisateur. Elle lit `param.htm`, renvoie le formulaire complet avec la nouvelle valeur,
 puis relit la page pour vérifier que la carte l'a gardée. Si la valeur n'a pas été prise,
-Home Assistant affiche une erreur. Les changements partent un par un.
+Home Assistant affiche une erreur. Les changements faits à moins de 1,5 s d'intervalle
+partent ensemble en un seul envoi : cinq clics sur les flèches d'une consigne n'envoient
+que la dernière valeur.
 
 ## Prérequis
 

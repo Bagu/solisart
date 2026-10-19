@@ -25,6 +25,9 @@ SABOTAGES = [
     ("option liée au mauvais mode", "select.py", '"soleil": MODE_SOLEIL,', '"soleil": MODE_SOLEIL_APPOINT,'),
     ("consigne d'une zone arrêtée disponible", "number.py", "consigne is not None and consigne.actif", "consigne is not None"),
     ("bornes de la page ignorées", "number.py", "return consigne.maximum if consigne and consigne.maximum is not None else super().native_max_value", "return super().native_max_value"),
+    ("demandes d'un lot perdues", "coordinator.py", "self._en_attente.update(demandes)", "self._en_attente = dict(demandes)"),
+    ("valeur la plus ancienne gardée", "coordinator.py", "self._en_attente.update(demandes)", "self._en_attente = {**demandes, **self._en_attente}"),
+    ("lot laissé en suspens au déchargement", "coordinator.py", '            self._lot.set_exception(HomeAssistantError("écriture SolisArt annulée : intégration arrêtée"))\n', "            pass\n"),
     ("confort et réduit confondus", "number.py", 'return zone.confort if self._cle == "confort" else zone.reduit', "return zone.confort"),
 ]
 

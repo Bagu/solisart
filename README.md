@@ -40,7 +40,8 @@ floor").
 To change a value, the integration does what your browser does on the User page. It reads
 `param.htm`, sends the whole form back with the new value, then reads the page again to
 check the controller kept it. If the value did not stick, Home Assistant shows an error.
-Changes go out one at a time.
+Changes made less than 1.5 s apart go out together in one request, so clicking the
+arrows of a setpoint five times sends only the last value.
 
 ## Requirements
 
