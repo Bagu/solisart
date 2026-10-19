@@ -1,0 +1,6 @@
+The MIT license in LICENSE covers the code only.
+
+The SolisArt name and logo, including the images in custom_components/solisart/brand,
+belong to SolisArt. They are not covered by the MIT license and are used only to
+identify the controller this integration talks to. This project is not affiliated
+with SolisArt.

@@ -119,7 +119,7 @@ address, a MAC address or an email address is left in it.
 
 ## License
 
-The code is under the MIT license (see [LICENSE](LICENSE)). The SolisArt name and logo,
-including the images in `custom_components/solisart/brand`, belong to SolisArt. The
-license does not cover them: they are only there so you recognise the controller in
-Home Assistant.
+The code is under the MIT license (see [LICENSE](LICENSE) and [NOTICE](NOTICE)). The
+SolisArt name and logo, including the images in `custom_components/solisart/brand`,
+belong to SolisArt. The license does not cover them: they are only there so you
+recognise the controller in Home Assistant.

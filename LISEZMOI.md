@@ -127,7 +127,7 @@ le fichier s'il y reste une adresse IP, une adresse MAC ou un courriel.
 
 ## Licence
 
-Le code est sous licence MIT (voir [LICENSE](LICENSE)). Le nom et le logo SolisArt, y
-compris les images de `custom_components/solisart/brand`, appartiennent à SolisArt. La
-licence ne les couvre pas : ils servent seulement à reconnaître la carte dans Home
-Assistant.
+Le code est sous licence MIT (voir [LICENSE](LICENSE) et [NOTICE](NOTICE)). Le nom
+et le logo SolisArt, y compris les images de `custom_components/solisart/brand`,
+appartiennent à SolisArt. La licence ne les couvre pas : ils servent seulement à
+reconnaître la carte dans Home Assistant.
