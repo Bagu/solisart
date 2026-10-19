@@ -143,6 +143,30 @@ class ClientFaceALaCarte(unittest.TestCase):
                 self.appeler("ecrire_reglages", demande)
         self.assertNotIn("POST", FausseCarte.journal)
 
+    def test_planning_ecrit_puis_confirme(self):
+        reglages = self.appeler("ecrire_plannings", {(1, 2): "6:00-8:30, 21h-24h", (6, 6): ""})
+        self.assertEqual(FausseCarte.journal, ["GET", "POST", "GET"])
+        texte = self.analyse.texte_planning
+        self.assertEqual(texte(reglages.plannings[1][2]), "06:00-08:30, 21:00-24:00")
+        self.assertEqual(texte(reglages.plannings[6][6]), "")
+        self.assertEqual(texte(reglages.plannings[1][3]), "00:00-01:00, 21:00-24:00")
+        corps, entetes = FausseCarte.postes[0]
+        self.assertIn(b"P120=0&P121=240&P122=1&", corps)
+        self.assertNotIn(b"U06_0", corps)
+        self.assertEqual(entetes["Referer"], f"http://{self.hote}/param.htm")
+
+    def test_planning_non_applique(self):
+        FausseCarte.sourde = True
+        with self.assertRaises(self.api.EcritureNonConfirmee) as err:
+            self.appeler("ecrire_plannings", {(0, 0): "07:00-09:00"})
+        self.assertIn("planning 0/0", err.exception.ecarts)
+
+    def test_planning_invalide_rien_envoye(self):
+        for demande in ({(3, 0): "07:00-09:00"}, {(0, 7): "07:00-09:00"}, {(0, 0): "7h15-9h"}):
+            with self.subTest(demande=demande), self.assertRaises(self.api.ReglageRefuse):
+                self.appeler("ecrire_plannings", demande)
+        self.assertNotIn("POST", FausseCarte.journal)
+
     def test_ecriture_identifiant_refuse(self):
         with self.assertRaises(self.api.AuthentificationRefusee):
             self.appeler("ecrire_reglages", {"U06_0": "1"}, mot_de_passe="faux")

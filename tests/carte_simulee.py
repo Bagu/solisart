@@ -1,5 +1,6 @@
 """Effet d'un POST de param.htm sur la page servie par une fausse carte : les modes
-(U06_x) et les consignes (U09_x, U10_x) reçus remplacent ceux de la page."""
+(U06_x), les consignes (U09_x, U10_x) et les octets de planning (Pzjo) reçus
+remplacent ceux de la page."""
 import re
 from urllib.parse import parse_qsl
 
@@ -15,4 +16,6 @@ def appliquer(page: bytes, corps: bytes) -> bytes:
                            f"FillUtilModeChauff('{nom}','{valeur}')", texte)
         elif re.fullmatch(r"U(09|10)_\d", nom):
             texte = re.sub(rf"(name='{nom}' value=')[^']*'", rf"\g<1>{valeur}'", texte)
+        elif re.fullmatch(r"P\d{3}", nom):
+            texte = re.sub(rf'(name="{nom}" value=")[^"]*"', rf'\g<1>{valeur}"', texte)
     return texte.encode(ENCODAGE)

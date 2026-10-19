@@ -11,7 +11,7 @@ from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, STATE_OFF, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.loader import async_get_custom_components
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -75,7 +75,7 @@ async def installer(hass, aioclient_mock, reglable=False, **carte_kw):
 def entite(hass, entree, balise):
     """entity_id de la balise ou du champ, retrouvé par son identifiant unique."""
     registre = er.async_get(hass)
-    for domaine in ("sensor", "binary_sensor", "select", "number"):
+    for domaine in ("sensor", "binary_sensor", "select", "number", "text"):
         trouve = registre.async_get_entity_id(domaine, DOMAIN, f"{entree.entry_id}_{balise}")
         if trouve:
             return trouve
@@ -133,7 +133,7 @@ async def test_entites(hass, aioclient_mock):
     assert etat("fl5").state == "0.0"
     assert etat("mrel1").state == STATE_OFF
     nombre = len(er.async_entries_for_config_entry(er.async_get(hass), entree.entry_id))
-    assert nombre == 45 + 3 + 6, nombre
+    assert nombre == 45 + 3 + 6 + 3 * 7, nombre
 
 
 async def test_sonde_absente_desactivee(hass, aioclient_mock):
@@ -302,3 +302,57 @@ async def test_logo_fourni(hass):
     dossier = Path(integration.file_path) / "brand"
     for nom in ("icon.png", "icon@2x.png", "logo.png", "logo@2x.png", "dark_logo.png", "dark_logo@2x.png"):
         assert (dossier / nom).read_bytes()[:8] == b"\x89PNG\r\n\x1a\n", nom
+
+
+async def test_plannings(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    etat = hass.states.get(entite(hass, entree, "planning_1_0"))
+    assert etat.name == "SolisArt Schedule Etage Monday"
+    assert etat.state == "00:00-01:00, 21:00-24:00"
+    assert hass.states.get(entite(hass, entree, "planning_6_6")).name == "SolisArt Hot water schedule Sunday"
+    assert er.async_get(hass).async_get(etat.entity_id).entity_category is er.EntityCategory.CONFIG
+    assert entite(hass, entree, "planning_2_0") is None
+
+
+async def test_planning_ecrit(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    cible = entite(hass, entree, "planning_1_2")
+    await hass.services.async_call("text", "set_value", {"entity_id": cible, "value": "6-8:30, 21h-24h"},
+                                   blocking=True)
+    assert len(recus) == 1 and b"P120=0&P121=240&P122=1&" in recus[0]
+    assert hass.states.get(cible).state == "06:00-08:30, 21:00-24:00"
+
+
+async def test_planning_illisible_refuse(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    with pytest.raises(HomeAssistantError):
+        await hass.services.async_call("text", "set_value",
+                                       {"entity_id": entite(hass, entree, "planning_1_2"), "value": "7h15-9h"},
+                                       blocking=True)
+    assert recus == []
+
+
+async def test_copier_planning(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    cibles = [entite(hass, entree, n) for n in ("planning_1_5", "planning_1_6", "planning_0_6")]
+    await hass.services.async_call(DOMAIN, "copier_planning",
+                                   {"source": entite(hass, entree, "planning_6_0"), "cibles": cibles},
+                                   blocking=True)
+    assert len(recus) == 1
+    attendu = hass.states.get(entite(hass, entree, "planning_6_0")).state
+    assert [hass.states.get(c).state for c in cibles] == [attendu] * 3
+    assert hass.states.get(entite(hass, entree, "planning_1_4")).state == "00:00-01:00, 21:00-24:00"
+
+
+async def test_copier_planning_vers_autre_entite(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(DOMAIN, "copier_planning",
+                                       {"source": entite(hass, entree, "planning_1_0"),
+                                        "cibles": [entite(hass, entree, "U09_0")]},
+                                       blocking=True)
+    assert recus == []

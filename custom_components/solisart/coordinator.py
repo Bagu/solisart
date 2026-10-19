@@ -4,7 +4,9 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections.abc import Coroutine
 from dataclasses import dataclass
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -107,9 +109,18 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
         else:
             lot.set_result(None)
 
-    async def _ecrire(self, demandes: dict[str, str | float]) -> None:
+    async def ecrire_plannings(self, demandes: dict[tuple[int, int], str]) -> None:
+        """Écrit des plannings ((zone, jour) vers plages de confort en texte), en un
+        seul envoi. Lève HomeAssistantError avec la raison de l'échec."""
+        await self._ecrire(self.client.ecrire_plannings(demandes))
+
+    async def _ecrire(self, ecriture: dict[str, str | float] | Coroutine[Any, Any, Reglages]) -> None:
+        """Mène une écriture (demandes de champs, ou appel du client déjà préparé) et
+        publie la page relue."""
+        if isinstance(ecriture, dict):
+            ecriture = self.client.ecrire_reglages(ecriture)
         try:
-            reglages = await self.client.ecrire_reglages(demandes)
+            reglages = await ecriture
         except (AuthentificationRefusee, CarteInjoignable, PageInattendue, ReglageRefuse,
                 EcritureNonConfirmee) as err:
             self.relire_reglages()

@@ -1,0 +1,15 @@
+copier_planning:
+  fields:
+    source:
+      required: true
+      selector:
+        entity:
+          integration: solisart
+          domain: text
+    cibles:
+      required: true
+      selector:
+        entity:
+          integration: solisart
+          domain: text
+          multiple: true

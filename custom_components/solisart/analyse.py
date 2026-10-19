@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from urllib.parse import urlencode
@@ -15,6 +16,7 @@ RELAIS = "relais"
 NB_ZONES_CHAUFFAGE = 6
 ZONE_ECS = 6
 FORMULAIRE = "frm_params"
+FORMULAIRE_PLANNING = "frm_prog"
 ENCODAGE = "ISO-8859-1"
 
 MODE_ARRET = "0"
@@ -28,6 +30,12 @@ CASE_HORS_GEL = "cb02"
 CHAMPS_HORS_GEL = ("U03", "U14", "U13", "U04", "U15", "U17", "U16", "U05", "U18")
 TYPES_IGNORES = ("submit", "button", "reset", "image")
 
+JOURS = 7
+CRENEAUX = 48
+OCTETS_PAR_JOUR = 6
+LISTE_ZONE_PLANNING = "U19_0"
+LISTE_JOUR_PLANNING = "U20_0"
+
 MOTIF_MODE = re.compile(r"FillUtilModeChauff\('(\w+)'\s*,\s*'([^']*)'\)")
 MOTIF_ZONE = re.compile(
     r"EnableZoneDftParamsInputs\('(\d)'\s*,\s*document[^,)]+(?:,\s*'(\d)')?\s*\)"
@@ -38,6 +46,8 @@ MOTIF_NOMBRE = re.compile(r"^[-+]?\d+(?:\.\d+)?")
 MOTIF_CIBLE_CASE = re.compile(r"elements\['(\w+)'\]")
 MOTIF_DECIMALES = re.compile(r"CIC\(event\s*,\s*(\d+)")
 MOTIF_CHAMP_ZONE = re.compile(r"U(06|09|10)_(\d)")
+MOTIF_HEURE = r"(\d{1,2})(?:[:hH](\d{2})?)?"
+MOTIF_PLAGE = re.compile(rf"{MOTIF_HEURE}\s*-\s*{MOTIF_HEURE}")
 
 
 class PageInattendue(ValueError):
@@ -150,6 +160,7 @@ class Reglages:
     zones: list[Zone]
     version_carte: str | None
     version_web: str | None
+    plannings: dict[int, tuple[tuple[bool, ...], ...]] = field(default_factory=dict)
 
 
 @dataclass
@@ -158,48 +169,76 @@ class _Champ:
     balise: str
     attributs: dict[str, str | None]
     texte: str = ""
+    options: list[tuple[str, bool]] = field(default_factory=list)
 
 
 class _LecteurPage(HTMLParser):
-    """Relève les champs du formulaire frm_params, le texte des cellules Txx, le texte
-    des scripts en ligne et le texte visible."""
+    """Relève les champs de chaque formulaire nommé (ceux de frm_params aussi par nom),
+    les options des listes, le texte des cellules Txx, le texte des scripts en ligne et
+    le texte visible."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.champs: dict[str, _Champ] = {}
-        self.elements: list[_Champ] = []
+        self.formulaires: dict[str, list[_Champ]] = {}
         self._zone_texte: _Champ | None = None
+        self._liste: _Champ | None = None
+        self._option: list | None = None
         self.cellules: dict[str, str] = {}
         self.scripts: list[str] = []
         self.texte: list[str] = []
-        self._dans_formulaire = False
+        self._formulaire: str | None = None
         self._cellule: str | None = None
         self._dans_script = False
-        self.formulaire_vu = False
+
+    @property
+    def formulaire_vu(self) -> bool:
+        return FORMULAIRE in self.formulaires
+
+    @property
+    def elements(self) -> list[_Champ]:
+        return self.formulaires.get(FORMULAIRE, [])
 
     def handle_starttag(self, tag, attrs):
         attributs = dict(attrs)
-        if tag == "form" and attributs.get("name") == FORMULAIRE:
-            self._dans_formulaire = True
-            self.formulaire_vu = True
+        if tag == "form" and attributs.get("name"):
+            self._formulaire = attributs["name"]
+            self.formulaires.setdefault(self._formulaire, [])
+        elif tag == "option" and self._liste is not None:
+            self._fermer_option()
+            self._option = [attributs.get("value"), "selected" in attributs, ""]
         elif tag == "script" and not attributs.get("src"):
             self._dans_script = True
             self.scripts.append("")
         elif tag == "td" and re.fullmatch(r"T0\d", attributs.get("id") or ""):
             self._cellule = attributs["id"]
             self.cellules[self._cellule] = ""
-        if self._dans_formulaire and tag in ("input", "select", "textarea"):
+        if self._formulaire is not None and tag in ("input", "select", "textarea"):
             nom = attributs.get("name")
             element = _Champ(nom or "", tag, attributs)
-            self.elements.append(element)
+            self.formulaires[self._formulaire].append(element)
             if tag == "textarea":
                 self._zone_texte = element
-            if nom and nom not in self.champs:
+            elif tag == "select":
+                self._liste = element
+            if nom and nom not in self.champs and self._formulaire == FORMULAIRE:
                 self.champs[nom] = element
+
+    def _fermer_option(self) -> None:
+        """Range l'option en cours ; sans attribut value, sa valeur est son texte."""
+        if self._option is not None and self._liste is not None:
+            valeur, choisie, texte = self._option
+            self._liste.options.append((valeur if valeur is not None else " ".join(texte.split()), choisie))
+        self._option = None
 
     def handle_endtag(self, tag):
         if tag == "form":
-            self._dans_formulaire = False
+            self._formulaire = None
+        elif tag == "option":
+            self._fermer_option()
+        elif tag == "select":
+            self._fermer_option()
+            self._liste = None
         elif tag == "script":
             self._dans_script = False
         elif tag == "td":
@@ -213,6 +252,8 @@ class _LecteurPage(HTMLParser):
             return
         if self._zone_texte is not None:
             self._zone_texte.texte += data
+        if self._option is not None:
+            self._option[2] += data
         if self._cellule:
             self.cellules[self._cellule] += data
         self.texte.append(data)
@@ -285,7 +326,154 @@ def lire_reglages(html: str) -> Reglages:
         zones=zones,
         version_carte=version.group(1) if version else None,
         version_web=version.group(2) if version else None,
+        plannings=_plannings(lecteur),
     )
+
+
+def _champ_planning(zone: int, jour: int, octet: int) -> str:
+    return f"P{zone}{jour}{octet}"
+
+
+def _plannings(lecteur: _LecteurPage) -> dict[int, tuple[tuple[bool, ...], ...]]:
+    """Plannings du formulaire frm_prog, par zone : 7 jours (lundi d'abord) de 48
+    demi-heures, vrai pour confort. Une zone dont un champ manque ou n'est pas un
+    octet est écartée."""
+    valeurs = {e.nom: (e.attributs.get("value") or "").strip()
+               for e in lecteur.formulaires.get(FORMULAIRE_PLANNING, [])}
+    plannings = {}
+    for zone in range(ZONE_ECS + 1):
+        jours = []
+        for jour in range(JOURS):
+            brut = [valeurs.get(_champ_planning(zone, jour, o), "") for o in range(OCTETS_PAR_JOUR)]
+            if not all(v.isdigit() and int(v) <= 255 for v in brut):
+                break
+            jours.append(creneaux_depuis_octets([int(v) for v in brut]))
+        else:
+            plannings[zone] = tuple(jours)
+    return plannings
+
+
+def creneaux_depuis_octets(octets: Sequence[int]) -> tuple[bool, ...]:
+    """6 octets de la carte vers 48 demi-heures : la demi-heure i est le bit i % 8 de
+    l'octet i // 8, à 1 pour confort."""
+    return tuple(bool(octets[i // 8] >> (i % 8) & 1) for i in range(CRENEAUX))
+
+
+def octets_depuis_creneaux(creneaux: Sequence[bool]) -> list[int]:
+    """48 demi-heures vers les 6 octets de la carte."""
+    octets = [0] * OCTETS_PAR_JOUR
+    for i, confort in enumerate(creneaux):
+        if confort:
+            octets[i // 8] |= 1 << (i % 8)
+    return octets
+
+
+def _heure(creneau: int, compact: bool) -> str:
+    heures, demie = divmod(creneau, 2)
+    if compact:
+        return f"{heures}:30" if demie else str(heures)
+    return f"{heures:02d}:{30 * demie:02d}"
+
+
+def texte_planning(creneaux: Sequence[bool], compact: bool = False) -> str:
+    """Plages de confort d'une journée, par exemple « 06:00-08:00, 18:00-24:00 », ou
+    « 6-8,18:30-24 » en compact (tient en 255 caractères même pour 24
+    plages). Chaîne vide quand toute la journée est en réduit."""
+    plages, debut = [], None
+    for i, confort in enumerate([*creneaux, False]):
+        if confort and debut is None:
+            debut = i
+        elif not confort and debut is not None:
+            plages.append(f"{_heure(debut, compact)}-{_heure(i, compact)}")
+            debut = None
+    return ("," if compact else ", ").join(plages)
+
+
+def lire_texte_planning(texte: str) -> tuple[bool, ...]:
+    """Plages de confort saisies (« 6:00-8:30, 18h-24h », « 6-8:30 ») vers 48 demi-heures.
+    Les heures tombent sur une demi-heure, de 00:00 à 24:00 ; les plages peuvent se
+    chevaucher. Lève ReglageRefuse sur une saisie illisible."""
+    creneaux = [False] * CRENEAUX
+    for morceau in re.split(r"[,;]", texte):
+        morceau = morceau.strip()
+        if not morceau:
+            continue
+        trouve = MOTIF_PLAGE.fullmatch(morceau)
+        if not trouve:
+            raise ReglageRefuse(f"plage illisible : {morceau!r} (attendu par exemple 06:00-08:30)")
+        bornes = []
+        for heures, minutes in (trouve.group(1, 2), trouve.group(3, 4)):
+            h, m = int(heures), int(minutes or 0)
+            if m not in (0, 30) or h > 24 or (h == 24 and m):
+                raise ReglageRefuse(f"plage {morceau!r} : heures à la demi-heure, de 00:00 à 24:00")
+            bornes.append(2 * h + m // 30)
+        if bornes[0] >= bornes[1]:
+            raise ReglageRefuse(f"plage {morceau!r} : le début doit précéder la fin")
+        for i in range(*bornes):
+            creneaux[i] = True
+    return tuple(creneaux)
+
+
+def corps_planning(html: str, changements: dict[tuple[int, int], Sequence[bool]]) -> dict[str, str]:
+    """Corps du POST de frm_prog tel que le navigateur l'enverrait après avoir changé
+    les journées demandées ((zone, jour) vers 48 demi-heures).
+
+    Les listes de zone et de jour pointent sur le premier changement, comme après
+    une saisie dans la page ; les autres listes gardent leur option choisie, ou la
+    première. Lève ReglageRefuse si un champ de la journée manque.
+    """
+    lecteur = _analyser(html)
+    elements = lecteur.formulaires.get(FORMULAIRE_PLANNING)
+    if not elements:
+        raise PageInattendue(f"formulaire {FORMULAIRE_PLANNING} absent de param.htm")
+    nouveaux: dict[str, str] = {}
+    for (zone, jour), creneaux in changements.items():
+        for octet, valeur in enumerate(octets_depuis_creneaux(creneaux)):
+            nouveaux[_champ_planning(zone, jour, octet)] = str(valeur)
+    if changements:
+        zone, jour = next(iter(changements))
+        nouveaux[LISTE_ZONE_PLANNING] = str(zone)
+        nouveaux[LISTE_JOUR_PLANNING] = str(jour)
+
+    corps: dict[str, str] = {}
+    for element in elements:
+        nom, attributs = element.nom, element.attributs
+        if not nom or "disabled" in attributs:
+            continue
+        if element.balise == "select":
+            if element.options:
+                choisies = [v for v, choisie in element.options if choisie]
+                corps.setdefault(nom, choisies[-1] if choisies else element.options[0][0])
+        elif element.balise == "textarea":
+            corps.setdefault(nom, element.texte)
+        else:
+            genre = (attributs.get("type") or "text").lower()
+            if genre in TYPES_IGNORES:
+                continue
+            if genre in ("checkbox", "radio"):
+                if "checked" in attributs:
+                    corps.setdefault(nom, attributs.get("value") or "on")
+                continue
+            corps.setdefault(nom, attributs.get("value") or "")
+    manquants = [nom for nom in nouveaux if nom not in corps]
+    if manquants:
+        raise ReglageRefuse(f"champs de planning absents de la page : {', '.join(manquants)}")
+    corps.update(nouveaux)
+    return corps
+
+
+def ecarts_planning(reglages: Reglages, changements: dict[tuple[int, int], Sequence[bool]]
+                    ) -> dict[str, tuple[str, str | None]]:
+    """Journées relues qui diffèrent de la demande : « zone/jour » vers (plages
+    voulues, plages lues)."""
+    trouves: dict[str, tuple[str, str | None]] = {}
+    for (zone, jour), creneaux in changements.items():
+        planning = reglages.plannings.get(zone)
+        lu = planning[jour] if planning else None
+        if lu != tuple(creneaux):
+            trouves[f"planning {zone}/{jour}"] = (texte_planning(creneaux),
+                                                 texte_planning(lu) if lu else None)
+    return trouves
 
 
 def corps_formulaire(html: str, changements: dict[str, str] | None = None) -> dict[str, str]:

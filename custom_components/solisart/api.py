@@ -9,16 +9,20 @@ import aiohttp
 from .const import DELAI_REQUETE
 from .analyse import (
     ENCODAGE,
+    JOURS,
     Etat,
     PageInattendue,
     ReglageRefuse,
     Reglages,
     champs_refuses,
     corps_formulaire,
+    corps_planning,
     ecarts,
+    ecarts_planning,
     encoder_corps,
     lire_etat,
     lire_reglages,
+    lire_texte_planning,
     preparer_changements,
 )
 
@@ -142,6 +146,29 @@ class SolisartClient:
             if restants:
                 raise EcritureNonConfirmee(restants)
             return lire_reglages(relue)
+
+    async def ecrire_plannings(self, demandes: dict[tuple[int, int], str]) -> Reglages:
+        """Écrit les plannings demandés ((zone, jour) vers plages de confort en texte,
+        par exemple « 06:00-08:00, 18:00-22:30 ») et rend les réglages relus.
+
+        Même déroulé que ecrire_reglages, avec le formulaire frm_prog. Lève
+        ReglageRefuse avant tout envoi pour une zone absente, un jour hors de 0 à 6 ou
+        une plage illisible, EcritureNonConfirmee si la page relue diffère.
+        """
+        async with self._verrou:
+            page = await self._lire_page_reglages()
+            presentes = {zone.index for zone in lire_reglages(page).zones}
+            changements = {}
+            for (zone, jour), texte in demandes.items():
+                if zone not in presentes or not 0 <= jour < JOURS:
+                    raise ReglageRefuse(f"planning {zone}/{jour} : zone ou jour inconnu")
+                changements[(zone, jour)] = lire_texte_planning(texte)
+            await self._envoyer(encoder_corps(corps_planning(page, changements)))
+            relues = lire_reglages(await self._lire_page_reglages())
+            restants = ecarts_planning(relues, changements)
+            if restants:
+                raise EcritureNonConfirmee(restants)
+            return relues
 
 
 __all__ = [

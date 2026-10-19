@@ -32,7 +32,15 @@ For each zone the controller has (heating zones and hot water), the integration 
 
 - a mode selector: off, solar only, or solar and backup;
 - the comfort and reduced setpoints, in °C. Their limits come from the controller's page.
-  They show as unavailable while the zone is off, since the controller locks them then.
+  They show as unavailable while the zone is off, since the controller locks them then;
+- the comfort/reduced schedule, one text entity per day (for example "Schedule Ground
+  floor Monday"). It lists the comfort periods, such as `06:00-08:30, 18:00-22:00`, and
+  the rest of the day is reduced. An empty value means reduced all day. Times go by half
+  hours, and `6-8:30` or `18h-22h` work too. These entities sit in the Configuration
+  section of the device.
+
+The `solisart.copier_planning` action copies one schedule day to other days or zones in a
+single write, for example Monday to the rest of the week.
 
 The entities take the zone labels set on the controller (for example "Mode Ground
 floor").

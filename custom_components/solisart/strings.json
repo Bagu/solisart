@@ -97,6 +97,66 @@
       "reduit_ecs": {
         "name": "Hot water reduced setpoint"
       }
+    },
+    "text": {
+      "planning_0": {
+        "name": "Schedule {zone} Monday"
+      },
+      "planning_0_ecs": {
+        "name": "Hot water schedule Monday"
+      },
+      "planning_1": {
+        "name": "Schedule {zone} Tuesday"
+      },
+      "planning_1_ecs": {
+        "name": "Hot water schedule Tuesday"
+      },
+      "planning_2": {
+        "name": "Schedule {zone} Wednesday"
+      },
+      "planning_2_ecs": {
+        "name": "Hot water schedule Wednesday"
+      },
+      "planning_3": {
+        "name": "Schedule {zone} Thursday"
+      },
+      "planning_3_ecs": {
+        "name": "Hot water schedule Thursday"
+      },
+      "planning_4": {
+        "name": "Schedule {zone} Friday"
+      },
+      "planning_4_ecs": {
+        "name": "Hot water schedule Friday"
+      },
+      "planning_5": {
+        "name": "Schedule {zone} Saturday"
+      },
+      "planning_5_ecs": {
+        "name": "Hot water schedule Saturday"
+      },
+      "planning_6": {
+        "name": "Schedule {zone} Sunday"
+      },
+      "planning_6_ecs": {
+        "name": "Hot water schedule Sunday"
+      }
+    }
+  },
+  "services": {
+    "copier_planning": {
+      "name": "Copy schedule",
+      "description": "Copies the comfort periods of one SolisArt schedule day to other days or zones, in a single write per controller.",
+      "fields": {
+        "source": {
+          "name": "Source",
+          "description": "Schedule entity to copy from."
+        },
+        "cibles": {
+          "name": "Targets",
+          "description": "Schedule entities that receive the same comfort periods."
+        }
+      }
     }
   }
 }

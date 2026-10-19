@@ -97,6 +97,66 @@
       "reduit_ecs": {
         "name": "Consigne réduit eau chaude"
       }
+    },
+    "text": {
+      "planning_0": {
+        "name": "Planning {zone} lundi"
+      },
+      "planning_0_ecs": {
+        "name": "Planning eau chaude lundi"
+      },
+      "planning_1": {
+        "name": "Planning {zone} mardi"
+      },
+      "planning_1_ecs": {
+        "name": "Planning eau chaude mardi"
+      },
+      "planning_2": {
+        "name": "Planning {zone} mercredi"
+      },
+      "planning_2_ecs": {
+        "name": "Planning eau chaude mercredi"
+      },
+      "planning_3": {
+        "name": "Planning {zone} jeudi"
+      },
+      "planning_3_ecs": {
+        "name": "Planning eau chaude jeudi"
+      },
+      "planning_4": {
+        "name": "Planning {zone} vendredi"
+      },
+      "planning_4_ecs": {
+        "name": "Planning eau chaude vendredi"
+      },
+      "planning_5": {
+        "name": "Planning {zone} samedi"
+      },
+      "planning_5_ecs": {
+        "name": "Planning eau chaude samedi"
+      },
+      "planning_6": {
+        "name": "Planning {zone} dimanche"
+      },
+      "planning_6_ecs": {
+        "name": "Planning eau chaude dimanche"
+      }
+    }
+  },
+  "services": {
+    "copier_planning": {
+      "name": "Copier un planning",
+      "description": "Copie les plages de confort d'un jour de planning SolisArt sur d'autres jours ou d'autres zones, en un seul envoi par carte.",
+      "fields": {
+        "source": {
+          "name": "Source",
+          "description": "Entité planning à copier."
+        },
+        "cibles": {
+          "name": "Cibles",
+          "description": "Entités planning qui reçoivent les mêmes plages de confort."
+        }
+      }
     }
   }
 }

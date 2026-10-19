@@ -36,7 +36,15 @@ ajoute :
 - le choix du mode : arrêt, soleil seul, ou soleil et appoint ;
 - les consignes de confort et de réduit, en °C. Leurs bornes viennent de la page de la
   carte. Elles sont indisponibles tant que la zone est à l'arrêt, car la carte les
-  verrouille alors.
+  verrouille alors ;
+- le planning confort/réduit, une entité texte par jour (par exemple « Planning RDC
+  lundi »). Elle liste les plages de confort, comme `06:00-08:30, 18:00-22:00`, et le
+  reste de la journée est en réduit. Une valeur vide veut dire réduit toute la journée.
+  Les heures vont à la demi-heure, et `6-8:30` ou `18h-22h` conviennent aussi. Ces
+  entités sont rangées dans la partie Configuration de l'appareil.
+
+L'action `solisart.copier_planning` copie un jour de planning sur d'autres jours ou
+d'autres zones en un seul envoi, par exemple le lundi sur le reste de la semaine.
 
 Les entités prennent les libellés des zones saisis sur la carte (par exemple « Mode
 RDC »).
