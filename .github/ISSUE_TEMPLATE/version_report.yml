@@ -1,0 +1,51 @@
+name: Untested controller version
+description: Home Assistant reports an untested controller version and blocks changes.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The integration only changes settings on controller versions it was tested with. Use this form to get your versions added to the list. French is fine: vous pouvez écrire en français.
+
+        Never paste the controller's address, login or password here.
+  - type: input
+    id: version_carte
+    attributes:
+      label: Controller software version
+      description: As shown in the Repairs message or on the SolisArt device page.
+      placeholder: SRB_32MX_vD.50-5
+    validations:
+      required: true
+  - type: input
+    id: version_web
+    attributes:
+      label: Web interface version
+      placeholder: WEB_vA.98
+    validations:
+      required: true
+  - type: input
+    id: version_integration
+    attributes:
+      label: Integration version
+    validations:
+      required: true
+  - type: textarea
+    id: lecture
+    attributes:
+      label: Do the readings look right?
+      description: Temperatures, circulators, zone modes and setpoints compared with the controller's own pages.
+    validations:
+      required: true
+  - type: textarea
+    id: page
+    attributes:
+      label: Anonymised param.htm
+      description: |
+        Save the controller's User page from your browser, then run `python outils/anonymiser.py param.htm param_anonyme.htm` from this repository and drop `param_anonyme.htm` here. I need it to check that the form is the same as on the tested versions. Read the result before you attach it.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Diagnostics
+      description: SolisArt device page, three dots, Download diagnostics. It leaves out the address and the login.

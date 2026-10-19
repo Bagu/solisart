@@ -1,0 +1,67 @@
+name: Problem report
+description: Something does not work as expected with the SolisArt integration.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. French is fine: vous pouvez écrire en français.
+
+        Never paste the controller's address, login or password here.
+  - type: textarea
+    id: probleme
+    attributes:
+      label: What happens
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: version_carte
+    attributes:
+      label: Controller software version
+      description: Shown on the SolisArt device page in Home Assistant, first part of the firmware, for example SRB_32MX_vD.50-5.
+      placeholder: SRB_32MX_vD.50-5
+    validations:
+      required: true
+  - type: input
+    id: version_web
+    attributes:
+      label: Web interface version
+      description: Second part of the firmware on the device page, for example WEB_vA.98.
+      placeholder: WEB_vA.98
+    validations:
+      required: true
+  - type: input
+    id: version_integration
+    attributes:
+      label: Integration version
+      description: Shown in HACS, or in custom_components/solisart/manifest.json.
+    validations:
+      required: true
+  - type: input
+    id: version_ha
+    attributes:
+      label: Home Assistant version
+      description: Settings, About.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Diagnostics
+      description: |
+        Download the diagnostics file (SolisArt device page, three dots, Download diagnostics) and drop it here. It leaves out the address and the login.
+    validations:
+      required: true
+  - type: textarea
+    id: page
+    attributes:
+      label: Anonymised param.htm (if the problem is about the User page)
+      description: |
+        Save the controller's User page from your browser, then run `python outils/anonymiser.py param.htm param_anonyme.htm` from this repository and drop `param_anonyme.htm` here. The tool masks the installation name and the logins, and refuses to write the file if an IP address, a MAC address or an email address is left in it. Read the result before you attach it.
+  - type: textarea
+    id: journal
+    attributes:
+      label: Log lines
+      description: Lines mentioning solisart in Settings, System, Logs, if any.
+      render: text

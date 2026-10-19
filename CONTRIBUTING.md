@@ -4,7 +4,7 @@ Issues in French are welcome: écrivez en français si vous préférez.
 
 ## Reporting a problem
 
-Open an issue with:
+Open an issue with the form that fits. The forms ask for:
 
 - the controller software and web interface versions, shown on the device page in Home
   Assistant (for example `SRB_32MX_vD.50-5 / WEB_vA.98`);

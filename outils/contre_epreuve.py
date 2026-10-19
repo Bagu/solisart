@@ -19,6 +19,8 @@ PYTHON = VENV if os.path.exists(VENV) else sys.executable
 SABOTAGES = [
     ("sonde déconnectée lue comme 0", "analyse.py", "return Mesure(TEMPERATURE, None, texte)", "return Mesure(TEMPERATURE, 0.0, texte)"),
     ("drapeau de zone ignoré", "analyse.py", 'if drapeau == "1"}', "}"),
+    ("exemple de version périmé dans le modèle de ticket", "../../.github/ISSUE_TEMPLATE/bug_report.yml", "placeholder: WEB_vA.98", "placeholder: WEB_vA.97"),
+    ("commande d'anonymisation divergente", "../../CONTRIBUTING.md", "`\npython outils/anonymiser.py param.htm param_anonyme.htm\n`", "`\npython outils/anonymiser.py page.htm sortie.htm\n`"),
     ("valeurs du refus perdues", "analyse.py", "self.valeurs = {nom: str(valeur) for nom, valeur in valeurs.items()}", "self.valeurs = {}"),
     ("traduction française manquante", "translations/fr.json", '"refus_hors_bornes"', '"refus_hors_borne"'),
     ("paramètre de traduction renommé", "translations/en.json", "({minimum} to {maximum} °C)", "({min} to {maximum} °C)"),
