@@ -10,7 +10,7 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -56,6 +56,25 @@ def versions_lues(reglages: Reglages | None) -> dict[str, str]:
         "version_web": (reglages.version_web if reglages else None) or "?",
         "versions_testees": ", ".join(f"{carte} / {web}" for carte, web in VERSIONS_TESTEES),
     }
+
+
+def erreur_ecriture(err: Exception) -> HomeAssistantError:
+    """Erreur traduite pour un échec d'écriture du client. Un refus avant envoi vient de
+    la demande elle-même : il devient une ServiceValidationError."""
+    if isinstance(err, ReglageRefuse):
+        return ServiceValidationError(translation_domain=DOMAIN, translation_key=f"refus_{err.cle}",
+                                      translation_placeholders=err.valeurs)
+    if isinstance(err, AuthentificationRefusee):
+        return HomeAssistantError(translation_domain=DOMAIN, translation_key="ecriture_identifiant_refuse")
+    if isinstance(err, EcritureNonConfirmee):
+        detail = ", ".join(f"{nom} {voulu} → {lu}" for nom, (voulu, lu) in err.ecarts.items())
+        return HomeAssistantError(translation_domain=DOMAIN, translation_key="ecriture_non_confirmee",
+                                  translation_placeholders={"detail": detail})
+    if isinstance(err, PageInattendue):
+        return HomeAssistantError(translation_domain=DOMAIN, translation_key="page_inattendue",
+                                  translation_placeholders={"detail": str(err)})
+    return HomeAssistantError(translation_domain=DOMAIN, translation_key="carte_injoignable",
+                              translation_placeholders={"detail": str(err)})
 
 
 def identifiant_probleme(entry_id: str) -> str:
@@ -138,7 +157,8 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
         if self._minuteur is not None:
             self._minuteur.cancel()
         if self._lot is not None:
-            self._lot.set_exception(HomeAssistantError("écriture SolisArt annulée : intégration arrêtée"))
+            self._lot.set_exception(HomeAssistantError(translation_domain=DOMAIN,
+                                                       translation_key="ecriture_annulee"))
         self._en_attente, self._lot, self._minuteur = {}, None, None
         await super().async_shutdown()
 
@@ -179,9 +199,7 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
                 EcritureNonConfirmee) as err:
             self.relire_reglages()
             await self.async_request_refresh()
-            if isinstance(err, AuthentificationRefusee):
-                raise HomeAssistantError("écriture SolisArt : identifiant refusé par la carte") from err
-            raise HomeAssistantError(f"écriture SolisArt : {err}") from err
+            raise erreur_ecriture(err) from err
         self._reglages = reglages
         self._reglages_lus_a = time.monotonic()
         self._signaler_version(reglages)
@@ -192,14 +210,16 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
         try:
             etat = await self.client.lire_etat()
         except (CarteInjoignable, PageInattendue) as err:
-            raise UpdateFailed(f"lecture de status.xml impossible : {err}") from err
+            raise UpdateFailed(translation_domain=DOMAIN, translation_key="lecture_etat_impossible",
+                               translation_placeholders={"detail": str(err)}) from err
 
         maintenant = time.monotonic()
         if self._reglages_lus_a is None or maintenant - self._reglages_lus_a >= self._rythme_reglages:
             try:
                 self._reglages = await self.client.lire_reglages()
             except AuthentificationRefusee as err:
-                raise ConfigEntryAuthFailed("identifiant refusé par la carte") from err
+                raise ConfigEntryAuthFailed(translation_domain=DOMAIN,
+                                            translation_key="identifiant_refuse") from err
             except (CarteInjoignable, PageInattendue) as err:
                 _LOGGER.warning("Lecture de param.htm impossible, réglages précédents gardés : %s", err)
             else:

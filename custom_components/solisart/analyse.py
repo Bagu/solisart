@@ -54,9 +54,31 @@ class PageInattendue(ValueError):
     """La page reçue ne ressemble pas à celle d'une carte SolisArt."""
 
 
+MESSAGES_REFUS = {
+    "plage_illisible": "plage illisible : {plage} (attendu par exemple 06:00-08:30)",
+    "plage_demi_heure": "plage {plage} : heures à la demi-heure, de 00:00 à 24:00",
+    "plage_inversee": "plage {plage} : le début doit précéder la fin",
+    "planning_champs_absents": "champs de planning absents de la page : {champs}",
+    "planning_inconnu": "planning {zone}/{jour} : zone ou jour inconnu",
+    "champ_non_pris_en_charge": "{champ} : champ non pris en charge",
+    "zone_absente": "{champ} : zone absente de la carte",
+    "mode_inconnu": "{champ} : mode {valeur} inconnu",
+    "pas_un_nombre": "{champ} : {valeur} n'est pas un nombre",
+    "bornes_absentes": "{champ} : bornes absentes de la page",
+    "hors_bornes": "{champ} : {valeur} hors des bornes {minimum} à {maximum}",
+    "champs_desactives": "champs désactivés ou absents : {champs}",
+}
+
+
 class ReglageRefuse(ValueError):
     """Changement demandé que le module ne peut pas transmettre : champ inconnu ou
-    désactivé, zone absente, valeur hors des bornes de la carte."""
+    désactivé, zone absente, valeur hors des bornes de la carte. `cle` (une clé de
+    MESSAGES_REFUS) et `valeurs` permettent de traduire la raison."""
+
+    def __init__(self, cle: str, **valeurs: object) -> None:
+        self.cle = cle
+        self.valeurs = {nom: str(valeur) for nom, valeur in valeurs.items()}
+        super().__init__(MESSAGES_REFUS[cle].format(**self.valeurs))
 
 
 @dataclass(frozen=True)
@@ -400,15 +422,15 @@ def lire_texte_planning(texte: str) -> tuple[bool, ...]:
             continue
         trouve = MOTIF_PLAGE.fullmatch(morceau)
         if not trouve:
-            raise ReglageRefuse(f"plage illisible : {morceau!r} (attendu par exemple 06:00-08:30)")
+            raise ReglageRefuse("plage_illisible", plage=morceau)
         bornes = []
         for heures, minutes in (trouve.group(1, 2), trouve.group(3, 4)):
             h, m = int(heures), int(minutes or 0)
             if m not in (0, 30) or h > 24 or (h == 24 and m):
-                raise ReglageRefuse(f"plage {morceau!r} : heures à la demi-heure, de 00:00 à 24:00")
+                raise ReglageRefuse("plage_demi_heure", plage=morceau)
             bornes.append(2 * h + m // 30)
         if bornes[0] >= bornes[1]:
-            raise ReglageRefuse(f"plage {morceau!r} : le début doit précéder la fin")
+            raise ReglageRefuse("plage_inversee", plage=morceau)
         for i in range(*bornes):
             creneaux[i] = True
     return tuple(creneaux)
@@ -457,7 +479,7 @@ def corps_planning(html: str, changements: dict[tuple[int, int], Sequence[bool]]
             corps.setdefault(nom, attributs.get("value") or "")
     manquants = [nom for nom in nouveaux if nom not in corps]
     if manquants:
-        raise ReglageRefuse(f"champs de planning absents de la page : {', '.join(manquants)}")
+        raise ReglageRefuse("planning_champs_absents", champs=", ".join(manquants))
     corps.update(nouveaux)
     return corps
 
@@ -552,25 +574,25 @@ def preparer_changements(reglages: Reglages, demandes: dict[str, str | float]) -
     for nom, valeur in demandes.items():
         trouve = MOTIF_CHAMP_ZONE.fullmatch(nom)
         if not trouve:
-            raise ReglageRefuse(f"{nom} : champ non pris en charge")
+            raise ReglageRefuse("champ_non_pris_en_charge", champ=nom)
         zone = zones.get(int(trouve.group(2)))
         if zone is None:
-            raise ReglageRefuse(f"{nom} : zone absente de la carte")
+            raise ReglageRefuse("zone_absente", champ=nom)
         if trouve.group(1) == "06":
             if str(valeur) not in MODES:
-                raise ReglageRefuse(f"{nom} : mode {valeur!r} inconnu")
+                raise ReglageRefuse("mode_inconnu", champ=nom, valeur=valeur)
             prets[nom] = str(valeur)
             continue
         consigne = zone.confort if trouve.group(1) == "09" else zone.reduit
         try:
             nombre = float(valeur)
         except (TypeError, ValueError):
-            raise ReglageRefuse(f"{nom} : {valeur!r} n'est pas un nombre") from None
+            raise ReglageRefuse("pas_un_nombre", champ=nom, valeur=valeur) from None
         if consigne.minimum is None or consigne.maximum is None:
-            raise ReglageRefuse(f"{nom} : bornes absentes de la page")
+            raise ReglageRefuse("bornes_absentes", champ=nom)
         if not consigne.minimum <= nombre <= consigne.maximum:
-            raise ReglageRefuse(
-                f"{nom} : {nombre} hors des bornes {consigne.minimum} à {consigne.maximum}")
+            raise ReglageRefuse("hors_bornes", champ=nom, valeur=nombre,
+                                minimum=consigne.minimum, maximum=consigne.maximum)
         prets[nom] = f"{nombre:.{consigne.decimales}f}"
     return prets
 

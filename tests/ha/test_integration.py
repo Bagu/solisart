@@ -180,6 +180,7 @@ async def test_carte_perdue_puis_retrouvee(hass, aioclient_mock):
     await coordinateur.async_refresh()
     await hass.async_block_till_done()
     assert hass.states.get(entite(hass, entree, "t1")).state == STATE_UNAVAILABLE
+    assert coordinateur.last_exception.translation_key == "lecture_etat_impossible"
     carte(aioclient_mock)
     await coordinateur.async_refresh()
     await hass.async_block_till_done()
@@ -282,10 +283,13 @@ async def test_zone_arretee_consignes_indisponibles(hass, aioclient_mock):
 async def test_carte_qui_n_applique_rien(hass, aioclient_mock):
     recus = carte_reglable(aioclient_mock, sourde=True)
     entree = await installer(hass, aioclient_mock, reglable=True)
-    with pytest.raises(HomeAssistantError, match="U06_6"):
+    with pytest.raises(HomeAssistantError) as err:
         await hass.services.async_call("select", "select_option",
                                        {"entity_id": entite(hass, entree, "U06_6"), "option": "arret"},
                                        blocking=True)
+    assert err.value.translation_key == "ecriture_non_confirmee"
+    assert err.value.translation_placeholders == {"detail": "U06_6 0 → 2"}
+    assert str(err.value) == "The controller did not keep the values sent (requested → read back): U06_6 0 → 2"
     await hass.async_block_till_done()
     assert len(recus) == 1
     assert hass.states.get(entite(hass, entree, "U06_6")).state == "soleil_appoint"
@@ -311,8 +315,9 @@ async def test_lot_annule_au_dechargement(hass, aioclient_mock):
         "number", "set_value", {"entity_id": entite(hass, entree, "U09_6"), "value": 52}, blocking=True))
     await asyncio.sleep(0)
     await hass.config_entries.async_unload(entree.entry_id)
-    with pytest.raises(HomeAssistantError, match="annulée"):
+    with pytest.raises(HomeAssistantError) as err:
         await asyncio.wait_for(appel, 5)
+    assert err.value.translation_key == "ecriture_annulee"
     assert recus == []
 
 
@@ -347,10 +352,12 @@ async def test_planning_ecrit(hass, aioclient_mock):
 async def test_planning_illisible_refuse(hass, aioclient_mock):
     recus = carte_reglable(aioclient_mock)
     entree = await installer(hass, aioclient_mock, reglable=True)
-    with pytest.raises(HomeAssistantError):
+    with pytest.raises(ServiceValidationError) as err:
         await hass.services.async_call("text", "set_value",
                                        {"entity_id": entite(hass, entree, "planning_1_2"), "value": "7h15-9h"},
                                        blocking=True)
+    assert err.value.translation_key == "refus_plage_demi_heure"
+    assert str(err.value) == 'Range "7h15-9h": times go by half hours, from 00:00 to 24:00'
     assert recus == []
 
 

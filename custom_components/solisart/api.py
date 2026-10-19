@@ -151,7 +151,7 @@ class SolisartClient:
             corps = corps_formulaire(page, changements)
             refuses = champs_refuses(corps, changements)
             if refuses:
-                raise ReglageRefuse(f"champs désactivés ou absents : {', '.join(refuses)}")
+                raise ReglageRefuse("champs_desactives", champs=", ".join(refuses))
             await self._envoyer(encoder_corps(corps))
             relue = await self._lire_page_reglages()
             restants = ecarts(relue, changements)
@@ -174,7 +174,7 @@ class SolisartClient:
             changements = {}
             for (zone, jour), texte in demandes.items():
                 if zone not in presentes or not 0 <= jour < JOURS:
-                    raise ReglageRefuse(f"planning {zone}/{jour} : zone ou jour inconnu")
+                    raise ReglageRefuse("planning_inconnu", zone=zone, jour=jour)
                 changements[(zone, jour)] = lire_texte_planning(texte)
             await self._envoyer(encoder_corps(corps_planning(page, changements)))
             relues = lire_reglages(await self._lire_page_reglages())

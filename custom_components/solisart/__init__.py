@@ -56,7 +56,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 def _planning(hass: HomeAssistant, entity_id: str) -> tuple[SolisartConfigEntry, int, int]:
     """Entrée, zone et jour d'une entité planning SolisArt chargée. Lève
     ServiceValidationError pour toute autre entité."""
-    refus = ServiceValidationError(f"{entity_id} n'est pas un planning SolisArt disponible")
+    refus = ServiceValidationError(translation_domain=DOMAIN, translation_key="planning_indisponible",
+                                   translation_placeholders={"entity_id": entity_id})
     inscrite = er.async_get(hass).async_get(entity_id)
     if inscrite is None or inscrite.platform != DOMAIN or inscrite.config_entry_id is None:
         raise refus

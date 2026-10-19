@@ -162,8 +162,68 @@
     }
   },
   "exceptions": {
+    "carte_injoignable": {
+      "message": "The controller does not answer: {detail}"
+    },
+    "ecriture_annulee": {
+      "message": "Change cancelled: the integration stopped before sending it"
+    },
+    "ecriture_identifiant_refuse": {
+      "message": "Change failed: the controller rejects the saved login"
+    },
+    "ecriture_non_confirmee": {
+      "message": "The controller did not keep the values sent (requested → read back): {detail}"
+    },
+    "identifiant_refuse": {
+      "message": "The controller rejects the saved login"
+    },
+    "lecture_etat_impossible": {
+      "message": "Cannot read the measurements (status.xml): {detail}"
+    },
+    "page_inattendue": {
+      "message": "The controller sent back an unexpected page: {detail}"
+    },
+    "planning_indisponible": {
+      "message": "{entity_id} is not an available SolisArt schedule"
+    },
+    "refus_bornes_absentes": {
+      "message": "{champ}: the controller page gives no limits for this setpoint"
+    },
+    "refus_champ_non_pris_en_charge": {
+      "message": "Field {champ} is not supported"
+    },
+    "refus_champs_desactives": {
+      "message": "The controller has disabled these fields, so they cannot be changed: {champs}. A zone that is off locks its setpoints, for example"
+    },
+    "refus_hors_bornes": {
+      "message": "{champ}: {valeur} °C is outside the controller limits ({minimum} to {maximum} °C)"
+    },
+    "refus_mode_inconnu": {
+      "message": "{champ}: unknown mode \"{valeur}\""
+    },
+    "refus_pas_un_nombre": {
+      "message": "{champ}: \"{valeur}\" is not a number"
+    },
+    "refus_plage_demi_heure": {
+      "message": "Range \"{plage}\": times go by half hours, from 00:00 to 24:00"
+    },
+    "refus_plage_illisible": {
+      "message": "Unreadable time range: \"{plage}\". Expected for example 06:00-08:30"
+    },
+    "refus_plage_inversee": {
+      "message": "Range \"{plage}\": the start must come before the end"
+    },
+    "refus_planning_champs_absents": {
+      "message": "The controller page lacks the expected schedule fields: {champs}"
+    },
+    "refus_planning_inconnu": {
+      "message": "Unknown schedule: zone {zone}, day {jour}"
+    },
+    "refus_zone_absente": {
+      "message": "Field {champ} belongs to a zone the controller does not have"
+    },
     "version_non_testee": {
-      "message": "Change refused: the controller runs {version_carte} with web interface {version_web}, a combination missing from the list of tested versions ({versions_testees}). The option \"Allow changes on an untested version\" lifts this block."
+      "message": "Change refused: the controller runs {version_carte} with web interface {version_web}, a combination missing from the list of tested versions ({versions_testees}). The option \"Allow changes on an untested version\" lifts this block"
     }
   },
   "issues": {

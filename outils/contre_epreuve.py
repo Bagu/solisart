@@ -19,6 +19,10 @@ PYTHON = VENV if os.path.exists(VENV) else sys.executable
 SABOTAGES = [
     ("sonde déconnectée lue comme 0", "analyse.py", "return Mesure(TEMPERATURE, None, texte)", "return Mesure(TEMPERATURE, 0.0, texte)"),
     ("drapeau de zone ignoré", "analyse.py", 'if drapeau == "1"}', "}"),
+    ("valeurs du refus perdues", "analyse.py", "self.valeurs = {nom: str(valeur) for nom, valeur in valeurs.items()}", "self.valeurs = {}"),
+    ("traduction française manquante", "translations/fr.json", '"refus_hors_bornes"', '"refus_hors_borne"'),
+    ("paramètre de traduction renommé", "translations/en.json", "({minimum} to {maximum} °C)", "({min} to {maximum} °C)"),
+    ("message d'erreur écrit en dur", "coordinator.py", "            raise erreur_ecriture(err) from err\n", '            raise HomeAssistantError(f"échec : {err}") from err\n'),
     ("zéro négatif gardé", "analyse.py", "_nombre(texte) + 0.0", "_nombre(texte)"),
     ("zone à l'arrêt modifiable", "analyse.py", "if mode == MODE_ARRET else set()", "if False else set()"),
     ("mode inconnu gardé", "analyse.py", "(v if v in MODES else MODE_ARRET)", "v"),

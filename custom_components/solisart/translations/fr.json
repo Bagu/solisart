@@ -162,8 +162,68 @@
     }
   },
   "exceptions": {
+    "carte_injoignable": {
+      "message": "La carte ne répond pas : {detail}"
+    },
+    "ecriture_annulee": {
+      "message": "Modification annulée : l'intégration s'est arrêtée avant l'envoi"
+    },
+    "ecriture_identifiant_refuse": {
+      "message": "Modification impossible : la carte refuse l'identifiant enregistré"
+    },
+    "ecriture_non_confirmee": {
+      "message": "La carte n'a pas conservé les valeurs envoyées (demandé → relu) : {detail}"
+    },
+    "identifiant_refuse": {
+      "message": "La carte refuse l'identifiant enregistré"
+    },
+    "lecture_etat_impossible": {
+      "message": "Lecture des mesures (status.xml) impossible : {detail}"
+    },
+    "page_inattendue": {
+      "message": "La carte a renvoyé une page inattendue : {detail}"
+    },
+    "planning_indisponible": {
+      "message": "{entity_id} n'est pas un programme SolisArt disponible"
+    },
+    "refus_bornes_absentes": {
+      "message": "{champ} : la page de la carte ne donne pas les bornes de cette consigne"
+    },
+    "refus_champ_non_pris_en_charge": {
+      "message": "Le champ {champ} n'est pas pris en charge"
+    },
+    "refus_champs_desactives": {
+      "message": "La carte a désactivé ces champs, qui ne peuvent donc pas être modifiés : {champs}. Une zone à l'arrêt bloque par exemple ses consignes"
+    },
+    "refus_hors_bornes": {
+      "message": "{champ} : {valeur} °C est hors des bornes de la carte ({minimum} à {maximum} °C)"
+    },
+    "refus_mode_inconnu": {
+      "message": "{champ} : mode « {valeur} » inconnu"
+    },
+    "refus_pas_un_nombre": {
+      "message": "{champ} : « {valeur} » n'est pas un nombre"
+    },
+    "refus_plage_demi_heure": {
+      "message": "Plage « {plage} » : les heures vont par demi-heure, de 00:00 à 24:00"
+    },
+    "refus_plage_illisible": {
+      "message": "Plage horaire illisible : « {plage} ». Exemple attendu : 06:00-08:30"
+    },
+    "refus_plage_inversee": {
+      "message": "Plage « {plage} » : le début doit précéder la fin"
+    },
+    "refus_planning_champs_absents": {
+      "message": "La page de la carte ne contient pas les champs de programme attendus : {champs}"
+    },
+    "refus_planning_inconnu": {
+      "message": "Programme inconnu : zone {zone}, jour {jour}"
+    },
+    "refus_zone_absente": {
+      "message": "Le champ {champ} vise une zone absente de la carte"
+    },
     "version_non_testee": {
-      "message": "Modification refusée : la carte utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}). L'option « Autoriser les modifications sur une version non testée » lève ce blocage."
+      "message": "Modification refusée : la carte utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}). L'option « Autoriser les modifications sur une version non testée » lève ce blocage"
     }
   },
   "issues": {
