@@ -36,12 +36,20 @@ L'intégration lit aussi la page Utilisateur (`/param.htm`) toutes les 5 minutes
 récupérer les zones, leurs libellés, leurs modes, leurs consignes, ainsi que les versions
 du régulateur et de l'interface web.
 
+Chaque zone reçoit aussi un capteur de période : Confort ou Réduit, selon la demi-heure de
+son planning qui s'applique en ce moment. Pour cela, l'intégration lit l'horloge du
+régulateur lui-même (`/XML/dtstat.xml`, sans identifiant, au même rythme que
+`status.xml`) : un décalage d'heure entre Home Assistant et le régulateur ne change donc
+rien. Si cette page ne répond pas, la période s'affiche comme indisponible et tout le
+reste continue de fonctionner.
+
 ## Ce que ça pilote
 
 Pour chaque zone gérée par le régulateur (chauffage et eau chaude sanitaire),
 l'intégration ajoute :
 
-- Un sélecteur de mode : Arrêt, Soleil seul, ou Soleil et appoint.
+- Un sélecteur de mode, avec les libellés de la page Utilisateur du régulateur : Arrêt,
+  Solaire (soleil seul) ou Sol/App (soleil et appoint).
 - Les consignes de confort et de réduit (en °C). Leurs limites proviennent directement du
   régulateur. Elles s'affichent comme indisponibles quand la zone est à l'arrêt, car le
   régulateur les verrouille alors.
@@ -51,6 +59,20 @@ l'intégration ajoute :
   signifie « réduit toute la journée ». Les heures vont à la demi-heure, et `6-8:30` ou
   `18h-22h` conviennent aussi. Ces entités sont rangées dans la partie Configuration de
   l'appareil.
+
+Chaque zone de chauffage reçoit aussi un thermostat, et l'eau chaude un chauffe-eau,
+pour les tableaux de bord et les assistants vocaux :
+
+- Thermostat : Arrêt pour le mode Arrêt du régulateur, Chauffage pour les deux autres
+  modes, que le préréglage distingue (Solaire ou Sol/App). Le rallumer
+  remet le dernier préréglage. La température cible est la consigne de confort, et la
+  consigne de réduit apparaît en attribut.
+- Chauffe-eau : Arrêt, Solaire ou Sol/App, rangés sous les modes standard
+  de Home Assistant `off`, `eco` et `performance`, avec la consigne de confort de l'eau
+  chaude comme cible.
+- La température actuelle vient de la sonde que vous choisissez pour chaque zone dans les
+  options. Il n'y en a aucune par défaut, car la sonde d'une pièce dépend de
+  l'installation.
 
 Les entités prennent les libellés des zones saisis sur le régulateur (par exemple « Mode
 Rez-de-chaussée »).
@@ -111,9 +133,10 @@ et leur historique. Laissez le mot de passe vide pour conserver celui enregistr�
 
 Dans les options, vous pouvez régler le rythme de lecture de `status.xml` (30 s par
 défaut) et de `param.htm` (300 s par défaut). Le régulateur met près d'une seconde à
-produire `param.htm` : je ne la lirais pas beaucoup plus souvent. La dernière option
+produire `param.htm` : je ne la lirais pas beaucoup plus souvent. Une autre option
 autorise les modifications sur une version du régulateur non testée (voir plus bas).
-Par défaut, elle reste désactivée.
+Par défaut, elle reste désactivée. Les derniers champs servent à choisir la sonde de
+température de chaque zone pour les thermostats et le chauffe-eau.
 
 ## À savoir avant de l'utiliser
 

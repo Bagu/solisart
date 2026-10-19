@@ -22,4 +22,5 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant,
         "mesures": {k: m.brut for k, m in donnees.etat.mesures.items()},
         "balises_inconnues": donnees.etat.inconnues,
         "reglages": asdict(donnees.reglages) if donnees.reglages else None,
+        "horloge": asdict(donnees.horloge) if donnees.horloge else None,
     }

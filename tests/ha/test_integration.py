@@ -34,14 +34,17 @@ from tests.carte_simulee import appliquer
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 HOTE = "192.0.2.10"
 STATUS = f"http://{HOTE}/XML/status.xml"
+HORLOGE = f"http://{HOTE}/XML/dtstat.xml"
 PARAM = f"http://{HOTE}/param.htm"
 DONNEES = {CONF_HOST: HOTE, CONF_USERNAME: "essai", CONF_PASSWORD: "mot-de-passe-essai"}
 
 
-def carte(aioclient_mock, status=200, param=200, param_corps=None, exc=None):
+def carte(aioclient_mock, status=200, param=200, param_corps=None, exc=None, horloge=200, horloge_corps=None):
     """Simule la carte : pages réelles anonymisées, ou erreurs demandées."""
     aioclient_mock.clear_requests()
     aioclient_mock.get(STATUS, status=status, content=(FIXTURES / "status_reel.xml").read_bytes(), exc=exc)
+    aioclient_mock.get(HORLOGE, status=horloge, exc=exc,
+                       content=horloge_corps or (FIXTURES / "dtstat_reel.xml").read_bytes())
     aioclient_mock.get(PARAM, status=param, content=param_corps or (FIXTURES / "param_reel.htm").read_bytes())
 
 
@@ -73,6 +76,7 @@ def carte_reglable(aioclient_mock, sourde=False, versions=VERSIONS_REELLES):
 
     aioclient_mock.clear_requests()
     aioclient_mock.get(STATUS, content=(FIXTURES / "status_reel.xml").read_bytes())
+    aioclient_mock.get(HORLOGE, content=(FIXTURES / "dtstat_reel.xml").read_bytes())
     aioclient_mock.get(PARAM, side_effect=lire)
     aioclient_mock.post(PARAM, side_effect=enregistrer)
     return recus
@@ -95,7 +99,7 @@ async def installer(hass, aioclient_mock, reglable=False, options=None, **carte_
 def entite(hass, entree, balise):
     """entity_id de la balise ou du champ, retrouvé par son identifiant unique."""
     registre = er.async_get(hass)
-    for domaine in ("sensor", "binary_sensor", "select", "number", "text"):
+    for domaine in ("sensor", "binary_sensor", "select", "number", "text", "climate", "water_heater"):
         trouve = registre.async_get_entity_id(domaine, DOMAIN, f"{entree.entry_id}_{balise}")
         if trouve:
             return trouve
@@ -153,7 +157,7 @@ async def test_entites(hass, aioclient_mock):
     assert etat("fl5").state == "0.0"
     assert etat("mrel1").state == STATE_OFF
     nombre = len(er.async_entries_for_config_entry(er.async_get(hass), entree.entry_id))
-    assert nombre == 45 + 3 + 6 + 3 * 7, nombre
+    assert nombre == 45 + 3 + 6 + 3 * 7 + 2 + 1 + 3, nombre
 
 
 async def test_sonde_absente_desactivee(hass, aioclient_mock):
@@ -503,6 +507,8 @@ def autre_adresse(aioclient_mock, param=200, exc=None):
     """Ajoute la même carte simulée à NOUVEL_HOTE, sans retirer l'ancienne adresse."""
     aioclient_mock.get(f"http://{NOUVEL_HOTE}/XML/status.xml", exc=exc,
                        content=(FIXTURES / "status_reel.xml").read_bytes())
+    aioclient_mock.get(f"http://{NOUVEL_HOTE}/XML/dtstat.xml",
+                       content=(FIXTURES / "dtstat_reel.xml").read_bytes())
     aioclient_mock.get(f"http://{NOUVEL_HOTE}/param.htm", status=param,
                        content=(FIXTURES / "param_reel.htm").read_bytes())
 
@@ -561,3 +567,154 @@ async def test_reconfigurer_vers_l_adresse_d_une_autre_carte(hass, aioclient_moc
     resultat = await _reconfigurer(hass, entree, {CONF_HOST: f"http://{NOUVEL_HOTE}/", CONF_USERNAME: "essai"})
     assert resultat["type"] is FlowResultType.ABORT and resultat["reason"] == "already_configured"
     assert entree.data[CONF_HOST] == HOTE
+
+
+def thermostat(hass, entree, index):
+    return entite(hass, entree, f"thermostat_{index}")
+
+
+async def _appeler(hass, domaine, service, donnees):
+    await hass.services.async_call(domaine, service, donnees, blocking=True)
+
+
+async def test_thermostats_et_chauffe_eau_crees(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    registre = er.async_get(hass)
+    climats = [e.entity_id for e in er.async_entries_for_config_entry(registre, entree.entry_id)
+               if e.domain == "climate"]
+    assert sorted(climats) == sorted([thermostat(hass, entree, 0), thermostat(hass, entree, 1)])
+    assert thermostat(hass, entree, 6) is None
+    assert entite(hass, entree, "chauffe_eau_6") is not None
+    assert hass.states.get(thermostat(hass, entree, 0)).name == "SolisArt Thermostat RDC"
+    assert hass.states.get(entite(hass, entree, "chauffe_eau_6")).name == "SolisArt Hot water"
+
+
+async def test_thermostat_lu_sur_la_carte(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    etat = hass.states.get(thermostat(hass, entree, 0))
+    assert etat.state == "heat"
+    assert etat.attributes["preset_mode"] == "soleil_appoint"
+    assert etat.attributes["preset_modes"] == ["soleil", "soleil_appoint"]
+    assert etat.attributes["temperature"] == 18.5
+    assert (etat.attributes["min_temp"], etat.attributes["max_temp"]) == (10, 40)
+    assert etat.attributes["consigne_reduit"] == 18.0
+    assert etat.attributes["current_temperature"] is None
+
+
+async def test_sonde_choisie_dans_les_options(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    sonde = entite(hass, entree, "t11")
+    resultat = await hass.config_entries.options.async_init(entree.entry_id)
+    assert resultat["description_placeholders"] == {"zones": "1 : RDC, 2 : Etage"}
+    assert {str(c) for c in resultat["data_schema"].schema} >= {"sonde_zone_0", "sonde_zone_1", "sonde_zone_6"}
+    await hass.config_entries.options.async_configure(resultat["flow_id"], {
+        CONF_INTERVALLE_ETAT: 30, CONF_INTERVALLE_REGLAGES: 300, "sonde_zone_0": sonde})
+    await hass.async_block_till_done()
+    assert hass.states.get(thermostat(hass, entree, 0)).attributes["current_temperature"] == 23.0
+    hass.states.async_set(sonde, "21.5", hass.states.get(sonde).attributes)
+    await hass.async_block_till_done()
+    assert hass.states.get(thermostat(hass, entree, 0)).attributes["current_temperature"] == 21.5
+    assert hass.states.get(thermostat(hass, entree, 1)).attributes["current_temperature"] is None
+
+
+async def test_thermostat_arret_puis_rallume_avec_le_dernier_preset(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    cible = {"entity_id": thermostat(hass, entree, 0)}
+    await _appeler(hass, "climate", "set_preset_mode", {**cible, "preset_mode": "soleil"})
+    await _appeler(hass, "climate", "set_hvac_mode", {**cible, "hvac_mode": "off"})
+    assert hass.states.get(cible["entity_id"]).state == "off"
+    await _appeler(hass, "climate", "turn_on", cible)
+    assert [b"U06_0=1&" in r for r in recus] == [True, False, True]
+    assert b"U06_0=0&" in recus[1]
+    etat = hass.states.get(cible["entity_id"])
+    assert (etat.state, etat.attributes["preset_mode"]) == ("heat", "soleil")
+
+
+async def test_thermostat_consigne_et_mode_en_un_envoi(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    await _appeler(hass, "climate", "set_temperature",
+                   {"entity_id": thermostat(hass, entree, 1), "temperature": 21, "hvac_mode": "heat"})
+    assert len(recus) == 1 and b"U09_1=21.0&" in recus[0] and b"U06_1=2&" in recus[0]
+    assert hass.states.get(thermostat(hass, entree, 1)).attributes["temperature"] == 21.0
+    assert hass.states.get(entite(hass, entree, "U09_1")).state == "21.0"
+
+
+async def test_thermostat_consigne_d_une_zone_arretee_refusee(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    await _appeler(hass, "climate", "set_hvac_mode", {"entity_id": thermostat(hass, entree, 0), "hvac_mode": "off"})
+    with pytest.raises(ServiceValidationError) as err:
+        await _appeler(hass, "climate", "set_temperature", {"entity_id": thermostat(hass, entree, 0), "temperature": 20})
+    assert err.value.translation_key == "refus_champs_desactives"
+    assert len(recus) == 1
+    await _appeler(hass, "climate", "set_temperature",
+                   {"entity_id": thermostat(hass, entree, 0), "temperature": 20, "hvac_mode": "heat"})
+    assert len(recus) == 2 and b"U09_0=20.0&" in recus[1] and b"U06_0=2&" in recus[1]
+
+
+async def test_chauffe_eau(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    cible = {"entity_id": entite(hass, entree, "chauffe_eau_6")}
+    etat = hass.states.get(cible["entity_id"])
+    assert etat.state == "performance" and etat.attributes["temperature"] == 50.0
+    assert etat.attributes["operation_list"] == ["off", "eco", "performance"]
+    assert (etat.attributes["min_temp"], etat.attributes["max_temp"]) == (30, 80)
+    await _appeler(hass, "water_heater", "set_operation_mode", {**cible, "operation_mode": "eco"})
+    await _appeler(hass, "water_heater", "set_temperature", {**cible, "temperature": 55})
+    await _appeler(hass, "water_heater", "turn_off", cible)
+    await _appeler(hass, "water_heater", "turn_on", cible)
+    assert b"U06_6=1&" in recus[0] and b"U09_6=55.0&" in recus[1]
+    assert b"U06_6=0&" in recus[2] and b"U06_6=1&" in recus[3]
+    assert hass.states.get(cible["entity_id"]).state == "eco"
+
+
+async def test_thermostat_bloque_sur_version_non_testee(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    for domaine, service, donnees in (
+            ("climate", "set_preset_mode", {"entity_id": thermostat(hass, entree, 0), "preset_mode": "soleil"}),
+            ("water_heater", "set_temperature", {"entity_id": entite(hass, entree, "chauffe_eau_6"), "temperature": 55})):
+        with pytest.raises(HomeAssistantError) as err:
+            await _appeler(hass, domaine, service, donnees)
+        assert err.value.translation_key == "version_non_testee"
+    assert recus == []
+
+
+def horloge_carte(date, heure):
+    return f"<response>\t\r\n<date>{date}</date>\r\n<time>{heure}</time>\r\n</response>".encode()
+
+
+async def test_periode_en_cours_a_l_heure_de_la_carte(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    periode = lambda index: hass.states.get(entite(hass, entree, f"periode_{index}"))  # noqa: E731
+    assert periode(0).state == "confort"
+    assert periode(0).name == "SolisArt Period RDC"
+    assert periode(6).name == "SolisArt Hot water period"
+    assert periode(0).attributes["options"] == ["confort", "reduit"]
+    carte(aioclient_mock, horloge_corps=horloge_carte("lun. 19 oct. 26", "00:45:10"))
+    await entree.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    assert periode(0).state == "reduit"
+
+
+async def test_periode_indisponible_sans_horloge(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock, horloge=500)
+    assert hass.states.get(entite(hass, entree, "periode_0")).state == STATE_UNAVAILABLE
+    assert hass.states.get(entite(hass, entree, "t1")).state == "53.4"
+    carte(aioclient_mock)
+    await entree.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(entite(hass, entree, "periode_0")).state == "confort"
+
+
+async def test_periode_suit_le_planning_ecrit(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    await _appeler(hass, "text", "set_value", {"entity_id": entite(hass, entree, "planning_0_0"), "value": ""})
+    assert hass.states.get(entite(hass, entree, "periode_0")).state == "reduit"

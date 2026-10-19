@@ -53,12 +53,20 @@
         "data": {
           "intervalle_etat": "Mesures (status.xml), en secondes",
           "intervalle_reglages": "Réglages (param.htm), en secondes",
-          "ecriture_version_non_testee": "Autoriser les modifications sur une version non testée"
+          "ecriture_version_non_testee": "Autoriser les modifications sur une version non testée",
+          "sonde_zone_0": "Sonde de la zone 1",
+          "sonde_zone_1": "Sonde de la zone 2",
+          "sonde_zone_2": "Sonde de la zone 3",
+          "sonde_zone_3": "Sonde de la zone 4",
+          "sonde_zone_4": "Sonde de la zone 5",
+          "sonde_zone_5": "Sonde de la zone 6",
+          "sonde_zone_6": "Sonde de l'eau chaude"
         },
         "data_description": {
           "intervalle_reglages": "Cette page coûte près d'une seconde à la carte : ne pas la lire trop souvent.",
           "ecriture_version_non_testee": "L'intégration ne modifie les réglages que sur les versions du logiciel de la carte et de son interface web inscrites dans sa liste des versions testées. Chaque modification renvoie tout le formulaire de la page Utilisateur : sur une autre version, elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive. Ne cochez cette case que si vous acceptez ce risque."
-        }
+        },
+        "description": "Sondes : choisissez la température affichée par le thermostat de chaque zone, par exemple une sonde SolisArt ou un capteur de la pièce. Zones de chauffage de la carte : {zones}."
       }
     }
   },
@@ -75,6 +83,20 @@
       },
       "debit": {
         "name": "Débit {balise}"
+      },
+      "periode": {
+        "name": "Période {zone}",
+        "state": {
+          "confort": "Confort",
+          "reduit": "Réduit"
+        }
+      },
+      "periode_ecs": {
+        "name": "Période eau chaude",
+        "state": {
+          "confort": "Confort",
+          "reduit": "Réduit"
+        }
       }
     },
     "binary_sensor": {
@@ -87,16 +109,16 @@
         "name": "Mode {zone}",
         "state": {
           "arret": "Arrêt",
-          "soleil": "Soleil seul",
-          "soleil_appoint": "Soleil et appoint"
+          "soleil": "Solaire",
+          "soleil_appoint": "Sol/App"
         }
       },
       "mode_ecs": {
         "name": "Mode eau chaude",
         "state": {
           "arret": "Arrêt",
-          "soleil": "Soleil seul",
-          "soleil_appoint": "Soleil et appoint"
+          "soleil": "Solaire",
+          "soleil_appoint": "Sol/App"
         }
       }
     },
@@ -156,6 +178,37 @@
       },
       "planning_6_ecs": {
         "name": "Planning eau chaude dimanche"
+      }
+    },
+    "climate": {
+      "thermostat": {
+        "name": "Thermostat {zone}",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "soleil": "Solaire",
+              "soleil_appoint": "Sol/App"
+            }
+          },
+          "consigne_reduit": {
+            "name": "Consigne réduit"
+          }
+        }
+      }
+    },
+    "water_heater": {
+      "chauffe_eau_ecs": {
+        "name": "Eau chaude",
+        "state": {
+          "off": "Arrêt",
+          "eco": "Solaire",
+          "performance": "Sol/App"
+        },
+        "state_attributes": {
+          "consigne_reduit": {
+            "name": "Consigne réduit"
+          }
+        }
       }
     }
   },

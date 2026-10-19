@@ -123,3 +123,43 @@ class Corps(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _horloge(date, heure):
+    return f"<response>\t\r\n<date>{date}</date>\r\n<time>{heure}</time>\r\n</response>".encode("latin-1")
+
+
+class HorlogeDeLaCarte(unittest.TestCase):
+
+    def test_page_reelle(self):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "dtstat_reel.xml"), "rb") as f:
+            horloge = analyse.lire_horloge(f.read())
+        self.assertEqual((horloge.jour, horloge.creneau), (0, 47))
+        self.assertEqual((horloge.date, horloge.heure), ("lun. 19 oct. 26", "23:33:22"))
+
+    def test_jours_et_demi_heures(self):
+        for date, heure, attendu in (("mar. 20 oct. 26", "00:00:00", (1, 0)), ("dim. 25 oct. 26", "12:29:59", (6, 24)),
+                                     ("sam. 24 oct. 26", "12:30:00", (5, 25)), ("jeu. 22 oct. 26", "7:05", (3, 14))):
+            with self.subTest(date=date, heure=heure):
+                horloge = analyse.lire_horloge(_horloge(date, heure))
+                self.assertEqual((horloge.jour, horloge.creneau), attendu)
+
+    def test_formats_refuses(self):
+        for date, heure in (("Mon 19 Oct 26", "10:00:00"), ("lun. 19 oct. 26", "24:00:00"),
+                            ("lun. 19 oct. 26", "10:75:00"), ("", "10:00:00"), ("lun. 19 oct. 26", "...")):
+            with self.subTest(date=date, heure=heure), self.assertRaises(analyse.PageInattendue):
+                analyse.lire_horloge(_horloge(date, heure))
+        with self.assertRaises(analyse.PageInattendue):
+            analyse.lire_horloge(b"<response><date>lun.")
+
+    def test_periode_selon_le_planning(self):
+        page = lire_page()
+        plannings = analyse.lire_reglages(page).plannings
+        octets = octets_page(page, 0, 0)
+        for creneau in (0, 1, 8, 47):
+            with self.subTest(creneau=creneau):
+                attendu = bool(octets[creneau // 8] >> (creneau % 8) & 1)
+                horloge = analyse.Horloge(0, creneau, "", "")
+                self.assertIs(analyse.periode_en_cours(plannings, 0, horloge), attendu)
+        self.assertIsNone(analyse.periode_en_cours(plannings, 0, None))
+        self.assertIsNone(analyse.periode_en_cours(plannings, 9, analyse.Horloge(0, 0, "", "")))

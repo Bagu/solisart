@@ -25,6 +25,11 @@ VERSIONS_TESTEES = (
 )
 
 
+def cle_sonde(index: int) -> str:
+    """Option qui désigne la sonde de température de la zone `index` (6 : eau chaude)."""
+    return f"sonde_zone_{index}"
+
+
 def intervalle(secondes: int) -> timedelta:
     """Durée en secondes vers timedelta."""
     return timedelta(seconds=secondes)

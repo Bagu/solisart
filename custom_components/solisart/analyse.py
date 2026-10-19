@@ -147,6 +147,49 @@ def lire_etat(xml: str | bytes) -> Etat:
     return etat
 
 
+JOURS_CARTE = ("lun", "mar", "mer", "jeu", "ven", "sam", "dim")
+MOTIF_HEURE_CARTE = re.compile(r"^(\d{1,2}):(\d{2})(?::\d{2})?$")
+
+
+@dataclass(frozen=True)
+class Horloge:
+    """Date et heure de la carte (XML/dtstat.xml) : jour de la semaine (0 lundi, comme
+    les plannings), demi-heure du jour (0 à 47), et textes bruts de la carte."""
+
+    jour: int
+    creneau: int
+    date: str
+    heure: str
+
+
+def lire_horloge(xml: str | bytes) -> Horloge:
+    """Analyse /XML/dtstat.xml (« lun. 19 oct. 26 », « 23:33:22 »). Le jour vient de
+    l'abréviation qui ouvre la date. Lève PageInattendue sur tout autre format."""
+    try:
+        racine = ET.fromstring(xml)
+    except ET.ParseError as err:
+        raise PageInattendue(f"dtstat.xml illisible : {err}") from err
+    date = (racine.findtext("date") or "").strip()
+    heure = (racine.findtext("time") or "").strip()
+    prefixe = date[:3].lower()
+    trouve = MOTIF_HEURE_CARTE.match(heure)
+    if prefixe not in JOURS_CARTE or not trouve:
+        raise PageInattendue(f"dtstat.xml : date {date!r} ou heure {heure!r} non reconnue")
+    heures, minutes = int(trouve.group(1)), int(trouve.group(2))
+    if heures > 23 or minutes > 59:
+        raise PageInattendue(f"dtstat.xml : heure {heure!r} hors limites")
+    return Horloge(JOURS_CARTE.index(prefixe), 2 * heures + minutes // 30, date, heure)
+
+
+def periode_en_cours(plannings: dict[int, tuple[tuple[bool, ...], ...]], zone: int,
+                     horloge: Horloge | None) -> bool | None:
+    """Vrai si la zone est en Confort à l'heure de la carte, faux en Réduit, None si
+    l'heure de la carte ou le planning de la zone manque."""
+    if horloge is None or zone not in plannings:
+        return None
+    return plannings[zone][horloge.jour][horloge.creneau]
+
+
 @dataclass(frozen=True)
 class Consigne:
     """Une température réglable : valeur actuelle (None si vide), bornes de la carte et

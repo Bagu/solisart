@@ -53,12 +53,20 @@
         "data": {
           "intervalle_etat": "Measurements (status.xml), in seconds",
           "intervalle_reglages": "Settings (param.htm), in seconds",
-          "ecriture_version_non_testee": "Allow changes on an untested version"
+          "ecriture_version_non_testee": "Allow changes on an untested version",
+          "sonde_zone_0": "Probe for zone 1",
+          "sonde_zone_1": "Probe for zone 2",
+          "sonde_zone_2": "Probe for zone 3",
+          "sonde_zone_3": "Probe for zone 4",
+          "sonde_zone_4": "Probe for zone 5",
+          "sonde_zone_5": "Probe for zone 6",
+          "sonde_zone_6": "Probe for hot water"
         },
         "data_description": {
           "intervalle_reglages": "This page takes the controller almost a second to build: do not read it too often.",
           "ecriture_version_non_testee": "The integration only changes settings on the controller software and web interface versions in its list of tested versions. Every change sends back the whole User page form, so on another version it could alter other settings without anyone noticing. Tick this only if you accept that risk."
-        }
+        },
+        "description": "Probes: pick the temperature each thermostat shows, for example a SolisArt probe or a room sensor. Heating zones of the controller: {zones}."
       }
     }
   },
@@ -75,6 +83,20 @@
       },
       "debit": {
         "name": "Flow {balise}"
+      },
+      "periode": {
+        "name": "Period {zone}",
+        "state": {
+          "confort": "Comfort",
+          "reduit": "Reduced"
+        }
+      },
+      "periode_ecs": {
+        "name": "Hot water period",
+        "state": {
+          "confort": "Comfort",
+          "reduit": "Reduced"
+        }
       }
     },
     "binary_sensor": {
@@ -87,16 +109,16 @@
         "name": "Mode {zone}",
         "state": {
           "arret": "Off",
-          "soleil": "Solar only",
-          "soleil_appoint": "Solar and backup"
+          "soleil": "Solar",
+          "soleil_appoint": "Solar/Backup"
         }
       },
       "mode_ecs": {
         "name": "Hot water mode",
         "state": {
           "arret": "Off",
-          "soleil": "Solar only",
-          "soleil_appoint": "Solar and backup"
+          "soleil": "Solar",
+          "soleil_appoint": "Solar/Backup"
         }
       }
     },
@@ -156,6 +178,37 @@
       },
       "planning_6_ecs": {
         "name": "Hot water schedule Sunday"
+      }
+    },
+    "climate": {
+      "thermostat": {
+        "name": "Thermostat {zone}",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "soleil": "Solar",
+              "soleil_appoint": "Solar/Backup"
+            }
+          },
+          "consigne_reduit": {
+            "name": "Reduced setpoint"
+          }
+        }
+      }
+    },
+    "water_heater": {
+      "chauffe_eau_ecs": {
+        "name": "Hot water",
+        "state": {
+          "off": "Off",
+          "eco": "Solar",
+          "performance": "Solar/Backup"
+        },
+        "state_attributes": {
+          "consigne_reduit": {
+            "name": "Reduced setpoint"
+          }
+        }
       }
     }
   },

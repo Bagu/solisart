@@ -12,6 +12,7 @@ from .analyse import (
     ENCODAGE,
     JOURS,
     Etat,
+    Horloge,
     PageInattendue,
     ReglageRefuse,
     Reglages,
@@ -22,6 +23,7 @@ from .analyse import (
     ecarts_planning,
     encoder_corps,
     lire_etat,
+    lire_horloge,
     lire_reglages,
     lire_texte_planning,
     preparer_changements,
@@ -129,6 +131,10 @@ class SolisartClient:
     async def lire_etat(self) -> Etat:
         """Mesures de /XML/status.xml."""
         return lire_etat(await self._lire("/XML/status.xml", None))
+
+    async def lire_horloge(self) -> Horloge:
+        """Date et heure de la carte, lues dans /XML/dtstat.xml sans identifiant."""
+        return lire_horloge(await self._lire("/XML/dtstat.xml", None))
 
     async def lire_reglages(self) -> Reglages:
         """Zones, modes et consignes de /param.htm."""

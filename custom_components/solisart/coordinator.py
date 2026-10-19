@@ -14,7 +14,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError, 
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .analyse import Etat, PageInattendue, ReglageRefuse, Reglages
+from .analyse import Etat, Horloge, PageInattendue, ReglageRefuse, Reglages
 from .api import AuthentificationRefusee, CarteInjoignable, EcritureNonConfirmee, SolisartClient
 from .const import (
     CONF_ECRITURE_VERSION_NON_TESTEE,
@@ -34,11 +34,13 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class Donnees:
-    """Dernière lecture : mesures de status.xml et réglages de param.htm (None tant que
-    param.htm n'a pas pu être lue)."""
+    """Dernière lecture : mesures de status.xml, réglages de param.htm (None tant que
+    param.htm n'a pas pu être lue) et horloge de la carte (None si dtstat.xml n'a pas
+    pu être lue à cette relève)."""
 
     etat: Etat
     reglages: Reglages | None
+    horloge: Horloge | None = None
 
 
 type SolisartConfigEntry = ConfigEntry[SolisartCoordinator]
@@ -102,6 +104,7 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
         self._ecriture_forcee = entree.options.get(CONF_ECRITURE_VERSION_NON_TESTEE, False)
         self._reglages: Reglages | None = None
         self._reglages_lus_a: float | None = None
+        self._horloge_lue = True
         self.delai_regroupement = DELAI_REGROUPEMENT
         self._en_attente: dict[str, str | float] = {}
         self._lot: asyncio.Future | None = None
@@ -204,7 +207,8 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
         self._reglages_lus_a = time.monotonic()
         self._signaler_version(reglages)
         if self.data is not None:
-            self.async_set_updated_data(Donnees(etat=self.data.etat, reglages=reglages))
+            self.async_set_updated_data(Donnees(etat=self.data.etat, reglages=reglages,
+                                                horloge=self.data.horloge))
 
     async def _async_update_data(self) -> Donnees:
         try:
@@ -226,4 +230,17 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
                 self._signaler_version(self._reglages)
             self._reglages_lus_a = maintenant
 
-        return Donnees(etat=etat, reglages=self._reglages)
+        return Donnees(etat=etat, reglages=self._reglages, horloge=await self._lire_horloge())
+
+    async def _lire_horloge(self) -> Horloge | None:
+        """Horloge de la carte, ou None si dtstat.xml ne répond pas ou change de format.
+        Le premier échec d'une série est signalé dans le journal."""
+        try:
+            horloge = await self.client.lire_horloge()
+        except (CarteInjoignable, PageInattendue) as err:
+            if self._horloge_lue:
+                _LOGGER.warning("Horloge de la carte illisible, période en cours inconnue : %s", err)
+            self._horloge_lue = False
+            return None
+        self._horloge_lue = True
+        return horloge

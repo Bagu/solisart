@@ -6,10 +6,11 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
+from homeassistant.config_entries import ConfigEntryState, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import EntitySelector, EntitySelectorConfig
 
 from .analyse import PageInattendue
 from .api import AuthentificationRefusee, CarteInjoignable, SolisartClient, adresse_de_base
@@ -23,6 +24,7 @@ from .const import (
     INTERVALLE_ETAT_MIN,
     INTERVALLE_REGLAGES,
     INTERVALLE_REGLAGES_MIN,
+    cle_sonde,
 )
 
 SCHEMA_IDENTIFIANT = {
@@ -129,8 +131,9 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class SolisartOptionsFlow(OptionsFlow):
-    """Rythme de lecture des deux pages, et autorisation d'écrire sur une version de la
-    carte non testée (désactivée par défaut)."""
+    """Rythme de lecture des deux pages, autorisation d'écrire sur une version de la
+    carte non testée (désactivée par défaut), et sonde de température de chaque zone
+    présente pour les entités climate et water_heater (aucune par défaut)."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
@@ -146,4 +149,21 @@ class SolisartOptionsFlow(OptionsFlow):
             vol.Required(CONF_ECRITURE_VERSION_NON_TESTEE,
                          default=options.get(CONF_ECRITURE_VERSION_NON_TESTEE, False)): bool,
         })
-        return self.async_show_form(step_id="init", data_schema=schema)
+        zones = self._zones()
+        sonde = EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature"))
+        schema = schema.extend({
+            vol.Optional(cle_sonde(zone.index),
+                         description={"suggested_value": options.get(cle_sonde(zone.index))}): sonde
+            for zone in zones
+        })
+        noms = ", ".join(f"{zone.index + 1} : {zone.libelle or zone.index + 1}"
+                         for zone in zones if not zone.eau_chaude)
+        return self.async_show_form(step_id="init", data_schema=schema,
+                                    description_placeholders={"zones": noms or "-"})
+
+    def _zones(self):
+        """Zones lues sur la carte, ou aucune si l'entrée n'est pas chargée."""
+        entree = self.config_entry
+        if entree.state is not ConfigEntryState.LOADED or entree.runtime_data.data.reglages is None:
+            return []
+        return entree.runtime_data.data.reglages.zones

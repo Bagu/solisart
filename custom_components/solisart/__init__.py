@@ -20,7 +20,8 @@ from .api import SolisartClient
 from .const import DOMAIN
 from .coordinator import SolisartConfigEntry, SolisartCoordinator, identifiant_probleme
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.TEXT]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.CLIMATE, Platform.NUMBER, Platform.SELECT, Platform.SENSOR,
+             Platform.TEXT, Platform.WATER_HEATER]
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
