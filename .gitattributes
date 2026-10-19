@@ -1,0 +1,2 @@
+# Pages enregistrées sur la carte : octets gardés tels quels (fins de ligne CRLF comprises).
+tests/fixtures/** -text
