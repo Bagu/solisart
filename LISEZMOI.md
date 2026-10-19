@@ -103,6 +103,12 @@ Dans Home Assistant, allez dans Paramètres > Appareils et services > Ajouter un
 intégration, cherchez SolisArt et entrez l'adresse IP du régulateur (par exemple
 `192.168.1.20`) ainsi que vos identifiants.
 
+Le régulateur n'expose aucun numéro de série : l'intégration le reconnaît donc à son
+adresse. Si l'adresse change (nouveau routeur, nouveau bail DHCP), ouvrez le menu de
+l'entrée de l'intégration (les trois points) et choisissez Reconfigurer. Vous pouvez y
+saisir la nouvelle adresse ou un nouvel identifiant, et les entités conservent leur nom
+et leur historique. Laissez le mot de passe vide pour conserver celui enregistré.
+
 Dans les options, vous pouvez régler le rythme de lecture de `status.xml` (30 s par
 défaut) et de `param.htm` (300 s par défaut). Le régulateur met près d'une seconde à
 produire `param.htm` : je ne la lirais pas beaucoup plus souvent. La dernière option

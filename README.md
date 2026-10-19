@@ -90,6 +90,12 @@ Assistant configuration, then restart.
 Then go to Settings, Devices & services, Add integration, SolisArt, and enter the
 controller's address (for example `192.168.1.20`) and the login of its web interface.
 
+The controller exposes no serial number, so the integration tells controllers apart by
+their address. If the address changes (new router, new DHCP lease), open the menu of the
+integration entry (the three dots) and choose Reconfigure. You can enter the new address
+or a new login there, and the entities keep their names and history. Leave the password
+empty to keep the saved one.
+
 Options: how often `status.xml` is read (30 s by default) and how often `param.htm` is
 read (300 s by default). The controller takes almost a second to build `param.htm`, so I
 would not read it much more often. The last option allows changes on an untested

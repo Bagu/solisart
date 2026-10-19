@@ -494,3 +494,70 @@ async def test_option_proposee_desactivee(hass, aioclient_mock):
 def test_url_des_tickets_comme_le_manifeste():
     manifeste = json.loads((Path(__file__).parents[2] / "custom_components" / "solisart" / "manifest.json").read_text())
     assert URL_TICKETS == manifeste["issue_tracker"]
+
+
+NOUVEL_HOTE = "192.0.2.11"
+
+
+def autre_adresse(aioclient_mock, param=200, exc=None):
+    """Ajoute la même carte simulée à NOUVEL_HOTE, sans retirer l'ancienne adresse."""
+    aioclient_mock.get(f"http://{NOUVEL_HOTE}/XML/status.xml", exc=exc,
+                       content=(FIXTURES / "status_reel.xml").read_bytes())
+    aioclient_mock.get(f"http://{NOUVEL_HOTE}/param.htm", status=param,
+                       content=(FIXTURES / "param_reel.htm").read_bytes())
+
+
+async def _reconfigurer(hass, entree, donnees):
+    resultat = await entree.start_reconfigure_flow(hass)
+    assert resultat["type"] is FlowResultType.FORM and resultat["step_id"] == "reconfigure"
+    return await hass.config_entries.flow.async_configure(resultat["flow_id"], donnees)
+
+
+async def test_reconfigurer_l_adresse_garde_les_entites(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    registre = er.async_get(hass)
+    avant = {e.entity_id: e.unique_id for e in er.async_entries_for_config_entry(registre, entree.entry_id)}
+    autre_adresse(aioclient_mock)
+    resultat = await _reconfigurer(hass, entree, {CONF_HOST: NOUVEL_HOTE, CONF_USERNAME: "essai"})
+    await hass.async_block_till_done()
+    assert resultat["type"] is FlowResultType.ABORT and resultat["reason"] == "reconfigure_successful"
+    assert entree.data == {**DONNEES, CONF_HOST: NOUVEL_HOTE}
+    assert entree.unique_id == f"http://{NOUVEL_HOTE}"
+    assert entree.title == f"SolisArt ({NOUVEL_HOTE})"
+    apres = {e.entity_id: e.unique_id for e in er.async_entries_for_config_entry(registre, entree.entry_id)}
+    assert apres == avant
+    assert entree.state is ConfigEntryState.LOADED
+    assert hass.states.get(entite(hass, entree, "t1")).state == "53.4"
+    appels = [str(appel[1]) for appel in aioclient_mock.mock_calls]
+    assert f"http://{NOUVEL_HOTE}/XML/status.xml" in appels
+
+
+async def test_reconfigurer_avec_nouveau_mot_de_passe(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    autre_adresse(aioclient_mock)
+    await _reconfigurer(hass, entree, {CONF_HOST: HOTE, CONF_USERNAME: "zone", CONF_PASSWORD: "nouveau"})
+    assert entree.data == {CONF_HOST: HOTE, CONF_USERNAME: "zone", CONF_PASSWORD: "nouveau"}
+
+
+async def test_reconfigurer_vers_une_carte_muette(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    autre_adresse(aioclient_mock, exc=aiohttp.ClientError())
+    resultat = await _reconfigurer(hass, entree, {CONF_HOST: NOUVEL_HOTE, CONF_USERNAME: "essai"})
+    assert resultat["type"] is FlowResultType.FORM and resultat["errors"] == {"base": "cannot_connect"}
+    assert entree.data[CONF_HOST] == HOTE
+
+
+async def test_reconfigurer_identifiant_refuse(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    autre_adresse(aioclient_mock, param=401)
+    resultat = await _reconfigurer(hass, entree, {CONF_HOST: NOUVEL_HOTE, CONF_USERNAME: "essai"})
+    assert resultat["errors"] == {"base": "invalid_auth"}
+
+
+async def test_reconfigurer_vers_l_adresse_d_une_autre_carte(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    MockConfigEntry(domain=DOMAIN, data={**DONNEES, CONF_HOST: NOUVEL_HOTE},
+                    unique_id=f"http://{NOUVEL_HOTE}").add_to_hass(hass)
+    resultat = await _reconfigurer(hass, entree, {CONF_HOST: f"http://{NOUVEL_HOTE}/", CONF_USERNAME: "essai"})
+    assert resultat["type"] is FlowResultType.ABORT and resultat["reason"] == "already_configured"
+    assert entree.data[CONF_HOST] == HOTE

@@ -20,6 +20,19 @@
           "username": "Username",
           "password": "Password"
         }
+      },
+      "reconfigure": {
+        "title": "Change the controller settings",
+        "description": "New address or login for this controller. The entities keep their names and history.",
+        "data": {
+          "host": "Address",
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "IP address or host name, for example 192.168.1.20.",
+          "password": "Leave empty to keep the saved password."
+        }
       }
     },
     "error": {
@@ -29,7 +42,8 @@
     },
     "abort": {
       "already_configured": "This controller is already set up.",
-      "reauth_successful": "Login updated."
+      "reauth_successful": "Login updated.",
+      "reconfigure_successful": "Controller settings updated."
     }
   },
   "options": {

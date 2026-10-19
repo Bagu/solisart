@@ -89,6 +89,39 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=erreurs,
         )
 
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Change l'adresse ou l'identifiant d'une carte déjà ajoutée. Les entités gardent
+        leur identifiant (fondé sur l'entrée, pas sur l'adresse), donc leur historique.
+        Un mot de passe laissé vide garde celui enregistré."""
+        entree = self._get_reconfigure_entry()
+        erreurs: dict[str, str] = {}
+        if user_input is not None:
+            donnees = {**user_input,
+                       CONF_PASSWORD: user_input.get(CONF_PASSWORD) or entree.data[CONF_PASSWORD]}
+            base = adresse_de_base(donnees[CONF_HOST]).lower()
+            if any(autre.unique_id == base for autre in self._async_current_entries(include_ignore=False)
+                   if autre.entry_id != entree.entry_id):
+                return self.async_abort(reason="already_configured")
+            erreur = await essayer(self.hass, donnees[CONF_HOST],
+                                   donnees[CONF_USERNAME], donnees[CONF_PASSWORD])
+            if erreur is None:
+                return self.async_update_reload_and_abort(
+                    entree, unique_id=base, title=f"{FABRICANT} ({donnees[CONF_HOST]})",
+                    data_updates=donnees)
+            erreurs["base"] = erreur
+        schema = vol.Schema({
+            vol.Required(CONF_HOST): str,
+            vol.Required(CONF_USERNAME): str,
+            vol.Optional(CONF_PASSWORD): str,
+        })
+        suggestions = {CONF_HOST: entree.data[CONF_HOST], CONF_USERNAME: entree.data[CONF_USERNAME],
+                       **{k: v for k, v in (user_input or {}).items() if k != CONF_PASSWORD}}
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(schema, suggestions),
+            errors=erreurs,
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry) -> OptionsFlow:

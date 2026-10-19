@@ -20,6 +20,19 @@
           "username": "Identifiant",
           "password": "Mot de passe"
         }
+      },
+      "reconfigure": {
+        "title": "Modifier les réglages de la carte",
+        "description": "Nouvelle adresse ou nouvel identifiant de cette carte. Les entités conservent leur nom et leur historique.",
+        "data": {
+          "host": "Adresse",
+          "username": "Identifiant",
+          "password": "Mot de passe"
+        },
+        "data_description": {
+          "host": "Adresse IP ou nom, par exemple 192.168.1.20.",
+          "password": "Laisser vide pour conserver le mot de passe enregistré."
+        }
       }
     },
     "error": {
@@ -29,7 +42,8 @@
     },
     "abort": {
       "already_configured": "Cette carte est déjà ajoutée.",
-      "reauth_successful": "Identifiant mis à jour."
+      "reauth_successful": "Identifiant mis à jour.",
+      "reconfigure_successful": "Réglages de la carte mis à jour."
     }
   },
   "options": {
