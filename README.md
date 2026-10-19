@@ -2,12 +2,9 @@
 
 [Version française](LISEZMOI.md)
 
-A custom integration that reads a SolisArt solar heating controller from Home Assistant.
-I wrote it for my own SolisArt system, and kept it generic: zones, labels and limits are
-read from the controller, nothing about my house is hard-coded.
-
-Current state: read only. Changing zone modes and temperature setpoints from Home
-Assistant is the next step and is not in this version yet.
+A custom integration that reads and adjusts a SolisArt solar heating controller from
+Home Assistant. I wrote it for my own SolisArt system, and kept it generic: zones, labels
+and limits are read from the controller, nothing about my house is hard-coded.
 
 This project is not affiliated with SolisArt.
 
@@ -27,8 +24,23 @@ how your system was installed, and the Visualisation page of the controller show
 Rename them in Home Assistant once you know.
 
 The integration also reads `/param.htm` (the User page) every 5 minutes: zones, their
-labels, modes and setpoints, plus the controller and web interface versions. For now this
-only fills the device information and the diagnostics, and gets the writing part ready.
+labels, modes and setpoints, plus the controller and web interface versions.
+
+## What it changes
+
+For each zone the controller has (heating zones and hot water), the integration adds:
+
+- a mode selector: off, solar only, or solar and backup;
+- the comfort and reduced setpoints, in °C. Their limits come from the controller's page.
+  They show as unavailable while the zone is off, since the controller locks them then.
+
+The entities take the zone labels set on the controller (for example "Mode Ground
+floor").
+
+To change a value, the integration does what your browser does on the User page. It reads
+`param.htm`, sends the whole form back with the new value, then reads the page again to
+check the controller kept it. If the value did not stick, Home Assistant shows an error.
+Changes go out one at a time.
 
 ## Requirements
 
@@ -56,8 +68,10 @@ would not read it much more often.
 
 - SolisArt does not publish an API. This integration reads the same pages as your
   browser. A software update of the controller can change those pages and break it.
-- Once writing is available: only one tool should change the controller's settings.
-  If two tools write to `param.htm`, each one overwrites what the other just set.
+- Only one tool should change the controller's settings. If two tools write to
+  `param.htm`, each one overwrites what the other just set.
+- Every change sends back the whole User page form. The other settings on that page are
+  sent as they were read a moment before.
 - The integration gives Home Assistant access to the controller and nothing more.
   Deciding when to heat with the solar surplus or during off-peak hours belongs in your
   own automations.
@@ -76,7 +90,12 @@ with `PYTHONPATH=tests/ha/windows`: that folder holds empty stand-ins for two Un
 modules Home Assistant imports.
 
 `outils/contre_epreuve.py` and `outils/contre_epreuve_ha.py` break the code on purpose,
-one fault at a time, and check that the tests catch each one.
+one fault at a time, and check that the tests catch each one. The first one uses the
+Python of `.venv` when it exists, because the client tests need aiohttp.
+
+`tests/fixtures/corps_reference.json` holds the form bodies that a script already proven
+on a real controller builds from the test page and its variants. The tests check that the
+integration builds the same bytes. `outils/parite_reference.py` rebuilds that file.
 
 `outils/anonymiser.py` turns a `param.htm` saved from your controller into a test page.
 It masks the installation name and the logins. It refuses to write the file if an IP

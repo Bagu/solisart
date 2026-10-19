@@ -7,11 +7,11 @@ from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .analyse import Etat, PageInattendue, Reglages
-from .api import AuthentificationRefusee, CarteInjoignable, SolisartClient
+from .analyse import Etat, PageInattendue, ReglageRefuse, Reglages
+from .api import AuthentificationRefusee, CarteInjoignable, EcritureNonConfirmee, SolisartClient
 from .const import (
     CONF_INTERVALLE_ETAT,
     CONF_INTERVALLE_REGLAGES,
@@ -59,6 +59,24 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
     def relire_reglages(self) -> None:
         """Force la lecture de param.htm à la prochaine relève."""
         self._reglages_lus_a = None
+
+    async def ecrire_reglages(self, demandes: dict[str, str | float]) -> None:
+        """Écrit des réglages sur la carte et publie aussitôt la page relue. Après un
+        échec, param.htm est relue à la relève demandée, car une partie a pu passer.
+        Lève HomeAssistantError avec la raison de l'échec."""
+        try:
+            reglages = await self.client.ecrire_reglages(demandes)
+        except (AuthentificationRefusee, CarteInjoignable, PageInattendue, ReglageRefuse,
+                EcritureNonConfirmee) as err:
+            self.relire_reglages()
+            await self.async_request_refresh()
+            if isinstance(err, AuthentificationRefusee):
+                raise HomeAssistantError("écriture SolisArt : identifiant refusé par la carte") from err
+            raise HomeAssistantError(f"écriture SolisArt : {err}") from err
+        self._reglages = reglages
+        self._reglages_lus_a = time.monotonic()
+        if self.data is not None:
+            self.async_set_updated_data(Donnees(etat=self.data.etat, reglages=reglages))
 
     async def _async_update_data(self) -> Donnees:
         try:

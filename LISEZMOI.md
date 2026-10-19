@@ -2,13 +2,10 @@
 
 [English version](README.md)
 
-Une intégration personnalisée qui lit une carte de régulation SolisArt (chauffage
-solaire) depuis Home Assistant. Je l'ai écrite pour ma propre installation et je l'ai
-gardée générique. Les zones, leurs libellés et leurs bornes se lisent sur la carte : rien
-de ma maison n'est écrit dans le code.
-
-État actuel : lecture seule. Le réglage des modes des zones et des consignes depuis
-Home Assistant viendra ensuite ; il n'est pas dans cette version.
+Une intégration personnalisée qui lit et règle une carte de régulation SolisArt
+(chauffage solaire) depuis Home Assistant. Je l'ai écrite pour ma propre installation
+et je l'ai gardée générique. Les zones, leurs libellés et leurs bornes se lisent sur la
+carte : rien de ma maison n'est écrit dans le code.
 
 Ce projet n'a aucun lien avec la société SolisArt.
 
@@ -29,8 +26,24 @@ dans Home Assistant une fois que vous le savez.
 
 L'intégration lit aussi `/param.htm` (la page Utilisateur) toutes les 5 minutes : zones,
 libellés, modes, consignes, ainsi que les versions de la carte et de son interface web.
-Pour l'instant, ces données remplissent seulement la fiche de l'appareil et le
-diagnostic, et préparent l'écriture.
+
+## Ce qu'elle règle
+
+Pour chaque zone présente sur la carte (zones de chauffage et eau chaude), l'intégration
+ajoute :
+
+- le choix du mode : arrêt, soleil seul, ou soleil et appoint ;
+- les consignes de confort et de réduit, en °C. Leurs bornes viennent de la page de la
+  carte. Elles sont indisponibles tant que la zone est à l'arrêt, car la carte les
+  verrouille alors.
+
+Les entités prennent les libellés des zones saisis sur la carte (par exemple « Mode
+RDC »).
+
+Pour changer une valeur, l'intégration fait comme votre navigateur sur la page
+Utilisateur. Elle lit `param.htm`, renvoie le formulaire complet avec la nouvelle valeur,
+puis relit la page pour vérifier que la carte l'a gardée. Si la valeur n'a pas été prise,
+Home Assistant affiche une erreur. Les changements partent un par un.
 
 ## Prérequis
 
@@ -59,8 +72,10 @@ pas beaucoup plus souvent.
 - SolisArt ne publie pas d'interface de programmation. L'intégration lit les mêmes pages
   que votre navigateur. Une mise à jour du logiciel de la carte peut les changer et la
   casser.
-- Quand l'écriture sera là : un seul outil doit modifier les réglages de la carte. Si
-  deux outils écrivent sur `param.htm`, chacun écrase ce que l'autre vient de régler.
+- Un seul outil doit modifier les réglages de la carte. Si deux outils écrivent sur
+  `param.htm`, chacun écrase ce que l'autre vient de régler.
+- Chaque changement renvoie tout le formulaire de la page Utilisateur. Les autres
+  réglages de cette page repartent tels que l'intégration vient de les lire.
 - L'intégration donne à Home Assistant l'accès à la carte, rien de plus. Décider quand
   chauffer avec le surplus solaire ou en heures creuses revient à vos automatisations.
 
@@ -79,7 +94,13 @@ dossier contient des remplaçants vides de deux modules propres à Unix que Home
 importe.
 
 `outils/contre_epreuve.py` et `outils/contre_epreuve_ha.py` cassent le code exprès, un
-défaut à la fois, et vérifient que les tests attrapent chacun d'eux.
+défaut à la fois, et vérifient que les tests attrapent chacun d'eux. Le premier prend le
+Python de `.venv` s'il existe, car les tests du client demandent aiohttp.
+
+`tests/fixtures/corps_reference.json` garde les corps du formulaire qu'un script déjà
+éprouvé sur une vraie carte construit à partir de la page de test et de ses variantes.
+Les tests vérifient que l'intégration produit les mêmes octets.
+`outils/parite_reference.py` refait ce fichier.
 
 `outils/anonymiser.py` transforme une page `param.htm` enregistrée depuis votre carte en
 page de test. Il masque le nom de l'installation et les identifiants. Il refuse d'écrire

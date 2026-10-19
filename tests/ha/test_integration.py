@@ -5,17 +5,21 @@
 from pathlib import Path
 
 import aiohttp
+import pytest
 from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, STATE_OFF, STATE_UNAVAILABLE
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.components.diagnostics import (
     get_diagnostics_for_config_entry,
 )
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMockResponse
 
 from custom_components.solisart.const import CONF_INTERVALLE_ETAT, CONF_INTERVALLE_REGLAGES, DOMAIN
+from tests.carte_simulee import appliquer
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 HOTE = "192.0.2.10"
@@ -31,9 +35,32 @@ def carte(aioclient_mock, status=200, param=200, param_corps=None, exc=None):
     aioclient_mock.get(PARAM, status=param, content=param_corps or (FIXTURES / "param_reel.htm").read_bytes())
 
 
-async def installer(hass, aioclient_mock, **carte_kw):
+def carte_reglable(aioclient_mock, sourde=False):
+    """Simule une carte qui enregistre les POST de param.htm (sauf si `sourde`) et
+    répond 302. Rend la liste des corps reçus."""
+    page = [(FIXTURES / "param_reel.htm").read_bytes()]
+    recus = []
+
+    async def lire(method, url, data):
+        return AiohttpClientMockResponse(method, url, response=page[0])
+
+    async def enregistrer(method, url, data):
+        recus.append(data)
+        if not sourde:
+            page[0] = appliquer(page[0], data)
+        return AiohttpClientMockResponse(method, url, status=302)
+
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(STATUS, content=(FIXTURES / "status_reel.xml").read_bytes())
+    aioclient_mock.get(PARAM, side_effect=lire)
+    aioclient_mock.post(PARAM, side_effect=enregistrer)
+    return recus
+
+
+async def installer(hass, aioclient_mock, reglable=False, **carte_kw):
     """Ajoute une entrée déjà configurée et la démarre."""
-    carte(aioclient_mock, **carte_kw)
+    if not reglable:
+        carte(aioclient_mock, **carte_kw)
     entree = MockConfigEntry(domain=DOMAIN, data=DONNEES, unique_id=f"http://{HOTE}")
     entree.add_to_hass(hass)
     await hass.config_entries.async_setup(entree.entry_id)
@@ -42,9 +69,9 @@ async def installer(hass, aioclient_mock, **carte_kw):
 
 
 def entite(hass, entree, balise):
-    """entity_id de la balise, retrouvé par son identifiant unique."""
+    """entity_id de la balise ou du champ, retrouvé par son identifiant unique."""
     registre = er.async_get(hass)
-    for domaine in ("sensor", "binary_sensor"):
+    for domaine in ("sensor", "binary_sensor", "select", "number"):
         trouve = registre.async_get_entity_id(domaine, DOMAIN, f"{entree.entry_id}_{balise}")
         if trouve:
             return trouve
@@ -102,7 +129,7 @@ async def test_entites(hass, aioclient_mock):
     assert etat("fl5").state == "0.0"
     assert etat("mrel1").state == STATE_OFF
     nombre = len(er.async_entries_for_config_entry(er.async_get(hass), entree.entry_id))
-    assert nombre == 45, nombre
+    assert nombre == 45 + 3 + 6, nombre
 
 
 async def test_sonde_absente_desactivee(hass, aioclient_mock):
@@ -172,3 +199,69 @@ async def test_diagnostic_sans_identifiant(hass, aioclient_mock, hass_client):
     assert DONNEES[CONF_PASSWORD] not in texte and HOTE not in texte
     assert diag["balises_inconnues"] == {"flpws": "1", "getSave": "142"}
     assert [z["index"] for z in diag["reglages"]["zones"]] == [0, 1, 6]
+
+
+async def test_entites_de_reglage(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock)
+    etat = lambda champ: hass.states.get(entite(hass, entree, champ))  # noqa: E731
+    assert etat("U06_0").state == "soleil_appoint"
+    assert etat("U06_0").name == "SolisArt Mode RDC"
+    assert etat("U06_6").name == "SolisArt Hot water mode"
+    assert etat("U06_0").attributes["options"] == ["arret", "soleil", "soleil_appoint"]
+    assert etat("U09_1").name == "SolisArt Comfort setpoint Etage"
+    assert etat("U09_1").state == "18.5"
+    assert etat("U10_1").state == "18.0"
+    assert (etat("U09_0").attributes["min"], etat("U09_0").attributes["max"]) == (10, 40)
+    assert (etat("U10_6").attributes["min"], etat("U10_6").attributes["max"]) == (20, 80)
+    assert etat("U09_6").attributes["step"] == 0.1
+    assert entite(hass, entree, "U06_2") is None
+
+
+def _postes(aioclient_mock):
+    return [appel for appel in aioclient_mock.mock_calls if appel[0].lower() == "post"]
+
+
+async def test_mode_ecrit_puis_confirme(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    await hass.services.async_call("select", "select_option",
+                                   {"entity_id": entite(hass, entree, "U06_0"), "option": "soleil"},
+                                   blocking=True)
+    assert len(recus) == 1 and b"U06_0=1&" in recus[0] and b"U06_1=2&" in recus[0]
+    entetes = _postes(aioclient_mock)[0][3]
+    assert entetes["Referer"] == PARAM
+    assert entetes["Content-Type"] == "application/x-www-form-urlencoded"
+    assert hass.states.get(entite(hass, entree, "U06_0")).state == "soleil"
+
+
+async def test_consigne_ecrite(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    await hass.services.async_call("number", "set_value",
+                                   {"entity_id": entite(hass, entree, "U09_6"), "value": 55},
+                                   blocking=True)
+    assert b"U09_6=55.0&" in recus[0]
+    assert hass.states.get(entite(hass, entree, "U09_6")).state == "55.0"
+
+
+async def test_zone_arretee_consignes_indisponibles(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    await hass.services.async_call("select", "select_option",
+                                   {"entity_id": entite(hass, entree, "U06_1"), "option": "arret"},
+                                   blocking=True)
+    assert hass.states.get(entite(hass, entree, "U09_1")).state == STATE_UNAVAILABLE
+    assert hass.states.get(entite(hass, entree, "U10_1")).state == STATE_UNAVAILABLE
+    assert hass.states.get(entite(hass, entree, "U09_0")).state == "18.5"
+
+
+async def test_carte_qui_n_applique_rien(hass, aioclient_mock):
+    recus = carte_reglable(aioclient_mock, sourde=True)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    with pytest.raises(HomeAssistantError, match="U06_6"):
+        await hass.services.async_call("select", "select_option",
+                                       {"entity_id": entite(hass, entree, "U06_6"), "option": "arret"},
+                                       blocking=True)
+    await hass.async_block_till_done()
+    assert len(recus) == 1
+    assert hass.states.get(entite(hass, entree, "U06_6")).state == "soleil_appoint"

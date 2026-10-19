@@ -19,6 +19,13 @@ SABOTAGES = [
     ("401 pris pour une panne", "api.py", "raise AuthentificationRefusee\n", "raise CarteInjoignable('401')\n"),
     ("doublon accepté", "config_flow.py", "self._abort_if_unique_id_configured()", "pass"),
     ("options ignorées", "coordinator.py", "entree.options.get(CONF_INTERVALLE_ETAT, INTERVALLE_ETAT)", "INTERVALLE_ETAT"),
+    ("écriture non confirmée acceptée", "api.py", "            if restants:\n", "            if False:\n"),
+    ("page relue non publiée", "coordinator.py", "            self.async_set_updated_data(Donnees(etat=self.data.etat, reglages=reglages))\n", "            pass\n"),
+    ("échec d'écriture passé sous silence", "coordinator.py", '            raise HomeAssistantError(f"écriture SolisArt : {err}") from err\n', "            return\n"),
+    ("option liée au mauvais mode", "select.py", '"soleil": MODE_SOLEIL,', '"soleil": MODE_SOLEIL_APPOINT,'),
+    ("consigne d'une zone arrêtée disponible", "number.py", "consigne is not None and consigne.actif", "consigne is not None"),
+    ("bornes de la page ignorées", "number.py", "return consigne.maximum if consigne and consigne.maximum is not None else super().native_max_value", "return super().native_max_value"),
+    ("confort et réduit confondus", "number.py", 'return zone.confort if self._cle == "confort" else zone.reduit', "return zone.confort"),
 ]
 
 
@@ -33,19 +40,20 @@ def main() -> int:
     rates = []
     for nom, fichier, avant, apres in SABOTAGES:
         chemin = os.path.join(CC, fichier)
-        with open(chemin, encoding="utf-8") as f:
-            origine = f.read()
+        with open(chemin, "rb") as f:
+            octets = f.read()
+        origine = octets.decode("utf-8").replace("\r\n", "\n")
         if origine.count(avant) != 1:
             rates.append(f"{nom} : motif introuvable")
             continue
         try:
-            with open(chemin, "w", encoding="utf-8") as f:
+            with open(chemin, "w", encoding="utf-8", newline="\n") as f:
                 f.write(origine.replace(avant, apres))
             if tests_passent():
                 rates.append(f"{nom} : non détecté")
         finally:
-            with open(chemin, "w", encoding="utf-8") as f:
-                f.write(origine)
+            with open(chemin, "wb") as f:
+                f.write(octets)
     sain = tests_passent()
     for r in rates:
         print(r)

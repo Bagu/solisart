@@ -1,4 +1,4 @@
-"""Intégration SolisArt : lecture d'une carte de régulation de chauffage solaire."""
+"""Intégration SolisArt : lecture et réglage d'une carte de régulation de chauffage solaire."""
 from __future__ import annotations
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
@@ -8,7 +8,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import SolisartClient
 from .coordinator import SolisartConfigEntry, SolisartCoordinator
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> bool:

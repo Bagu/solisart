@@ -5,6 +5,7 @@ import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
+from urllib.parse import urlencode
 
 TEMPERATURE = "temperature"
 POURCENTAGE = "pourcentage"
@@ -14,6 +15,7 @@ RELAIS = "relais"
 NB_ZONES_CHAUFFAGE = 6
 ZONE_ECS = 6
 FORMULAIRE = "frm_params"
+ENCODAGE = "ISO-8859-1"
 
 MODE_ARRET = "0"
 MODE_SOLEIL = "1"
@@ -22,6 +24,10 @@ MODES = (MODE_ARRET, MODE_SOLEIL, MODE_SOLEIL_APPOINT)
 
 SONDE_ABSENTE = ("Dsc", "...")
 
+CASE_HORS_GEL = "cb02"
+CHAMPS_HORS_GEL = ("U03", "U14", "U13", "U04", "U15", "U17", "U16", "U05", "U18")
+TYPES_IGNORES = ("submit", "button", "reset", "image")
+
 MOTIF_MODE = re.compile(r"FillUtilModeChauff\('(\w+)'\s*,\s*'([^']*)'\)")
 MOTIF_ZONE = re.compile(
     r"EnableZoneDftParamsInputs\('(\d)'\s*,\s*document[^,)]+(?:,\s*'(\d)')?\s*\)"
@@ -29,10 +35,18 @@ MOTIF_ZONE = re.compile(
 MOTIF_BORNES = re.compile(r"CIV\((-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)")
 MOTIF_VERSION = re.compile(r"(SRB_\S+)\s+-\s+(WEB_\S+)")
 MOTIF_NOMBRE = re.compile(r"^[-+]?\d+(?:\.\d+)?")
+MOTIF_CIBLE_CASE = re.compile(r"elements\['(\w+)'\]")
+MOTIF_DECIMALES = re.compile(r"CIC\(event\s*,\s*(\d+)")
+MOTIF_CHAMP_ZONE = re.compile(r"U(06|09|10)_(\d)")
 
 
 class PageInattendue(ValueError):
     """La page reçue ne ressemble pas à celle d'une carte SolisArt."""
+
+
+class ReglageRefuse(ValueError):
+    """Changement demandé que le module ne peut pas transmettre : champ inconnu ou
+    désactivé, zone absente, valeur hors des bornes de la carte."""
 
 
 @dataclass(frozen=True)
@@ -111,6 +125,7 @@ class Consigne:
     minimum: float | None
     maximum: float | None
     actif: bool
+    decimales: int = 1
 
 
 @dataclass(frozen=True)
@@ -142,6 +157,7 @@ class _Champ:
     nom: str
     balise: str
     attributs: dict[str, str | None]
+    texte: str = ""
 
 
 class _LecteurPage(HTMLParser):
@@ -151,6 +167,8 @@ class _LecteurPage(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.champs: dict[str, _Champ] = {}
+        self.elements: list[_Champ] = []
+        self._zone_texte: _Champ | None = None
         self.cellules: dict[str, str] = {}
         self.scripts: list[str] = []
         self.texte: list[str] = []
@@ -172,8 +190,12 @@ class _LecteurPage(HTMLParser):
             self.cellules[self._cellule] = ""
         if self._dans_formulaire and tag in ("input", "select", "textarea"):
             nom = attributs.get("name")
+            element = _Champ(nom or "", tag, attributs)
+            self.elements.append(element)
+            if tag == "textarea":
+                self._zone_texte = element
             if nom and nom not in self.champs:
-                self.champs[nom] = _Champ(nom, tag, attributs)
+                self.champs[nom] = element
 
     def handle_endtag(self, tag):
         if tag == "form":
@@ -182,11 +204,15 @@ class _LecteurPage(HTMLParser):
             self._dans_script = False
         elif tag == "td":
             self._cellule = None
+        elif tag == "textarea":
+            self._zone_texte = None
 
     def handle_data(self, data):
         if self._dans_script:
             self.scripts[-1] += data
             return
+        if self._zone_texte is not None:
+            self._zone_texte.texte += data
         if self._cellule:
             self.cellules[self._cellule] += data
         self.texte.append(data)
@@ -198,6 +224,7 @@ def _consigne(lecteur: _LecteurPage, nom: str, desactives: set[str]) -> Consigne
     if champ is None:
         return Consigne(nom, None, None, None, False)
     bornes = MOTIF_BORNES.search(champ.attributs.get("onchange") or "")
+    decimales = MOTIF_DECIMALES.search(champ.attributs.get("onkeypress") or "")
     actif = "disabled" not in champ.attributs and nom not in desactives
     return Consigne(
         nom,
@@ -205,7 +232,25 @@ def _consigne(lecteur: _LecteurPage, nom: str, desactives: set[str]) -> Consigne
         float(bornes.group(1)) if bornes else None,
         float(bornes.group(2)) if bornes else None,
         actif,
+        int(decimales.group(1)) if decimales else 1,
     )
+
+
+def _analyser(html: str) -> _LecteurPage:
+    """Lit la page entière ; lève PageInattendue sans formulaire frm_params."""
+    lecteur = _LecteurPage()
+    lecteur.feed(html)
+    lecteur.close()
+    if not lecteur.formulaire_vu:
+        raise PageInattendue(f"formulaire {FORMULAIRE} absent de param.htm")
+    return lecteur
+
+
+def _modes(lecteur: _LecteurPage) -> dict[str, str]:
+    """Valeur de chaque liste remplie par FillUtilModeChauff ; une valeur inconnue
+    devient l'arrêt, première option de la liste, comme dans le navigateur."""
+    scripts = "\n".join(lecteur.scripts)
+    return {nom: (v if v in MODES else MODE_ARRET) for nom, v in MOTIF_MODE.findall(scripts)}
 
 
 def lire_reglages(html: str) -> Reglages:
@@ -215,14 +260,9 @@ def lire_reglages(html: str) -> Reglages:
     (EnableZoneDftParamsInputs avec '1'). L'eau chaude l'est quand sa liste U06_6
     existe. Un mode inconnu se lit comme l'arrêt, comme le fait la page elle-même.
     """
-    lecteur = _LecteurPage()
-    lecteur.feed(html)
-    lecteur.close()
-    if not lecteur.formulaire_vu:
-        raise PageInattendue(f"formulaire {FORMULAIRE} absent de param.htm")
-
+    lecteur = _analyser(html)
     scripts = "\n".join(lecteur.scripts)
-    modes = {nom: (v if v in MODES else MODE_ARRET) for nom, v in MOTIF_MODE.findall(scripts)}
+    modes = _modes(lecteur)
     presentes = {int(i) for i, drapeau in MOTIF_ZONE.findall(scripts) if drapeau == "1"}
     if f"U06_{ZONE_ECS}" in lecteur.champs:
         presentes.add(ZONE_ECS)
@@ -246,3 +286,121 @@ def lire_reglages(html: str) -> Reglages:
         version_carte=version.group(1) if version else None,
         version_web=version.group(2) if version else None,
     )
+
+
+def corps_formulaire(html: str, changements: dict[str, str] | None = None) -> dict[str, str]:
+    """Corps du POST de frm_params, champ par champ, tel que le navigateur l'enverrait
+    après les changements demandés (nom du champ vers valeur).
+
+    Rejoue le JavaScript de la page : listes remplies par FillUtilModeChauff, cases
+    recopiées dans leur champ caché par CheckboxVal, champs désactivés par
+    EnableZoneDftParamsInputs (zone à l'arrêt ou absente) et par EnableHorsGel (case
+    cb02 décochée). Un champ désactivé n'est jamais transmis. Un changement qui vise
+    un champ absent ou désactivé est ignoré : `champs_refuses` le signale.
+    """
+    changements = changements or {}
+    lecteur = _analyser(html)
+    listes = _modes(lecteur)
+    listes.update({nom: v for nom, v in changements.items() if nom in listes})
+
+    corps: dict[str, str] = {}
+    cases: dict[str, bool] = {}
+    for element in lecteur.elements:
+        nom, attributs = element.nom, element.attributs
+        if not nom or "disabled" in attributs:
+            continue
+        if element.balise == "select":
+            corps[nom] = listes.get(nom, MODE_ARRET)
+            continue
+        if element.balise == "textarea":
+            corps[nom] = element.texte
+            continue
+        genre = (attributs.get("type") or "text").lower()
+        if genre in TYPES_IGNORES:
+            continue
+        if genre == "checkbox":
+            cochee = "checked" in attributs
+            cases[nom] = cochee
+            if cochee:
+                corps[nom] = "on"
+            cible = MOTIF_CIBLE_CASE.search(attributs.get("onclick") or "")
+            if cible:
+                corps[cible.group(1)] = "1" if cochee else "0"
+            continue
+        corps.setdefault(nom, changements.get(nom, attributs.get("value") or ""))
+
+    desactives: set[str] = set()
+    for zone, drapeau in MOTIF_ZONE.findall("\n".join(lecteur.scripts)):
+        if drapeau == "0":
+            desactives.add(f"U06_{zone}")
+        if listes.get(f"U06_{zone}") == MODE_ARRET:
+            desactives.update(f"U{p}_{zone}" for p in ("07", "09", "10", "11"))
+    if not cases.get(CASE_HORS_GEL, False):
+        desactives.update(CHAMPS_HORS_GEL)
+    for nom in desactives:
+        corps.pop(nom, None)
+    return corps
+
+
+def champs_refuses(corps: dict[str, str], changements: dict[str, str]) -> list[str]:
+    """Champs demandés que le corps ne transmet pas avec la valeur voulue."""
+    return [nom for nom, valeur in changements.items() if corps.get(nom) != valeur]
+
+
+def encoder_corps(corps: dict[str, str]) -> bytes:
+    """Corps urlencodé en ISO-8859-1, l'encodage des pages de la carte."""
+    return urlencode(corps, encoding=ENCODAGE).encode("ascii")
+
+
+def preparer_changements(reglages: Reglages, demandes: dict[str, str | float]) -> dict[str, str]:
+    """Contrôle les changements demandés et les met au format de la page.
+
+    Seuls les modes (U06_x) et les consignes (U09_x, U10_x) des zones présentes sont
+    acceptés. Un mode vaut 0, 1 ou 2 ; une consigne tient dans les bornes lues sur la
+    page et s'écrit avec ses décimales. Lève ReglageRefuse sinon.
+    """
+    zones = {zone.index: zone for zone in reglages.zones}
+    prets: dict[str, str] = {}
+    for nom, valeur in demandes.items():
+        trouve = MOTIF_CHAMP_ZONE.fullmatch(nom)
+        if not trouve:
+            raise ReglageRefuse(f"{nom} : champ non pris en charge")
+        zone = zones.get(int(trouve.group(2)))
+        if zone is None:
+            raise ReglageRefuse(f"{nom} : zone absente de la carte")
+        if trouve.group(1) == "06":
+            if str(valeur) not in MODES:
+                raise ReglageRefuse(f"{nom} : mode {valeur!r} inconnu")
+            prets[nom] = str(valeur)
+            continue
+        consigne = zone.confort if trouve.group(1) == "09" else zone.reduit
+        try:
+            nombre = float(valeur)
+        except (TypeError, ValueError):
+            raise ReglageRefuse(f"{nom} : {valeur!r} n'est pas un nombre") from None
+        if consigne.minimum is None or consigne.maximum is None:
+            raise ReglageRefuse(f"{nom} : bornes absentes de la page")
+        if not consigne.minimum <= nombre <= consigne.maximum:
+            raise ReglageRefuse(
+                f"{nom} : {nombre} hors des bornes {consigne.minimum} à {consigne.maximum}")
+        prets[nom] = f"{nombre:.{consigne.decimales}f}"
+    return prets
+
+
+def ecarts(html: str, changements: dict[str, str]) -> dict[str, tuple[str, str | None]]:
+    """Compare la page relue aux changements demandés. Rend, pour chaque champ qui
+    diffère, (valeur voulue, valeur lue) ; les nombres se comparent comme nombres."""
+    lecteur = _analyser(html)
+    modes = _modes(lecteur)
+    trouves: dict[str, tuple[str, str | None]] = {}
+    for nom, voulu in changements.items():
+        if nom in modes:
+            lu = modes[nom]
+        elif nom in lecteur.champs:
+            lu = (lecteur.champs[nom].attributs.get("value") or "").strip()
+        else:
+            lu = None
+        if lu == voulu or (lu and _nombre(lu) is not None and _nombre(lu) == _nombre(voulu)):
+            continue
+        trouves[nom] = (voulu, lu)
+    return trouves

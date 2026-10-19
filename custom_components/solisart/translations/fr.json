@@ -65,6 +65,38 @@
       "relais": {
         "name": "Relais {balise}"
       }
+    },
+    "select": {
+      "mode": {
+        "name": "Mode {zone}",
+        "state": {
+          "arret": "Arrêt",
+          "soleil": "Soleil seul",
+          "soleil_appoint": "Soleil et appoint"
+        }
+      },
+      "mode_ecs": {
+        "name": "Mode eau chaude",
+        "state": {
+          "arret": "Arrêt",
+          "soleil": "Soleil seul",
+          "soleil_appoint": "Soleil et appoint"
+        }
+      }
+    },
+    "number": {
+      "confort": {
+        "name": "Consigne confort {zone}"
+      },
+      "reduit": {
+        "name": "Consigne réduit {zone}"
+      },
+      "confort_ecs": {
+        "name": "Consigne confort eau chaude"
+      },
+      "reduit_ecs": {
+        "name": "Consigne réduit eau chaude"
+      }
     }
   }
 }

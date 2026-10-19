@@ -1,0 +1,201 @@
+{
+ "page_sha256": "fc1dd7422f100fc04e42a7f24373d58ca26583bdbb62359745bda9c590be84ed",
+ "cas": [
+  {
+   "variante": "page réelle",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "page réelle",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "page réelle",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "page réelle",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "étage arrêté par la page",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "étage arrêté par la page",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "étage arrêté par la page",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "étage arrêté par la page",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "mode inconnu",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "mode inconnu",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "mode inconnu",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "mode inconnu",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "hors-gel coché",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U03=&cb02=on&U02=1&U14=09&U13=10&U04=26&U15=12&U17=09&U16=10&U05=26&U18=12&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "hors-gel coché",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U03=&cb02=on&U02=1&U14=09&U13=10&U04=26&U15=12&U17=09&U16=10&U05=26&U18=12&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "hors-gel coché",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U03=&cb02=on&U02=1&U14=09&U13=10&U04=26&U15=12&U17=09&U16=10&U05=26&U18=12&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "hors-gel coché",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U03=&cb02=on&U02=1&U14=09&U13=10&U04=26&U15=12&U17=09&U16=10&U05=26&U18=12&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "accents, espace, entité",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=a+b%26%E9~%2B&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "accents, espace, entité",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "accents, espace, entité",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=a+b%26%E9~%2B&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "accents, espace, entité",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=a+b%26%E9~%2B&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "chevron dans un attribut",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "chevron dans un attribut",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U10_1=18.0&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "chevron dans un attribut",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "chevron dans un attribut",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U10_1=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "champ désactivé",
+   "modes": {},
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "champ désactivé",
+   "modes": {
+    "U06_0": "0"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=0&U06_1=2&U09_1=18.5&U11_1=&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "champ désactivé",
+   "modes": {
+    "U06_0": "1",
+    "U06_1": "0",
+    "U06_6": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=1&U06_1=0&U09_0=18.5&U10_0=18.0&U11_0=&U07_0=0&U06_6=1&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  },
+  {
+   "variante": "champ désactivé",
+   "modes": {
+    "U06_9": "1"
+   },
+   "corps": "UUs=XXXX&Usr0=XXXX&Usr1=XXXX&Usr2=XXXX&Usr3=XXXX&Usr4=XXXX&Usr5=XXXX&UPw=XXXX&Mdp0=XXXX&Mdp1=XXXX&Mdp2=XXXX&Mdp3=XXXX&Mdp4=XXXX&Mdp5=XXXX&U02=0&Day=09&Month=10&Year=26&Hour=12&Min=43&Sec=04&U06_0=2&U06_1=2&U09_0=18.5&U09_1=18.5&U10_0=18.0&U11_0=&U11_1=&U07_0=0&U07_1=0&U06_6=2&U09_6=50.0&U10_6=45.0&U11_6=&U07_6=0&CRZ=0&S37=30&U41=0&U42=0&S48lbl=Sortie+48&U43=0&S49lbl=Sortie+49"
+  }
+ ]
+}

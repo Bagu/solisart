@@ -65,6 +65,38 @@
       "relais": {
         "name": "Relay {balise}"
       }
+    },
+    "select": {
+      "mode": {
+        "name": "Mode {zone}",
+        "state": {
+          "arret": "Off",
+          "soleil": "Solar only",
+          "soleil_appoint": "Solar and backup"
+        }
+      },
+      "mode_ecs": {
+        "name": "Hot water mode",
+        "state": {
+          "arret": "Off",
+          "soleil": "Solar only",
+          "soleil_appoint": "Solar and backup"
+        }
+      }
+    },
+    "number": {
+      "confort": {
+        "name": "Comfort setpoint {zone}"
+      },
+      "reduit": {
+        "name": "Reduced setpoint {zone}"
+      },
+      "confort_ecs": {
+        "name": "Hot water comfort setpoint"
+      },
+      "reduit_ecs": {
+        "name": "Hot water reduced setpoint"
+      }
     }
   }
 }
