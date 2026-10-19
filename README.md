@@ -122,31 +122,10 @@ controller version (see below). It is off by default.
 - The integration gives Home Assistant access to the controller and nothing more.
   Deciding when to heat with the solar surplus or during off-peak hours belongs in your
   own automations.
-
-## Development
-
-```
-python -m unittest discover tests
-.venv/Scripts/python -m pytest
-```
-
-The first command checks how the pages are read, on real pages saved from a controller
-and anonymised. The second runs the integration inside a test Home Assistant, which needs
-`pytest-homeassistant-custom-component` in a virtual environment. On Windows, prefix it
-with `PYTHONPATH=tests/ha/windows`: that folder holds empty stand-ins for two Unix-only
-modules Home Assistant imports.
-
-`outils/contre_epreuve.py` and `outils/contre_epreuve_ha.py` break the code on purpose,
-one fault at a time, and check that the tests catch each one. The first one uses the
-Python of `.venv` when it exists, because the client tests need aiohttp.
-
-`tests/fixtures/corps_reference.json` holds the form bodies that a script already proven
-on a real controller builds from the test page and its variants. The tests check that the
-integration builds the same bytes. `outils/parite_reference.py` rebuilds that file.
-
-`outils/anonymiser.py` turns a `param.htm` saved from your controller into a test page.
-It masks the installation name and the logins. It refuses to write the file if an IP
-address, a MAC address or an email address is left in it.
+- Reporting a problem: attach the integration's diagnostics and, if the problem is about
+  the User page, a copy of `param.htm` passed through
+  `python outils/anonymiser.py param.htm param_anonyme.htm`, which masks the installation
+  name and the logins (details in [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## License
 

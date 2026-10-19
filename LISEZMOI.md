@@ -139,33 +139,11 @@ Par défaut, elle reste désactivée.
 - Gestion externe : l'intégration donne accès au matériel depuis Home Assistant, mais
   c'est à vous de créer vos automatisations (par exemple pour chauffer en heures creuses
   ou profiter du surplus solaire).
-
-## Développement et tests
-
-```
-python -m unittest discover tests
-.venv/Scripts/python -m pytest
-```
-
-Le premier jeu de tests vérifie la lecture des pages à partir de fichiers de référence
-enregistrés sur un vrai régulateur et anonymisés. Le second lance l'intégration au sein
-d'un environnement de test Home Assistant (nécessite
-`pytest-homeassistant-custom-component` dans un environnement virtuel). Sous Windows,
-précédez-le de `PYTHONPATH=tests/ha/windows` : ce dossier contient des remplaçants vides
-de deux modules propres à Unix que Home Assistant importe.
-
-`outils/contre_epreuve.py` et `outils/contre_epreuve_ha.py` cassent le code exprès, un
-défaut à la fois, et vérifient que les tests attrapent chacun d'eux. Le premier prend le
-Python de `.venv` s'il existe, car les tests du client demandent aiohttp.
-
-`tests/fixtures/corps_reference.json` conserve les corps du formulaire qu'un script déjà
-éprouvé sur un vrai régulateur construit à partir de la page de test et de ses variantes.
-Les tests vérifient que l'intégration produit exactement les mêmes octets.
-`outils/parite_reference.py` refait ce fichier.
-
-`outils/anonymiser.py` transforme une page `param.htm` enregistrée depuis votre
-régulateur en page de test. Il masque le nom de l'installation et les identifiants. Il
-refuse d'écrire le fichier s'il y reste une adresse IP, une adresse MAC ou un courriel.
+- Signaler un problème : joignez le diagnostic de l'intégration et, si le problème touche
+  la page Utilisateur, une copie de `param.htm` passée par
+  `python outils/anonymiser.py param.htm param_anonyme.htm`, qui masque le nom de
+  l'installation et les identifiants (détails en anglais dans
+  [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## Licence
 
