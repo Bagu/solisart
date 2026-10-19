@@ -1,0 +1,70 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SolisArt",
+        "description": "Address of the controller and the login of its web interface (the one used on the User page).",
+        "data": {
+          "host": "Address",
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "IP address or host name, for example 192.168.1.20."
+        }
+      },
+      "reauth_confirm": {
+        "title": "New login",
+        "description": "The controller at {host} rejects the saved login.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "The controller does not answer at this address.",
+      "invalid_auth": "The controller rejects this username or password.",
+      "not_solisart": "This address does not serve the pages of a SolisArt controller."
+    },
+    "abort": {
+      "already_configured": "This controller is already set up.",
+      "reauth_successful": "Login updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "data": {
+          "intervalle_etat": "Measurements (status.xml), in seconds",
+          "intervalle_reglages": "Settings (param.htm), in seconds"
+        },
+        "data_description": {
+          "intervalle_reglages": "This page takes the controller almost a second to build: do not read it too often."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Probe {balise}"
+      },
+      "circulateur": {
+        "name": "Circulator {balise}"
+      },
+      "vanne": {
+        "name": "Valve {balise}"
+      },
+      "debit": {
+        "name": "Flow {balise}"
+      }
+    },
+    "binary_sensor": {
+      "relais": {
+        "name": "Relay {balise}"
+      }
+    }
+  }
+}

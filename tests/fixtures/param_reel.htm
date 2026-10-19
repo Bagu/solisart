@@ -1,0 +1,1156 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='fr' >
+<head>
+<title>
+SOLISART - Carte de régulation - Interface de Maintenance
+</title>
+<meta http-equiv="content-type" content="text/html" charset="ISO-8859-1"/>
+<meta http-equiv="pragma" content="no-cache"> 
+<meta http-equiv="expires" content="-1"> 
+<meta http-equiv="cache-control" content="no-cache,must-revalidate">
+<link rel="stylesheet" media="screen" type="text/css" title="style1" href="/style.css" />
+<script src="/mchp.js" type="text/javascript"></script>
+<script src="/JS_Opts/opts_util_mode_chauff.js" type="text/javascript"></script>
+<script src="/JS_Utils/utils_form.js" type="text/javascript"></script>
+<script src="/JS_Utils/utils_params.js" type="text/javascript"></script>
+</head>
+<body>
+<div id='top_frame'>
+<img src="/Pictures/logo_solisart.jpg"/>
+<div id='top_frame_topright_part'>
+<table class='tbl_title'>
+<tr>
+<td>
+<span class='sp_title'>Utilisateur</span>
+</td>
+<td>
+<table class='tbl_ver_info'>
+<tr>
+<td>
+XXXX - SRB_32MX_vD.50-5 - WEB_vA.98
+</td>
+</tr>
+<tr>
+<td>
+<span id="date">...</span> - <span id="time">...</span>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+<div id="menu">
+<ul>
+<li>
+<a href="/paramz.htm">UTILISATEUR</a>
+</li>
+<li>
+<a href="/system.htm">VISUALISATION</a>
+</li>
+<li>
+<a href="/install.htm">INSTALLATEUR</a>
+</li>
+<li>
+<a href="/maj.htm">MISE A JOUR</a>
+</li>
+<li>
+<a href="/setup.htm">CONFIGURATION</a>
+</li>
+<li>
+<a href="/admin.htm">ADMINISTRATION</a>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>	
+</div>
+</div>
+<div id="center_frame">
+<div id='center_frame_bottomright_part'>
+<form action='param.htm' method='post' name='frm_params' onsubmit="return frmPrmValidate();">
+<fieldset>
+<legend>Identifiants (nom d'utilisateur et mot de passe par zone)</legend>
+<table>
+<tr><td></td>
+<td>Toutes Zones&nbsp;&nbsp;</td>
+<td>Zone RDC&nbsp;&nbsp;</td>
+<td>Zone Etage&nbsp;&nbsp;</td>
+<td>Zone &nbsp;&nbsp;</td>
+<td>Zone &nbsp;&nbsp;</td>
+<td>Zone &nbsp;&nbsp;</td>
+<td>Zone &nbsp;&nbsp;</td>
+<tr>
+<td>
+Utilisateur :
+</td>
+<td>
+<input size="8" name="UUs" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Usr0" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Usr1" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Usr2" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Usr3" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Usr4" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Usr5" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+</tr>
+<tr>
+<td>
+Mot de passe :&nbsp;&nbsp;
+</td>
+<td>
+<input size="8" name="UPw" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Mdp0" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Mdp1" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Mdp2" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Mdp3" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Mdp4" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+<td>
+<input size="8" name="Mdp5" value="XXXX" class="t_i" maxlength="10"/>
+</td>
+</tr>
+</table>
+</fieldset>
+<table>
+<tr>
+<td class='td_align_top'>	
+<fieldset style="height:85px">
+<legend>Mode Vacances</legend>
+<table> 
+<tr>
+<td class='tb_col_label'>
+</td>
+<td class='tb_col_label'>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de maintien par la chaudière :
+</td>
+<td>
+<input class='t_i' maxlength='2' size='2' name='U03' value=''  onchange="CIV(0,20,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td colspan='5'>
+(0 à 20°C)
+</td>
+<td>
+<input type="checkbox" name="cb02" id="cb02"  onclick="EnableHorsGel(); InitHorsGel(); CheckboxVal(this,document.forms.frm_params.elements['U02']);"/> 
+<input type="hidden" name="U02" value=''/>		
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Date de début vacances (JJ/MM/AA HH) :
+</td>
+<td>
+<input size="2" id="U14" name="U14" value="09" class="t_i" maxlength="2" onchange="CIV(1,31,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+/
+</td>
+<td>
+<input size="2" id="U13" name="U13" value="10" class="t_i" maxlength="2" onchange="CIV(1,12,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+/
+</td>
+<td>
+<input size="2" id="U04" name="U04" value="26" class="t_i" maxlength="2" onchange="CIV(0,99,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+
+</td>
+<td>
+<input size="2" id="U15" name="U15" value="12" class="t_i" maxlength="2" onchange="CIV(0,23,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Date de fin vacances (JJ/MM/AA HH) :
+</td>
+<td>
+<input size="2" id="U17" name="U17" value="09" class="t_i" maxlength="2" onchange="CIV(1,31,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+/
+</td>
+<td>
+<input size="2" id="U16" name="U16" value="10" class="t_i" maxlength="2" onchange="CIV(1,12,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+/
+</td>
+<td>
+<input size="2" id="U05" name="U05" value="26" class="t_i" maxlength="2" onchange="CIV(0,99,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+
+</td>
+<td>
+<input size="2" id="U18" name="U18" value="12" class="t_i" maxlength="2" onchange="CIV(0,23,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+</tr>	
+</table>
+</fieldset>		
+</td>
+<td class='td_align_top'>	
+<fieldset style="height:85px">
+<legend>Réglage Date et Heure courantes</legend>
+<table>
+<tr><td><br /></td></tr>
+<tr>
+<td class='tb_col_label'>
+Date (JJ/MM/AA) :
+</td>
+<td>
+</td>
+<td>
+<input size="2" id="Day" name="Day" value="09" class="t_i" maxlength="2" onchange="CIV(1,31,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+/
+</td>
+<td>
+<input size="2" id="Month" name="Month" value="10" class="t_i" maxlength="2" onchange="CIV(1,12,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+/
+</td>
+<td>
+<input size="2" id="Year" name="Year" value="26" class="t_i" maxlength="2" onchange="CIV(0,99,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td rowspan = '2'>
+<button type='button' onclick="newAJAXCommand('/CGI/upd.cgi?DateTime(1)=' + this.form.elements['Sec'].value);
+newAJAXCommand('/CGI/upd.cgi?DateTime(2)=' + this.form.elements['Min'].value);
+newAJAXCommand('/CGI/upd.cgi?DateTime(3)=' + this.form.elements['Hour'].value);
+newAJAXCommand('/CGI/upd.cgi?DateTime(4)=' + this.form.elements['Day'].value);
+newAJAXCommand('/CGI/upd.cgi?DateTime(5)=' + this.form.elements['Month'].value);
+newAJAXCommand('/CGI/upd.cgi?DateTime(6)=' + this.form.elements['Year'].value);"/>Modifier</button>   
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Heure (HH/MM/SS) :
+</td>
+<td>
+<input size="2" id="Hour" name="Hour" value="12" class="t_i" maxlength="2" onchange="CIV(0,23,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+:
+</td>
+<td>
+<input size="2" name="Min" value="43" class="t_i" maxlength="2" onchange="CIV(0,59,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+<td>
+:
+</td>
+<td>
+<input size="2" name="Sec" value="04" class="t_i" maxlength="2" onchange="CIV(0,59,this,0);" onKeyPress="return CIC(event,0,0);"/>
+</td>
+</tr>
+</table>
+</fieldset>
+</td>
+</tr>
+</table>
+<fieldset>
+<legend>Zones</legend>
+<table> 
+<tr>
+<td class='tb_col_label'>
+</td>
+<td class='tb_col_label'>
+</td>
+<td id='T00' style="display:none">
+RDC
+</td>
+<td id='T01' style="display:none">
+Etage
+</td>
+<td id='T02' style="display:none">
+
+</td>
+<td id='T03' style="display:none">
+
+</td>
+<td id='T04' style="display:none">
+
+</td>
+<td id='T05' style="display:none">
+
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Mode de chauffage :
+</td>
+<td id='T10' style="display:none">
+<select name="U06_0" id="U06_0" onchange="EnableZoneDftParamsInputs('0',this.value,'1');">
+</select>
+</td>
+<td id='T11' style="display:none">
+<select name="U06_1" id="U06_1" onchange="EnableZoneDftParamsInputs('1',this.value,'1');">
+</select>
+</td>
+<td id='T12' style="display:none">
+<select name="U06_2" id="U06_2" onchange="EnableZoneDftParamsInputs('2',this.value,'0');">
+</select>
+</td>
+<td id='T13' style="display:none">
+<select name="U06_3" id="U06_3" onchange="EnableZoneDftParamsInputs('3',this.value,'0');">
+</select>
+</td>
+<td id='T14' style="display:none">
+<select name="U06_4" id="U06_4" onchange="EnableZoneDftParamsInputs('4',this.value,'0');">
+</select>
+</td>
+<td id='T15' style="display:none">
+<select name="U06_5" id="U06_5" onchange="EnableZoneDftParamsInputs('5',this.value,'0');">
+</select>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de confort (10 à 40°C) :
+</td>
+<td id='T20' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U09_0' value='18.5' onchange="CIV(10,40,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T21' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U09_1' value='18.5' onchange="CIV(10,40,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T22' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U09_2' value='' onchange="CIV(10,40,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T23' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U09_3' value='' onchange="CIV(10,40,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T24' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U09_4' value='' onchange="CIV(10,40,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T25' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U09_5' value='' onchange="CIV(10,40,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de réduit (5 à 35°C) :
+</td>
+<td id='T30' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U10_0' value='18.0' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T31' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U10_1' value='18.0' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T32' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U10_2' value='' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T33' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U10_3' value='' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T34' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U10_4' value='' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+<td id='T35' style="display:none">
+<input class='t_i' maxlength='4' size='4' name='U10_5' value='' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de dérogation uniquement <br />
+sur l'appoint 1	(-3 à 3°C) :
+</td>
+<td id='T40' style="display:none">
+<input class='t_i' maxlength='2' size='4' name='U11_0' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+<td id='T41' style="display:none">
+<input class='t_i' maxlength='2' size='4' name='U11_1' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+<td id='T42' style="display:none">
+<input class='t_i' maxlength='2' size='4' name='U11_2' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+<td id='T43' style="display:none">
+<input class='t_i' maxlength='2' size='4' name='U11_3' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+<td id='T44' style="display:none">
+<input class='t_i' maxlength='2' size='4' name='U11_4' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+<td id='T45' style="display:none">
+<input class='t_i' maxlength='2' size='4' name='U11_5' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+</tr>	
+<tr>
+<td colspan='2'>
+Dérogation temporaire de la température <br /> de consigne (4h) :
+</td>
+<td id='T50' style="display:none">
+<input type="checkbox" name="cb07_0"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_0']); frm_params.submit();"> 
+<span id="derogZ1"></span>
+<input type="hidden" name="U07_0" value=''/>
+</td>
+<td id='T51' style="display:none">
+<input type="checkbox" name="cb07_1"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_1']); frm_params.submit();"/> 
+<span id="derogZ2"></span>
+<input type="hidden" name="U07_1" value=''/>							
+</td>
+<td id='T52' style="display:none">
+<input type="checkbox" name="cb07_2"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_2']); frm_params.submit();"/> 
+<span id="derogZ3"></span>
+<input type="hidden" name="U07_2" value=''/>	
+</td>
+<td id='T53' style="display:none">
+<input type="checkbox" name="cb07_3"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_3']); frm_params.submit();"/> 
+<span id="derogZ4"></span>
+<input type="hidden" name="U07_3" value=''/>	
+</td>
+<td id='T54' style="display:none">
+<input type="checkbox" name="cb07_4"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_4']); frm_params.submit();"/>
+<span id="derogZ5"></span> 
+<input type="hidden" name="U07_4" value=''/>	
+</td>
+<td id='T55' style="display:none">
+<input type="checkbox" name="cb07_5"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_5']); frm_params.submit();"/>
+<span id="derogZ6"></span> 
+<input type="hidden" name="U07_5" value=''/>	
+</td>
+</tr>
+</table>
+</fieldset>
+<table>
+<tr>
+<td class='td_align_top'>	
+<fieldset style="height:115px">
+<legend>Eau Chaude Sanitaire</legend>
+<table>
+<tr>
+<td class='tb_col_label'>
+</td>
+<td class='tb_col_label'>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Mode de chauffage :
+</td>
+<td>
+<select name="U06_6" id="U06_6" onchange="EnableZoneDftParamsInputs('6',this.value);">
+</select>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de confort (30 à 80°C) :
+</td>
+<td>
+<input class='t_i' maxlength='4' size='4' name='U09_6' value='50.0' onchange="CIV(30,80,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de réduit (20 à 80°C) :
+</td>
+<td>
+<input class='t_i' maxlength='4' size='4' name='U10_6' value='45.0' onchange="CIV(20,80,this,0);" onKeyPress="return CIC(event,1,0);"/>
+</td>
+</tr>
+<tr>
+<td colspan='2'>
+Température de dérogation (-3 à 3°C) :
+</td>
+<td>
+<input class='t_i' maxlength='2' size='4' name='U11_6' value=''  onchange="CIV(-3,3,this,0);" onKeyPress="return CIC(event,0,1);"/> 
+</td>
+</tr>	
+<tr>
+<td colspan='2'>
+Dérogation temporaire (4h) :
+</td>
+<td>
+<input type="checkbox" name="cb07_6"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U07_6']); frm_params.submit();"/>
+<span id="derogECS"></span> 
+<input type="hidden" name="U07_6" value=''/>	
+</td>
+</tr>
+</table>
+</fieldset>
+</td>
+<td class='td_align_top'>	
+<fieldset style="height:115px">
+<legend>Options</legend>
+<table>
+<tr>
+<td colspan='2'>
+Remise à zéro du comptage :
+</td>
+<td colspan='2'>
+<input type="checkbox" name="cbCRZ" id="cbCRZ" onclick="CheckboxVal(this,document.forms.frm_params.elements['CRZ']);"/> 
+<input type="hidden" name="CRZ" value='0'/>	
+</td>
+</tr>
+<tr id='TPiscRow' style="display:none">
+<td colspan='2'>
+Température de la piscine :
+</td>
+<td colspan='2'>
+<input class='t_i' maxlength='2' size='3' name='S37' value='30' onchange="CIV(5,35,this,0);" onKeyPress="return CIC(event,0,0);"/> (5 à 35°C)
+</td>
+</tr>
+<tr id='TPriorAppoint1' style="display:none">
+<td colspan='2'>
+Priorité appoint 1 :
+</td>
+<td colspan='2'>
+<input type="checkbox" name="cb41"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U41']);"/> 
+<input type="hidden" name="U41" value=''/>	
+</td>
+</tr>
+<tr id='TCacS48' style="display:none">
+<td colspan='2'>
+Sortie 48 :
+</td>
+<td colspan='2'>
+<input type="checkbox" name="cb42"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U42']);"/> 
+<input type="hidden" name="U42" value=''/>	
+<input size="30" name="S48lbl" value="Sortie 48" class="t_i" maxlength="29"/>
+</td>
+</tr>
+<tr id='TCacS49' style="display:none">
+<td colspan='2'>
+Sortie 49 :
+</td>
+<td colspan='2'>
+<input type="checkbox" name="cb43"  onclick="CheckboxVal(this,document.forms.frm_params.elements['U43']);"/> 
+<input type="hidden" name="U43" value=''/>	
+<input size="30" name="S49lbl" value="Sortie 49" class="t_i" maxlength="29"/>
+</td>
+</tr>					
+</table>
+</fieldset>
+</td>
+</tr>
+</table>
+<hr />
+<table class='p_right_al'>
+<tr>
+<td>
+<input type='submit' value='Enregistrer'/>
+</td>
+<td class='tb_col_right_al'>
+<input type='reset' value='Annuler'/>
+</td>
+</tr>
+</table>
+</form>
+<form action='param.htm' method='post' name='frm_prog'>
+<fieldset>
+<legend>Programmation horaire</legend>
+
+<table>
+<tr>
+<td>
+<input type="hidden" name="P000" value="1">
+<input type="hidden" name="P001" value="16">
+<input type="hidden" name="P002" value="0">
+<input type="hidden" name="P003" value="62">
+<input type="hidden" name="P004" value="240">
+<input type="hidden" name="P005" value="255">
+<input type="hidden" name="P010" value="1">
+<input type="hidden" name="P011" value="16">
+<input type="hidden" name="P012" value="0">
+<input type="hidden" name="P013" value="62">
+<input type="hidden" name="P014" value="240">
+<input type="hidden" name="P015" value="255">
+<input type="hidden" name="P020" value="1">
+<input type="hidden" name="P021" value="16">
+<input type="hidden" name="P022" value="0">
+<input type="hidden" name="P023" value="62">
+<input type="hidden" name="P024" value="240">
+<input type="hidden" name="P025" value="255">
+<input type="hidden" name="P030" value="1">
+<input type="hidden" name="P031" value="16">
+<input type="hidden" name="P032" value="0">
+<input type="hidden" name="P033" value="62">
+<input type="hidden" name="P034" value="240">
+<input type="hidden" name="P035" value="255">
+<input type="hidden" name="P040" value="1">
+<input type="hidden" name="P041" value="16">
+<input type="hidden" name="P042" value="0">
+<input type="hidden" name="P043" value="62">
+<input type="hidden" name="P044" value="240">
+<input type="hidden" name="P045" value="255">
+<input type="hidden" name="P050" value="1">
+<input type="hidden" name="P051" value="16">
+<input type="hidden" name="P052" value="0">
+<input type="hidden" name="P053" value="62">
+<input type="hidden" name="P054" value="240">
+<input type="hidden" name="P055" value="255">
+<input type="hidden" name="P060" value="1">
+<input type="hidden" name="P061" value="16">
+<input type="hidden" name="P062" value="0">
+<input type="hidden" name="P063" value="62">
+<input type="hidden" name="P064" value="240">
+<input type="hidden" name="P065" value="255">
+
+<input type="hidden" name="P100" value="3">
+<input type="hidden" name="P101" value="0">
+<input type="hidden" name="P102" value="0">
+<input type="hidden" name="P103" value="0">
+<input type="hidden" name="P104" value="0">
+<input type="hidden" name="P105" value="252">
+<input type="hidden" name="P110" value="3">
+<input type="hidden" name="P111" value="0">
+<input type="hidden" name="P112" value="0">
+<input type="hidden" name="P113" value="0">
+<input type="hidden" name="P114" value="0">
+<input type="hidden" name="P115" value="252">
+<input type="hidden" name="P120" value="3">
+<input type="hidden" name="P121" value="0">
+<input type="hidden" name="P122" value="0">
+<input type="hidden" name="P123" value="0">
+<input type="hidden" name="P124" value="0">
+<input type="hidden" name="P125" value="252">
+<input type="hidden" name="P130" value="3">
+<input type="hidden" name="P131" value="0">
+<input type="hidden" name="P132" value="0">
+<input type="hidden" name="P133" value="0">
+<input type="hidden" name="P134" value="0">
+<input type="hidden" name="P135" value="252">
+<input type="hidden" name="P140" value="3">
+<input type="hidden" name="P141" value="0">
+<input type="hidden" name="P142" value="0">
+<input type="hidden" name="P143" value="0">
+<input type="hidden" name="P144" value="0">
+<input type="hidden" name="P145" value="252">
+<input type="hidden" name="P150" value="3">
+<input type="hidden" name="P151" value="0">
+<input type="hidden" name="P152" value="0">
+<input type="hidden" name="P153" value="0">
+<input type="hidden" name="P154" value="0">
+<input type="hidden" name="P155" value="252">
+<input type="hidden" name="P160" value="3">
+<input type="hidden" name="P161" value="0">
+<input type="hidden" name="P162" value="0">
+<input type="hidden" name="P163" value="0">
+<input type="hidden" name="P164" value="0">
+<input type="hidden" name="P165" value="252">
+
+<input type="hidden" name="P200" value="0">
+<input type="hidden" name="P201" value="240">
+<input type="hidden" name="P202" value="255">
+<input type="hidden" name="P203" value="255">
+<input type="hidden" name="P204" value="255">
+<input type="hidden" name="P205" value="255">
+<input type="hidden" name="P210" value="0">
+<input type="hidden" name="P211" value="240">
+<input type="hidden" name="P212" value="255">
+<input type="hidden" name="P213" value="255">
+<input type="hidden" name="P214" value="255">
+<input type="hidden" name="P215" value="255">
+<input type="hidden" name="P220" value="0">
+<input type="hidden" name="P221" value="240">
+<input type="hidden" name="P222" value="255">
+<input type="hidden" name="P223" value="255">
+<input type="hidden" name="P224" value="255">
+<input type="hidden" name="P225" value="255">
+<input type="hidden" name="P230" value="0">
+<input type="hidden" name="P231" value="240">
+<input type="hidden" name="P232" value="255">
+<input type="hidden" name="P233" value="255">
+<input type="hidden" name="P234" value="255">
+<input type="hidden" name="P235" value="255">
+<input type="hidden" name="P240" value="0">
+<input type="hidden" name="P241" value="240">
+<input type="hidden" name="P242" value="255">
+<input type="hidden" name="P243" value="255">
+<input type="hidden" name="P244" value="255">
+<input type="hidden" name="P245" value="255">
+<input type="hidden" name="P250" value="0">
+<input type="hidden" name="P251" value="240">
+<input type="hidden" name="P252" value="255">
+<input type="hidden" name="P253" value="255">
+<input type="hidden" name="P254" value="255">
+<input type="hidden" name="P255" value="255">
+<input type="hidden" name="P260" value="0">
+<input type="hidden" name="P261" value="240">
+<input type="hidden" name="P262" value="255">
+<input type="hidden" name="P263" value="255">
+<input type="hidden" name="P264" value="255">
+<input type="hidden" name="P265" value="255">
+
+<input type="hidden" name="P300" value="0">
+<input type="hidden" name="P301" value="240">
+<input type="hidden" name="P302" value="255">
+<input type="hidden" name="P303" value="255">
+<input type="hidden" name="P304" value="255">
+<input type="hidden" name="P305" value="255">
+<input type="hidden" name="P310" value="0">
+<input type="hidden" name="P311" value="240">
+<input type="hidden" name="P312" value="255">
+<input type="hidden" name="P313" value="255">
+<input type="hidden" name="P314" value="255">
+<input type="hidden" name="P315" value="255">
+<input type="hidden" name="P320" value="0">
+<input type="hidden" name="P321" value="240">
+<input type="hidden" name="P322" value="255">
+<input type="hidden" name="P323" value="255">
+<input type="hidden" name="P324" value="255">
+<input type="hidden" name="P325" value="255">
+<input type="hidden" name="P330" value="0">
+<input type="hidden" name="P331" value="240">
+<input type="hidden" name="P332" value="255">
+<input type="hidden" name="P333" value="255">
+<input type="hidden" name="P334" value="255">
+<input type="hidden" name="P335" value="255">
+<input type="hidden" name="P340" value="0">
+<input type="hidden" name="P341" value="240">
+<input type="hidden" name="P342" value="255">
+<input type="hidden" name="P343" value="255">
+<input type="hidden" name="P344" value="255">
+<input type="hidden" name="P345" value="255">
+<input type="hidden" name="P350" value="0">
+<input type="hidden" name="P351" value="240">
+<input type="hidden" name="P352" value="255">
+<input type="hidden" name="P353" value="255">
+<input type="hidden" name="P354" value="255">
+<input type="hidden" name="P355" value="255">
+<input type="hidden" name="P360" value="0">
+<input type="hidden" name="P361" value="240">
+<input type="hidden" name="P362" value="255">
+<input type="hidden" name="P363" value="255">
+<input type="hidden" name="P364" value="255">
+<input type="hidden" name="P365" value="255">
+
+<input type="hidden" name="P400" value="0">
+<input type="hidden" name="P401" value="240">
+<input type="hidden" name="P402" value="255">
+<input type="hidden" name="P403" value="255">
+<input type="hidden" name="P404" value="255">
+<input type="hidden" name="P405" value="255">
+<input type="hidden" name="P410" value="0">
+<input type="hidden" name="P411" value="240">
+<input type="hidden" name="P412" value="255">
+<input type="hidden" name="P413" value="255">
+<input type="hidden" name="P414" value="255">
+<input type="hidden" name="P415" value="255">
+<input type="hidden" name="P420" value="0">
+<input type="hidden" name="P421" value="240">
+<input type="hidden" name="P422" value="255">
+<input type="hidden" name="P423" value="255">
+<input type="hidden" name="P424" value="255">
+<input type="hidden" name="P425" value="255">
+<input type="hidden" name="P430" value="0">
+<input type="hidden" name="P431" value="240">
+<input type="hidden" name="P432" value="255">
+<input type="hidden" name="P433" value="255">
+<input type="hidden" name="P434" value="255">
+<input type="hidden" name="P435" value="255">
+<input type="hidden" name="P440" value="0">
+<input type="hidden" name="P441" value="240">
+<input type="hidden" name="P442" value="255">
+<input type="hidden" name="P443" value="255">
+<input type="hidden" name="P444" value="255">
+<input type="hidden" name="P445" value="255">
+<input type="hidden" name="P450" value="0">
+<input type="hidden" name="P451" value="240">
+<input type="hidden" name="P452" value="255">
+<input type="hidden" name="P453" value="255">
+<input type="hidden" name="P454" value="255">
+<input type="hidden" name="P455" value="255">
+<input type="hidden" name="P460" value="0">
+<input type="hidden" name="P461" value="240">
+<input type="hidden" name="P462" value="255">
+<input type="hidden" name="P463" value="255">
+<input type="hidden" name="P464" value="255">
+<input type="hidden" name="P465" value="255">
+
+<input type="hidden" name="P500" value="0">
+<input type="hidden" name="P501" value="240">
+<input type="hidden" name="P502" value="255">
+<input type="hidden" name="P503" value="255">
+<input type="hidden" name="P504" value="255">
+<input type="hidden" name="P505" value="255">
+<input type="hidden" name="P510" value="0">
+<input type="hidden" name="P511" value="240">
+<input type="hidden" name="P512" value="255">
+<input type="hidden" name="P513" value="255">
+<input type="hidden" name="P514" value="255">
+<input type="hidden" name="P515" value="255">
+<input type="hidden" name="P520" value="0">
+<input type="hidden" name="P521" value="240">
+<input type="hidden" name="P522" value="255">
+<input type="hidden" name="P523" value="255">
+<input type="hidden" name="P524" value="255">
+<input type="hidden" name="P525" value="255">
+<input type="hidden" name="P530" value="0">
+<input type="hidden" name="P531" value="240">
+<input type="hidden" name="P532" value="255">
+<input type="hidden" name="P533" value="255">
+<input type="hidden" name="P534" value="255">
+<input type="hidden" name="P535" value="255">
+<input type="hidden" name="P540" value="0">
+<input type="hidden" name="P541" value="240">
+<input type="hidden" name="P542" value="255">
+<input type="hidden" name="P543" value="255">
+<input type="hidden" name="P544" value="255">
+<input type="hidden" name="P545" value="255">
+<input type="hidden" name="P550" value="0">
+<input type="hidden" name="P551" value="240">
+<input type="hidden" name="P552" value="255">
+<input type="hidden" name="P553" value="255">
+<input type="hidden" name="P554" value="255">
+<input type="hidden" name="P555" value="255">
+<input type="hidden" name="P560" value="0">
+<input type="hidden" name="P561" value="240">
+<input type="hidden" name="P562" value="255">
+<input type="hidden" name="P563" value="255">
+<input type="hidden" name="P564" value="255">
+<input type="hidden" name="P565" value="255">
+
+<input type="hidden" name="P600" value="73">
+<input type="hidden" name="P601" value="16">
+<input type="hidden" name="P602" value="0">
+<input type="hidden" name="P603" value="248">
+<input type="hidden" name="P604" value="1">
+<input type="hidden" name="P605" value="224">
+<input type="hidden" name="P610" value="73">
+<input type="hidden" name="P611" value="16">
+<input type="hidden" name="P612" value="0">
+<input type="hidden" name="P613" value="248">
+<input type="hidden" name="P614" value="1">
+<input type="hidden" name="P615" value="224">
+<input type="hidden" name="P620" value="73">
+<input type="hidden" name="P621" value="16">
+<input type="hidden" name="P622" value="0">
+<input type="hidden" name="P623" value="248">
+<input type="hidden" name="P624" value="1">
+<input type="hidden" name="P625" value="224">
+<input type="hidden" name="P630" value="73">
+<input type="hidden" name="P631" value="16">
+<input type="hidden" name="P632" value="0">
+<input type="hidden" name="P633" value="248">
+<input type="hidden" name="P634" value="1">
+<input type="hidden" name="P635" value="224">
+<input type="hidden" name="P640" value="73">
+<input type="hidden" name="P641" value="16">
+<input type="hidden" name="P642" value="0">
+<input type="hidden" name="P643" value="248">
+<input type="hidden" name="P644" value="1">
+<input type="hidden" name="P645" value="224">
+<input type="hidden" name="P650" value="73">
+<input type="hidden" name="P651" value="16">
+<input type="hidden" name="P652" value="0">
+<input type="hidden" name="P653" value="248">
+<input type="hidden" name="P654" value="1">
+<input type="hidden" name="P655" value="224">
+<input type="hidden" name="P660" value="73">
+<input type="hidden" name="P661" value="16">
+<input type="hidden" name="P662" value="0">
+<input type="hidden" name="P663" value="248">
+<input type="hidden" name="P664" value="1">
+<input type="hidden" name="P665" value="224">
+</td>
+</tr>	
+</table>
+
+<table id="matable"> 
+<tr>
+<td></td>
+<td></td>
+<td>
+Zone chauffage
+</td>
+<td>
+Jour semaine
+</td>
+<td>
+Heure début
+</td>
+<td>
+Heure fin
+</td>
+<td>
+Température
+</td>
+</tr>
+<tr>
+<td colspan='2'></td>
+<td>
+<select name="U19_0" onchange="FillProgTab(document.forms.frm_prog.elements['U19_0'].value,
+document.forms.frm_prog.elements['U20_0'].value);">
+<option selected value='0'>RDC</option>
+<option  value='1'>Etage</option>
+<option  value='2'></option>
+<option  value='3'></option>
+<option  value='4'></option>
+<option  value='5'></option>
+<option  value='6'>Eau Chaude</option>
+<option  value='7'>Zone 1-2-3-4-5-6</option>
+</select>
+</td>
+<td>
+<select name="U20_0" onchange="FillProgTab(document.forms.frm_prog.elements['U19_0'].value,
+document.forms.frm_prog.elements['U20_0'].value);">
+<option selected value='0'>Lundi</option>
+<option  value='1'>Mardi</option>
+<option  value='2'>Mercredi</option>
+<option  value='3'>Jeudi</option>
+<option  value='4'>Vendredi</option>
+<option  value='5'>Samedi</option>
+<option  value='6'>Dimanche</option>									
+</select>
+</td>
+<td>
+<select name="Prog_SHour">
+<option value='0'>0h00</option>
+<option value='1'>0h30</option>
+<option value='2'>1h00</option>
+<option value='3'>1h30</option>
+<option value='4'>2h00</option>
+<option value='5'>2h30</option>
+<option value='6'>3h00</option>
+<option value='7'>3h30</option>	
+<option value='8'>4h00</option>
+<option value='9'>4h30</option>
+<option value='10'>5h00</option>
+<option value='11'>5h30</option>	
+<option value='12'>6h00</option>
+<option value='13'>6h30</option>		
+<option value='14'>7h00</option>
+<option value='15'>7h30</option>	
+<option value='16'>8h00</option>
+<option value='17'>8h30</option>	
+<option value='18'>9h00</option>
+<option value='19'>9h30</option>	
+<option value='20'>10h00</option>
+<option value='21'>10h30</option>	
+<option value='22'>11h00</option>
+<option value='23'>11h30</option>	
+<option value='24'>12h00</option>
+<option value='25'>12h30</option>
+<option value='26'>13h00</option>
+<option value='27'>13h30</option>	
+<option value='28'>14h00</option>
+<option value='29'>14h30</option>
+<option value='30'>15h00</option>
+<option value='31'>15h30</option>	
+<option value='32'>16h00</option>
+<option value='33'>16h30</option>		
+<option value='34'>17h00</option>
+<option value='35'>17h30</option>	
+<option value='36'>18h00</option>
+<option value='37'>18h30</option>	
+<option value='38'>19h00</option>
+<option value='39'>19h30</option>	
+<option value='40'>20h00</option>
+<option value='41'>20h30</option>	
+<option value='42'>21h00</option>
+<option value='43'>21h30</option>		
+<option value='44'>22h00</option>
+<option value='45'>22h30</option>	
+<option value='46'>23h00</option>
+<option value='47'>23h30</option>		
+<option value='48'>24h00</option>								
+</select>
+</td>
+<td>
+<select name="Prog_EHour">
+<option value='0'>0h00</option>
+<option value='1'>0h30</option>
+<option value='2'>1h00</option>
+<option value='3'>1h30</option>
+<option value='4'>2h00</option>
+<option value='5'>2h30</option>
+<option value='6'>3h00</option>
+<option value='7'>3h30</option>	
+<option value='8'>4h00</option>
+<option value='9'>4h30</option>
+<option value='10'>5h00</option>
+<option value='11'>5h30</option>	
+<option value='12'>6h00</option>
+<option value='13'>6h30</option>		
+<option value='14'>7h00</option>
+<option value='15'>7h30</option>	
+<option value='16'>8h00</option>
+<option value='17'>8h30</option>	
+<option value='18'>9h00</option>
+<option value='19'>9h30</option>	
+<option value='20'>10h00</option>
+<option value='21'>10h30</option>	
+<option value='22'>11h00</option>
+<option value='23'>11h30</option>	
+<option value='24'>12h00</option>
+<option value='25'>12h30</option>
+<option value='26'>13h00</option>
+<option value='27'>13h30</option>	
+<option value='28'>14h00</option>
+<option value='29'>14h30</option>
+<option value='30'>15h00</option>
+<option value='31'>15h30</option>	
+<option value='32'>16h00</option>
+<option value='33'>16h30</option>		
+<option value='34'>17h00</option>
+<option value='35'>17h30</option>	
+<option value='36'>18h00</option>
+<option value='37'>18h30</option>	
+<option value='38'>19h00</option>
+<option value='39'>19h30</option>	
+<option value='40'>20h00</option>
+<option value='41'>20h30</option>	
+<option value='42'>21h00</option>
+<option value='43'>21h30</option>		
+<option value='44'>22h00</option>
+<option value='45'>22h30</option>	
+<option value='46'>23h00</option>
+<option value='47'>23h30</option>		
+<option value='48'>24h00</option>
+</select>
+</td>
+<td>
+<select name="Prog_Temp">
+<option value='0'>Réduit</option>
+<option value='1'>Confort</option>
+</select>
+</td>
+<td>
+<button class='prg_btn' type="button" onclick="Add_Hour_Range(document.forms.frm_prog.elements['U19_0'].value,
+	  document.forms.frm_prog.elements['U20_0'].value,
+	  document.forms.frm_prog.elements['Prog_SHour'].value,
+	  document.forms.frm_prog.elements['Prog_EHour'].value,
+	  document.forms.frm_prog.elements['Prog_Temp'].value);
+FillProgTab(document.forms.frm_prog.elements['U19_0'].value,
+  document.forms.frm_prog.elements['U20_0'].value);
+  ShowWarning();">Ajouter la plage horaire définie</button>													  
+
+</td>
+</tr>
+<tr>
+<td colspan = '7'>
+<div class="warn" id="warning" style="display:block;"> <!--<b>ATTENTION :</b> Cliquer sur le bouton Enregistrer pour sauvegarder.--></div>
+</td>
+<td>
+<button class='prg_btn' type="button" onclick="CopyRangeFromMonday(document.forms.frm_prog.elements['U19_0'].value,
+		   document.forms.frm_prog.elements['U20_0'].value);
+FillProgTab(document.forms.frm_prog.elements['U19_0'].value,
+   document.forms.frm_prog.elements['U20_0'].value);
+   ShowWarning();">Copier Lundi sur le jour sélectionné</button>
+</td>
+</tr>
+<tr>
+<td colspan='3'>
+<div id="savebtn" style="display:none;"><button type="button" onclick="frm_prog.submit()">Enregister</button></div>
+</td>
+<td colspan = '4'>
+</td>
+<td>
+<button class='prg_btn' type="button" onclick="CopyRangeFromMondayOnEntireWeek(document.forms.frm_prog.elements['U19_0'].value);
+FillProgTab(document.forms.frm_prog.elements['U19_0'].value,
+   document.forms.frm_prog.elements['U20_0'].value);
+   ShowWarning();">Copier Lundi sur toute la semaine </button>
+</td>
+</tr>
+<tr>
+<td colspan = '2'></td>
+<td colspan = '7'>
+<hr />
+</td>
+</tr>
+<tr>
+<td colspan='4'>
+</td>
+<td colspan='2'>
+Plage horaire
+</td>
+<td>
+Température
+</td>
+</tr>
+<tr>
+<td colspan='2'></td>
+<td>
+
+</td>
+<td>
+
+</td>
+<td colspan='2'></td>
+<td></td>
+</tr>					
+</table>					
+</fieldset>
+</form>
+</div>
+</div>
+
+<div id='BtmAlert' style="display:none"><span id='spBtmAlert'></span></div>
+
+<script type="text/javascript">
+<!--
+FillUtilModeChauff('U06_0','2');
+FillUtilModeChauff('U06_1','2');
+FillUtilModeChauff('U06_2','');
+FillUtilModeChauff('U06_3','');
+FillUtilModeChauff('U06_4','');
+FillUtilModeChauff('U06_5','');
+FillUtilModeChauff('U06_6','2');
+
+setTimeout("newAJAXCommand('XML/dtstat.xml',updateDateTime,true)",1000);
+setTimeout("newAJAXCommand('/XML/derog.xml',updateDerog,true)",1000);
+
+EnableZoneDftParamsInputs('0',document.forms.frm_params.elements['U06_0'].value,'1');
+EnableZoneDftParamsInputs('1',document.forms.frm_params.elements['U06_1'].value,'1');		
+EnableZoneDftParamsInputs('2',document.forms.frm_params.elements['U06_2'].value,'0');	
+EnableZoneDftParamsInputs('3',document.forms.frm_params.elements['U06_3'].value,'0');
+EnableZoneDftParamsInputs('4',document.forms.frm_params.elements['U06_4'].value,'0');
+EnableZoneDftParamsInputs('5',document.forms.frm_params.elements['U06_5'].value,'0');
+EnableZoneDftParamsInputs('6',document.forms.frm_params.elements['U06_6'].value);
+CheckboxVal(document.forms.frm_params.elements['cb02'],document.forms.frm_params.elements['U02']);
+CheckboxVal(document.forms.frm_params.elements['cb07_0'],document.forms.frm_params.elements['U07_0']);
+CheckboxVal(document.forms.frm_params.elements['cb07_1'],document.forms.frm_params.elements['U07_1']);
+CheckboxVal(document.forms.frm_params.elements['cb07_2'],document.forms.frm_params.elements['U07_2']);
+CheckboxVal(document.forms.frm_params.elements['cb07_3'],document.forms.frm_params.elements['U07_3']);
+CheckboxVal(document.forms.frm_params.elements['cb07_4'],document.forms.frm_params.elements['U07_4']);
+CheckboxVal(document.forms.frm_params.elements['cb07_5'],document.forms.frm_params.elements['U07_5']);
+CheckboxVal(document.forms.frm_params.elements['cb07_6'],document.forms.frm_params.elements['U07_6']);
+CheckboxVal(document.forms.frm_params.elements['cb41'],document.forms.frm_params.elements['U41']);
+CheckboxVal(document.forms.frm_params.elements['cb42'],document.forms.frm_params.elements['U42']);
+CheckboxVal(document.forms.frm_params.elements['cb43'],document.forms.frm_params.elements['U43']);
+EnableHorsGel();
+FillProgTab(document.forms.frm_prog.elements['U19_0'].value,document.forms.frm_prog.elements['U20_0'].value);	
+ShowTPiscine('255','255');
+ShowPriorAppoint1('4','0');
+ShowCacS48('255');
+ShowCacS49('255');
+
+document.getElementById('savebtn').style.display="none";
+setInterval("clignotement()",1000); 
+
+ShowBtmAlert(0);	
+//-->
+</script>
+
+</body>
+</html>

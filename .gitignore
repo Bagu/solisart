@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+config.json
+secrets.yaml
+*.local.*
+CLAUDE.md
+*.repasse.md

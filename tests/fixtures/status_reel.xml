@@ -1,0 +1,49 @@
+<response>
+<t1>53.4 dC</t1>
+<t2>42.7 dC</t2>
+<t3>46.4 dC</t3>
+<t4>51.3 dC</t4>
+<t5>Dsc</t5>
+<t6>Dsc</t6>
+<t7>42.9 dC</t7>
+<t8>58.0 dC</t8>
+<t9>13.7 dC</t9>
+<t10>Dsc</t10>
+<t11>23.0 dC</t11>
+<t12>19.3 dC</t12>
+<t13>Dsc</t13>
+<t14>Dsc</t14>
+<t15>Dsc</t15>
+<t16>Dsc</t16>
+<fl1>0.0 l/mn</fl1>
+<fl2>0.0 l/mn</fl2>
+<fl3>0.0 l/mn</fl3>
+<fl4>0.0 l/mn</fl4>
+<fl5>-0.0 l/mn</fl5>
+<fl6>Off</fl6>
+<mrel1>Off</mrel1>
+<srel1>Off</srel1>
+<fprel1>Off</fprel1>
+<sprel1>Off</sprel1>
+<mrel2>Off</mrel2>
+<srel2>Off</srel2>
+<fprel2>Off</fprel2>
+<sprel2>Off</sprel2>
+<triac1>0pC</triac1>
+<triac2>0pC</triac2>
+<triac3>0pC</triac3>
+<triac4>0pC</triac4>
+<triac5>0pC</triac5>
+<triac6>100pC</triac6>
+<triac7>0pC</triac7>
+<triac8>0pC</triac8>
+<triac9>0pC</triac9>
+<triac10>0pC</triac10>
+<triac11>0pC</triac11>
+<triac12>0pC</triac12>
+<triac13>0pC</triac13>
+<v3vsol>0</v3vsol>
+<v3vapp>0</v3vapp>
+<flpws>1</flpws>
+<getSave>142</getSave>
+</response>
