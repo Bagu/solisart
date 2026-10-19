@@ -103,6 +103,10 @@ controller version (see below). It is off by default.
   `param.htm`, each one overwrites what the other just set.
 - Every change sends back the whole User page form. The other settings on that page are
   sent as they were read a moment before.
+- Login sent in clear: the controller only answers over plain HTTP, so the login of
+  its User page goes out with every read of `param.htm` and every change. Anyone who can
+  watch your local network can read it. Keep the controller on a network you trust, and
+  give it a password you use nowhere else.
 - Tested versions: the integration only changes settings on controller software
   `SRB_32MX_vD.50-5` with web interface `WEB_vA.98`. On any other version, reading goes
   on, but every change is refused, and Home Assistant shows a message in Settings, System,

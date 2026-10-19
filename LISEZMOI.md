@@ -118,6 +118,11 @@ Par défaut, elle reste désactivée.
   modification renvoie tout le formulaire de la page Utilisateur, avec les autres
   réglages tels que l'intégration vient de les lire. Si un autre outil écrit aussi sur
   `param.htm`, chacun écrase ce que l'autre vient de régler.
+- Identifiant en clair : le régulateur ne répond qu'en HTTP simple. L'identifiant de sa
+  page Utilisateur part donc avec chaque lecture de `param.htm` et chaque modification,
+  et toute personne qui peut observer votre réseau local peut le lire. Gardez le
+  régulateur sur un réseau de confiance, avec un mot de passe que vous n'utilisez nulle
+  part ailleurs.
 - Versions testées : l'intégration ne modifie les réglages qu'avec le logiciel
   `SRB_32MX_vD.50-5` et l'interface web `WEB_vA.98`. Sur une autre version, la lecture
   continue, mais toute modification est refusée, et Home Assistant affiche un message
