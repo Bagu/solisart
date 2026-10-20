@@ -25,6 +25,8 @@ SABOTAGES = [
     ("demi-heure arrondie au-dessus", "analyse.py", "2 * heures + minutes // 30", "2 * heures + (minutes + 29) // 30"),
     ("heure hors limites acceptée", "analyse.py", "    if heures > 23 or minutes > 59:\n", "    if False:\n"),
     ("valeurs du refus perdues", "analyse.py", "self.valeurs = {nom: str(valeur) for nom, valeur in valeurs.items()}", "self.valeurs = {}"),
+    ("libellé éloigné de la carte", "translations/fr.json", '"Mode de chauffage {zone}"', '"Mode {zone}"'),
+    ("« carte » employée seule", "translations/fr.json", "Cette carte de régulation est déjà ajoutée", "Cette carte est déjà ajoutée"),
     ("traduction française manquante", "translations/fr.json", '"refus_hors_bornes"', '"refus_hors_borne"'),
     ("paramètre de traduction renommé", "translations/en.json", "({minimum} to {maximum} °C)", "({min} to {maximum} °C)"),
     ("message d'erreur écrit en dur", "coordinator.py", "            raise erreur_ecriture(err) from err\n", '            raise HomeAssistantError(f"échec : {err}") from err\n'),

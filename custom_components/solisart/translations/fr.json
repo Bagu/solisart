@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "SolisArt",
-        "description": "Adresse de la carte et identifiant de son interface web (celui de la page Utilisateur).",
+        "description": "Adresse de la carte de régulation et identifiant de son interface web (celui de la page Utilisateur).",
         "data": {
           "host": "Adresse",
           "username": "Identifiant",
@@ -15,15 +15,15 @@
       },
       "reauth_confirm": {
         "title": "Nouvel identifiant",
-        "description": "La carte {host} refuse l'identifiant enregistré.",
+        "description": "La carte de régulation {host} refuse l'identifiant enregistré.",
         "data": {
           "username": "Identifiant",
           "password": "Mot de passe"
         }
       },
       "reconfigure": {
-        "title": "Modifier les réglages de la carte",
-        "description": "Nouvelle adresse ou nouvel identifiant de cette carte. Les entités conservent leur nom et leur historique.",
+        "title": "Modifier les réglages de la carte de régulation",
+        "description": "Nouvelle adresse ou nouvel identifiant de cette carte de régulation. Les entités conservent leur nom et leur historique.",
         "data": {
           "host": "Adresse",
           "username": "Identifiant",
@@ -36,14 +36,14 @@
       }
     },
     "error": {
-      "cannot_connect": "La carte ne répond pas à cette adresse.",
-      "invalid_auth": "Identifiant ou mot de passe refusé par la carte.",
-      "not_solisart": "Cette adresse ne renvoie pas les pages d'une carte SolisArt."
+      "cannot_connect": "La carte de régulation ne répond pas à cette adresse.",
+      "invalid_auth": "Identifiant ou mot de passe refusé par la carte de régulation.",
+      "not_solisart": "Cette adresse ne renvoie pas les pages d'une carte de régulation SolisArt."
     },
     "abort": {
-      "already_configured": "Cette carte est déjà ajoutée.",
+      "already_configured": "Cette carte de régulation est déjà ajoutée.",
       "reauth_successful": "Identifiant mis à jour.",
-      "reconfigure_successful": "Réglages de la carte mis à jour."
+      "reconfigure_successful": "Réglages de la carte de régulation mis à jour."
     }
   },
   "options": {
@@ -63,10 +63,10 @@
           "sonde_zone_6": "Sonde de l'eau chaude"
         },
         "data_description": {
-          "intervalle_reglages": "Cette page coûte près d'une seconde à la carte : ne pas la lire trop souvent.",
-          "ecriture_version_non_testee": "L'intégration ne modifie les réglages que sur les versions du logiciel de la carte et de son interface web inscrites dans sa liste des versions testées. Chaque modification renvoie tout le formulaire de la page Utilisateur : sur une autre version, elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive. Ne cochez cette case que si vous acceptez ce risque."
+          "intervalle_reglages": "Cette page coûte près d'une seconde à la carte de régulation : ne pas la lire trop souvent.",
+          "ecriture_version_non_testee": "L'intégration ne modifie les réglages que sur les versions du logiciel de la carte de régulation et de son interface web inscrites dans sa liste des versions testées. Chaque modification renvoie tout le formulaire de la page Utilisateur : sur une autre version, elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive. Ne cochez cette case que si vous acceptez ce risque."
         },
-        "description": "Sondes : choisissez la température affichée par le thermostat de chaque zone, par exemple une sonde SolisArt ou un capteur de la pièce. Zones de chauffage de la carte : {zones}."
+        "description": "Sondes : choisissez la température affichée par le thermostat de chaque zone, par exemple une sonde SolisArt ou un capteur de la pièce. Zones de chauffage de la carte de régulation : {zones}."
       }
     }
   },
@@ -85,14 +85,14 @@
         "name": "Débit {balise}"
       },
       "periode": {
-        "name": "Période {zone}",
+        "name": "Plage en cours {zone}",
         "state": {
           "confort": "Confort",
           "reduit": "Réduit"
         }
       },
       "periode_ecs": {
-        "name": "Période eau chaude",
+        "name": "Plage en cours eau chaude",
         "state": {
           "confort": "Confort",
           "reduit": "Réduit"
@@ -106,7 +106,7 @@
     },
     "select": {
       "mode": {
-        "name": "Mode {zone}",
+        "name": "Mode de chauffage {zone}",
         "state": {
           "arret": "Arrêt",
           "soleil": "Solaire",
@@ -114,7 +114,7 @@
         }
       },
       "mode_ecs": {
-        "name": "Mode eau chaude",
+        "name": "Mode de chauffage eau chaude",
         "state": {
           "arret": "Arrêt",
           "soleil": "Solaire",
@@ -124,60 +124,60 @@
     },
     "number": {
       "confort": {
-        "name": "Consigne confort {zone}"
+        "name": "Température de confort {zone}"
       },
       "reduit": {
-        "name": "Consigne réduit {zone}"
+        "name": "Température de réduit {zone}"
       },
       "confort_ecs": {
-        "name": "Consigne confort eau chaude"
+        "name": "Température de confort eau chaude"
       },
       "reduit_ecs": {
-        "name": "Consigne réduit eau chaude"
+        "name": "Température de réduit eau chaude"
       }
     },
     "text": {
       "planning_0": {
-        "name": "Planning {zone} lundi"
+        "name": "Programmation {zone} lundi"
       },
       "planning_0_ecs": {
-        "name": "Planning eau chaude lundi"
+        "name": "Programmation eau chaude lundi"
       },
       "planning_1": {
-        "name": "Planning {zone} mardi"
+        "name": "Programmation {zone} mardi"
       },
       "planning_1_ecs": {
-        "name": "Planning eau chaude mardi"
+        "name": "Programmation eau chaude mardi"
       },
       "planning_2": {
-        "name": "Planning {zone} mercredi"
+        "name": "Programmation {zone} mercredi"
       },
       "planning_2_ecs": {
-        "name": "Planning eau chaude mercredi"
+        "name": "Programmation eau chaude mercredi"
       },
       "planning_3": {
-        "name": "Planning {zone} jeudi"
+        "name": "Programmation {zone} jeudi"
       },
       "planning_3_ecs": {
-        "name": "Planning eau chaude jeudi"
+        "name": "Programmation eau chaude jeudi"
       },
       "planning_4": {
-        "name": "Planning {zone} vendredi"
+        "name": "Programmation {zone} vendredi"
       },
       "planning_4_ecs": {
-        "name": "Planning eau chaude vendredi"
+        "name": "Programmation eau chaude vendredi"
       },
       "planning_5": {
-        "name": "Planning {zone} samedi"
+        "name": "Programmation {zone} samedi"
       },
       "planning_5_ecs": {
-        "name": "Planning eau chaude samedi"
+        "name": "Programmation eau chaude samedi"
       },
       "planning_6": {
-        "name": "Planning {zone} dimanche"
+        "name": "Programmation {zone} dimanche"
       },
       "planning_6_ecs": {
-        "name": "Planning eau chaude dimanche"
+        "name": "Programmation eau chaude dimanche"
       }
     },
     "climate": {
@@ -191,7 +191,7 @@
             }
           },
           "consigne_reduit": {
-            "name": "Consigne réduit"
+            "name": "Température de réduit"
           }
         }
       }
@@ -206,7 +206,7 @@
         },
         "state_attributes": {
           "consigne_reduit": {
-            "name": "Consigne réduit"
+            "name": "Température de réduit"
           }
         }
       }
@@ -214,56 +214,56 @@
   },
   "services": {
     "copier_planning": {
-      "name": "Copier un planning",
-      "description": "Copie les plages de confort d'un jour de planning SolisArt sur d'autres jours ou d'autres zones, en un seul envoi par carte.",
+      "name": "Copier une programmation",
+      "description": "Copie les plages de confort d'une journée de programmation SolisArt sur d'autres jours ou d'autres zones, en un seul envoi par carte de régulation.",
       "fields": {
         "source": {
           "name": "Source",
-          "description": "Entité planning à copier."
+          "description": "Entité de programmation à copier."
         },
         "cibles": {
           "name": "Cibles",
-          "description": "Entités planning qui reçoivent les mêmes plages de confort."
+          "description": "Entités de programmation qui reçoivent les mêmes plages de confort."
         }
       }
     }
   },
   "exceptions": {
     "carte_injoignable": {
-      "message": "La carte ne répond pas : {detail}"
+      "message": "La carte de régulation ne répond pas : {detail}"
     },
     "ecriture_annulee": {
       "message": "Modification annulée : l'intégration s'est arrêtée avant l'envoi"
     },
     "ecriture_identifiant_refuse": {
-      "message": "Modification impossible : la carte refuse l'identifiant enregistré"
+      "message": "Modification impossible : la carte de régulation refuse l'identifiant enregistré"
     },
     "ecriture_non_confirmee": {
-      "message": "La carte n'a pas conservé les valeurs envoyées (demandé → relu) : {detail}"
+      "message": "La carte de régulation n'a pas conservé les valeurs envoyées (demandé → relu) : {detail}"
     },
     "identifiant_refuse": {
-      "message": "La carte refuse l'identifiant enregistré"
+      "message": "La carte de régulation refuse l'identifiant enregistré"
     },
     "lecture_etat_impossible": {
       "message": "Lecture des mesures (status.xml) impossible : {detail}"
     },
     "page_inattendue": {
-      "message": "La carte a renvoyé une page inattendue : {detail}"
+      "message": "La carte de régulation a renvoyé une page inattendue : {detail}"
     },
     "planning_indisponible": {
       "message": "{entity_id} n'est pas un programme SolisArt disponible"
     },
     "refus_bornes_absentes": {
-      "message": "{champ} : la page de la carte ne donne pas les bornes de cette consigne"
+      "message": "{champ} : la page de la carte de régulation ne donne pas les bornes de cette consigne"
     },
     "refus_champ_non_pris_en_charge": {
       "message": "Le champ {champ} n'est pas pris en charge"
     },
     "refus_champs_desactives": {
-      "message": "La carte a désactivé ces champs, qui ne peuvent donc pas être modifiés : {champs}. Une zone à l'arrêt bloque par exemple ses consignes"
+      "message": "La carte de régulation a désactivé ces champs, qui ne peuvent donc pas être modifiés : {champs}. Une zone à l'arrêt bloque par exemple ses consignes"
     },
     "refus_hors_bornes": {
-      "message": "{champ} : {valeur} °C est hors des bornes de la carte ({minimum} à {maximum} °C)"
+      "message": "{champ} : {valeur} °C est hors des bornes de la carte de régulation ({minimum} à {maximum} °C)"
     },
     "refus_mode_inconnu": {
       "message": "{champ} : mode « {valeur} » inconnu"
@@ -281,22 +281,22 @@
       "message": "Plage « {plage} » : le début doit précéder la fin"
     },
     "refus_planning_champs_absents": {
-      "message": "La page de la carte ne contient pas les champs de programme attendus : {champs}"
+      "message": "La page de la carte de régulation ne contient pas les champs de programme attendus : {champs}"
     },
     "refus_planning_inconnu": {
       "message": "Programme inconnu : zone {zone}, jour {jour}"
     },
     "refus_zone_absente": {
-      "message": "Le champ {champ} vise une zone absente de la carte"
+      "message": "Le champ {champ} vise une zone absente de la carte de régulation"
     },
     "version_non_testee": {
-      "message": "Modification refusée : la carte utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}). L'option « Autoriser les modifications sur une version non testée » lève ce blocage"
+      "message": "Modification refusée : la carte de régulation utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}). L'option « Autoriser les modifications sur une version non testée » lève ce blocage"
     }
   },
   "issues": {
     "version_non_testee": {
-      "title": "SolisArt : version de la carte non testée",
-      "description": "La carte {carte} utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}).\n\nLa lecture continue normalement, mais les modes, les consignes et les programmes ne peuvent plus être modifiés depuis Home Assistant. Chaque modification renvoie tout le formulaire de la page Utilisateur, et sur cette version elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive.\n\nSi tout vous semble correct, ouvrez un ticket avec ces deux versions pour qu'elles soient ajoutées à la liste. Vous pouvez aussi autoriser les modifications dans les options de l'intégration, à vos risques."
+      "title": "SolisArt : version de la carte de régulation non testée",
+      "description": "La carte de régulation {carte} utilise le logiciel {version_carte} et l'interface web {version_web}, une combinaison absente de la liste des versions testées ({versions_testees}).\n\nLa lecture continue normalement, mais les modes, les consignes et les programmes ne peuvent plus être modifiés depuis Home Assistant. Chaque modification renvoie tout le formulaire de la page Utilisateur, et sur cette version elle pourrait changer d'autres réglages sans que personne ne s'en aperçoive.\n\nSi tout vous semble correct, ouvrez un ticket avec ces deux versions pour qu'elles soient ajoutées à la liste. Vous pouvez aussi autoriser les modifications dans les options de l'intégration, à vos risques."
     }
   }
 }

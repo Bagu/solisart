@@ -234,10 +234,10 @@ async def test_entites_de_reglage(hass, aioclient_mock):
     entree = await installer(hass, aioclient_mock)
     etat = lambda champ: hass.states.get(entite(hass, entree, champ))  # noqa: E731
     assert etat("U06_0").state == "soleil_appoint"
-    assert etat("U06_0").name == "SolisArt Mode RDC"
-    assert etat("U06_6").name == "SolisArt Hot water mode"
+    assert etat("U06_0").name == "SolisArt Heating mode RDC"
+    assert etat("U06_6").name == "SolisArt Hot water heating mode"
     assert etat("U06_0").attributes["options"] == ["arret", "soleil", "soleil_appoint"]
-    assert etat("U09_1").name == "SolisArt Comfort setpoint Etage"
+    assert etat("U09_1").name == "SolisArt Comfort temperature Etage"
     assert etat("U09_1").state == "18.5"
     assert etat("U10_1").state == "18.0"
     assert (etat("U09_0").attributes["min"], etat("U09_0").attributes["max"]) == (10, 40)
@@ -694,8 +694,8 @@ async def test_periode_en_cours_a_l_heure_de_la_carte(hass, aioclient_mock):
     entree = await installer(hass, aioclient_mock)
     periode = lambda index: hass.states.get(entite(hass, entree, f"periode_{index}"))  # noqa: E731
     assert periode(0).state == "confort"
-    assert periode(0).name == "SolisArt Period RDC"
-    assert periode(6).name == "SolisArt Hot water period"
+    assert periode(0).name == "SolisArt Current slot RDC"
+    assert periode(6).name == "SolisArt Hot water current slot"
     assert periode(0).attributes["options"] == ["confort", "reduit"]
     carte(aioclient_mock, horloge_corps=horloge_carte("lun. 19 oct. 26", "00:45:10"))
     await entree.runtime_data.async_refresh()

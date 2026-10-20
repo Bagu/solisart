@@ -30,22 +30,22 @@ how your system was installed, and the Visualisation page of the controller show
 Rename them in Home Assistant once you know.
 
 The integration also reads `/param.htm` (the User page) every 5 minutes: zones, their
-labels, modes and setpoints, plus the controller and web interface versions.
+labels, heating modes and comfort and reduced temperatures, plus the controller and web interface versions.
 
-Each zone also gets a period sensor: Comfort or Reduced, the half hour of its schedule
+Each zone also gets a current slot sensor: Comfort or Reduced, the half hour of its schedule
 that applies right now. The integration reads the controller's own clock for this
 (`/XML/dtstat.xml`, no login needed, at the same pace as `status.xml`), so a clock drift
 between Home Assistant and the controller does not matter. If that page cannot be read,
-the period shows as unavailable and everything else keeps working.
+the current slot shows as unavailable and everything else keeps working.
 
 ## What it changes
 
 For each zone the controller has (heating zones and hot water), the integration adds:
 
-- a mode selector with the labels of the controller's User page: Arrêt (off), Solaire
+- the heating mode, with the labels of the controller's User page: Arrêt (off), Solaire
   (solar only) or Sol/App (solar and backup heater). In English, Home Assistant shows them
   as Off, Solar and Solar/Backup;
-- the comfort and reduced setpoints, in °C. Their limits come from the controller's page.
+- the comfort and reduced temperatures, in °C. Their limits come from the controller's page.
   They show as unavailable while the zone is off, since the controller locks them then;
 - the comfort/reduced schedule, one text entity per day (for example "Schedule Ground
   floor Monday"). It lists the comfort periods, such as `06:00-08:30, 18:00-22:00`, and
@@ -58,15 +58,15 @@ and voice assistants:
 
 - thermostat: off for the controller's off mode, heat for the two other modes, which the
   preset tells apart (Solar or Solar/Backup). Turning it back on restores the
-  last preset. The target temperature is the comfort setpoint, and the reduced setpoint
+  last preset. The target temperature is the comfort temperature, and the reduced temperature
   shows as an attribute;
 - water heater: Off, Solar or Solar/Backup, filed under the standard Home
-  Assistant modes `off`, `eco` and `performance`, with the hot water comfort setpoint as
+  Assistant modes `off`, `eco` and `performance`, with the hot water comfort temperature as
   target;
 - the current temperature comes from the probe you pick for each zone in the options.
   There is none by default, since the probe in a given room depends on the installation.
 
-The entities take the zone labels set on the controller (for example "Mode Ground
+The entities take the zone labels set on the controller (for example "Heating mode Ground
 floor").
 
 The `solisart.copier_planning` action copies one schedule day to other days or zones in a
@@ -76,7 +76,7 @@ To change a value, the integration does what your browser does on the User page.
 `param.htm`, sends the whole form back with the new value, then reads the page again to
 check the controller kept it. If the value did not stick, Home Assistant shows an error.
 Changes made less than 1.5 s apart go out together in one request, so clicking the
-arrows of a setpoint five times sends only the last value.
+arrows of a temperature five times sends only the last value.
 
 ## Requirements
 
@@ -118,8 +118,8 @@ or a new login there, and the entities keep their names and history. Leave the p
 empty to keep the saved one.
 
 Options: how often `status.xml` is read (30 s by default) and how often `param.htm` is
-read (300 s by default). The controller takes almost a second to build `param.htm`, so I
-would not read it much more often. Another option allows changes on an untested
+read (300 s by default). The controller takes almost a second to build `param.htm`, so it is
+best not to read it much more often. Another option allows changes on an untested
 controller version (see below). It is off by default. The last fields pick the
 temperature probe of each zone for the thermostats and the water heater.
 
@@ -139,7 +139,7 @@ temperature probe of each zone for the thermostats and the water heater.
   `SRB_32MX_vD.50-5` with web interface `WEB_vA.98`. On any other version, reading goes
   on, but every change is refused, and Home Assistant shows a message in Settings, System,
   Repairs with the versions it found. If everything works on your side, open an issue
-  with those versions and I'll add them to the list. You can also allow changes on an
+  with those versions to get them added to the list. You can also allow changes on an
   untested version in the options, at your own risk.
 - The integration gives Home Assistant access to the controller and nothing more.
   Deciding when to heat with the solar surplus or during off-peak hours belongs in your

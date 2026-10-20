@@ -87,6 +87,19 @@ class Exceptions(unittest.TestCase):
                 with self.subTest(langue=langue, cle=cle):
                     self.assertFalse(message["message"].endswith("."))
 
+    def test_tous_les_textes_ont_les_memes_cles_et_parametres(self):
+        def plat(x, chemin=""):
+            if isinstance(x, dict):
+                for cle, valeur in x.items():
+                    yield from plat(valeur, f"{chemin}.{cle}" if chemin else cle)
+            else:
+                yield chemin, x
+        textes = {langue: dict(plat(_json(nom))) for langue, nom in FICHIERS.items()}
+        self.assertEqual(set(textes["fr"]), set(textes["en"]))
+        for chemin, anglais in textes["en"].items():
+            with self.subTest(chemin=chemin):
+                self.assertEqual(_parametres(textes["fr"][chemin]), _parametres(anglais))
+
     def test_strings_identique_a_l_anglais(self):
         self.assertEqual(_json("strings.json"), _json(FICHIERS["en"]))
 
@@ -96,6 +109,48 @@ class Exceptions(unittest.TestCase):
         self.assertEqual(err.exception.cle, "plage_demi_heure")
         self.assertEqual(err.exception.valeurs, {"plage": "25:00-26:00"})
         self.assertIn("25:00-26:00", str(err.exception))
+
+
+
+def _texte_page():
+    """Texte visible de la page Utilisateur enregistrée sur la carte (espaces réduits)."""
+    import html
+    with open(os.path.join(os.path.dirname(DOSSIER), "..", "tests", "fixtures", "param_reel.htm"), "rb") as f:
+        page = f.read().decode("ISO-8859-1")
+    page = re.sub(r"(?is)<script.*?</script>", " ", page)
+    return " ".join(html.unescape(re.sub(r"<[^>]+>", " ", page)).split())
+
+
+class VocabulaireDeLaCarte(unittest.TestCase):
+    """Les libellés français reprennent les mots de la page Utilisateur de la carte."""
+
+    ACCORDS = (
+        (("entity", "select", "mode", "name"), "Mode de chauffage"),
+        (("entity", "number", "confort", "name"), "Température de confort"),
+        (("entity", "number", "reduit", "name"), "Température de réduit"),
+        (("entity", "text", "planning_0", "name"), "Programmation"),
+        (("entity", "sensor", "periode", "state", "confort"), "Confort"),
+        (("entity", "sensor", "periode", "state", "reduit"), "Réduit"),
+        (("entity", "climate", "thermostat", "state_attributes", "consigne_reduit", "name"), "Température de réduit"),
+        (("config", "step", "user", "description"), "Carte de régulation"),
+    )
+
+    def test_libelles_pris_sur_la_page(self):
+        page = _texte_page()
+        francais = _json(FICHIERS["fr"])
+        for chemin, mots in self.ACCORDS:
+            with self.subTest(chemin=".".join(chemin)):
+                self.assertIn(mots, page)
+                texte = francais
+                for cle in chemin:
+                    texte = texte[cle]
+                self.assertIn(mots.lower(), texte.lower())
+
+    def test_carte_de_regulation_partout(self):
+        francais = json.dumps(_json(FICHIERS["fr"]), ensure_ascii=False)
+        seules = re.findall(r"(?<!\{)\bcartes?\b(?! de régulation)", francais, re.IGNORECASE)
+        self.assertEqual(seules, [])
+        self.assertNotIn("régulateur", francais)
 
 
 if __name__ == "__main__":

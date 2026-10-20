@@ -85,14 +85,14 @@
         "name": "Flow {balise}"
       },
       "periode": {
-        "name": "Period {zone}",
+        "name": "Current slot {zone}",
         "state": {
           "confort": "Comfort",
           "reduit": "Reduced"
         }
       },
       "periode_ecs": {
-        "name": "Hot water period",
+        "name": "Hot water current slot",
         "state": {
           "confort": "Comfort",
           "reduit": "Reduced"
@@ -106,7 +106,7 @@
     },
     "select": {
       "mode": {
-        "name": "Mode {zone}",
+        "name": "Heating mode {zone}",
         "state": {
           "arret": "Off",
           "soleil": "Solar",
@@ -114,7 +114,7 @@
         }
       },
       "mode_ecs": {
-        "name": "Hot water mode",
+        "name": "Hot water heating mode",
         "state": {
           "arret": "Off",
           "soleil": "Solar",
@@ -124,16 +124,16 @@
     },
     "number": {
       "confort": {
-        "name": "Comfort setpoint {zone}"
+        "name": "Comfort temperature {zone}"
       },
       "reduit": {
-        "name": "Reduced setpoint {zone}"
+        "name": "Reduced temperature {zone}"
       },
       "confort_ecs": {
-        "name": "Hot water comfort setpoint"
+        "name": "Hot water comfort temperature"
       },
       "reduit_ecs": {
-        "name": "Hot water reduced setpoint"
+        "name": "Hot water reduced temperature"
       }
     },
     "text": {
@@ -191,7 +191,7 @@
             }
           },
           "consigne_reduit": {
-            "name": "Reduced setpoint"
+            "name": "Reduced temperature"
           }
         }
       }
@@ -206,7 +206,7 @@
         },
         "state_attributes": {
           "consigne_reduit": {
-            "name": "Reduced setpoint"
+            "name": "Reduced temperature"
           }
         }
       }

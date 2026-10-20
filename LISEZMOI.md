@@ -2,9 +2,9 @@
 
 [English version](README.md)
 
-Une intégration Home Assistant pour suivre et piloter un régulateur de chauffage solaire
+Une intégration Home Assistant pour suivre et piloter une carte de régulation de chauffage solaire
 SolisArt. Je l'ai écrite pour mon propre système en gardant une approche générique : les
-zones, les libellés et les limites sont lus directement depuis le régulateur. Rien de
+zones, les libellés et les limites sont lus directement depuis la carte de régulation. Rien de
 spécifique à ma maison n'est codé en dur.
 
 ## Avertissement
@@ -18,7 +18,7 @@ La licence MIT dit la même chose.
 
 ## Ce que ça lit
 
-Le régulateur publie un fichier `/XML/status.xml` sur son interface web. Chaque valeur
+La carte de régulation publie un fichier `/XML/status.xml` sur son interface web. Chaque valeur
 reconnue devient une entité dans Home Assistant :
 
 - Les sondes de température (`T1` à `T16`) en °C. Une sonde déclarée déconnectée (`Dsc`)
@@ -28,33 +28,33 @@ reconnue devient une entité dans Home Assistant :
 - Les débitmètres (`FL1` à `FL5`), en L/min.
 - Les relais (`MREL1`, `SREL1`...), en marche ou à l'arrêt.
 
-Les entités prennent le nom des balises du régulateur. Le rôle de chaque sonde dépend de
-votre installation (visible sur la page Visualisation du régulateur). Vous pourrez les
+Les entités prennent le nom des balises de la carte de régulation. Le rôle de chaque sonde dépend de
+votre installation (visible sur la page Visualisation de la carte de régulation). Vous pourrez les
 renommer facilement dans Home Assistant.
 
 L'intégration lit aussi la page Utilisateur (`/param.htm`) toutes les 5 minutes pour
-récupérer les zones, leurs libellés, leurs modes, leurs consignes, ainsi que les versions
-du régulateur et de l'interface web.
+récupérer les zones, leurs libellés, leurs modes de chauffage, leurs températures de confort et de réduit, ainsi que les versions
+de la carte de régulation et de l'interface web.
 
-Chaque zone reçoit aussi un capteur de période : Confort ou Réduit, selon la demi-heure de
-son planning qui s'applique en ce moment. Pour cela, l'intégration lit l'horloge du
-régulateur lui-même (`/XML/dtstat.xml`, sans identifiant, au même rythme que
-`status.xml`) : un décalage d'heure entre Home Assistant et le régulateur ne change donc
-rien. Si cette page ne répond pas, la période s'affiche comme indisponible et tout le
+Chaque zone reçoit aussi un capteur de plage en cours : Confort ou Réduit, selon la demi-heure
+de sa programmation horaire qui s'applique en ce moment. Pour cela, l'intégration lit l'horloge de la
+carte de régulation elle-même (`/XML/dtstat.xml`, sans identifiant, au même rythme que
+`status.xml`) : un décalage d'heure entre Home Assistant et la carte de régulation ne change donc
+rien. Si cette page ne répond pas, la plage en cours s'affiche comme indisponible et tout le
 reste continue de fonctionner.
 
 ## Ce que ça pilote
 
-Pour chaque zone gérée par le régulateur (chauffage et eau chaude sanitaire),
+Pour chaque zone gérée par la carte de régulation (chauffage et eau chaude sanitaire),
 l'intégration ajoute :
 
-- Un sélecteur de mode, avec les libellés de la page Utilisateur du régulateur : Arrêt,
+- Le mode de chauffage, avec les libellés de la page Utilisateur de la carte de régulation : Arrêt,
   Solaire (soleil seul) ou Sol/App (soleil et appoint).
-- Les consignes de confort et de réduit (en °C). Leurs limites proviennent directement du
-  régulateur. Elles s'affichent comme indisponibles quand la zone est à l'arrêt, car le
-  régulateur les verrouille alors.
-- Le planning horaire (confort/réduit), sous forme d'une entité texte par jour (par
-  exemple « Planning Rez-de-chaussée lundi »). On y indique les plages de confort comme
+- Les températures de confort et de réduit (en °C). Leurs limites proviennent directement de la
+  carte de régulation. Elles s'affichent comme indisponibles quand la zone est à l'arrêt, car la
+  carte de régulation les verrouille alors.
+- La programmation horaire (confort/réduit), sous forme d'une entité texte par jour (par
+  exemple « Programmation Rez-de-chaussée lundi »). On y indique les plages de confort comme
   `06:00-08:30, 18:00-22:00`, le reste de la journée étant en réduit. Une valeur vide
   signifie « réduit toute la journée ». Les heures vont à la demi-heure, et `6-8:30` ou
   `18h-22h` conviennent aussi. Ces entités sont rangées dans la partie Configuration de
@@ -63,38 +63,38 @@ l'intégration ajoute :
 Chaque zone de chauffage reçoit aussi un thermostat, et l'eau chaude un chauffe-eau,
 pour les tableaux de bord et les assistants vocaux :
 
-- Thermostat : Arrêt pour le mode Arrêt du régulateur, Chauffage pour les deux autres
+- Thermostat : Arrêt pour le mode Arrêt de la carte de régulation, Chauffage pour les deux autres
   modes, que le préréglage distingue (Solaire ou Sol/App). Le rallumer
-  remet le dernier préréglage. La température cible est la consigne de confort, et la
-  consigne de réduit apparaît en attribut.
+  remet le dernier préréglage. La température cible est la température de confort, et
+  la température de réduit apparaît en attribut.
 - Chauffe-eau : Arrêt, Solaire ou Sol/App, rangés sous les modes standard
-  de Home Assistant `off`, `eco` et `performance`, avec la consigne de confort de l'eau
+  de Home Assistant `off`, `eco` et `performance`, avec la température de confort de l'eau
   chaude comme cible.
 - La température actuelle vient de la sonde que vous choisissez pour chaque zone dans les
   options. Il n'y en a aucune par défaut, car la sonde d'une pièce dépend de
   l'installation.
 
-Les entités prennent les libellés des zones saisis sur le régulateur (par exemple « Mode
-Rez-de-chaussée »).
+Les entités prennent les libellés des zones saisis sur la carte de régulation (par exemple « Mode de
+chauffage Rez-de-chaussée »).
 
-L'action `solisart.copier_planning` permet de copier un planning d'un jour sur d'autres
+L'action `solisart.copier_planning` permet de copier la programmation d'un jour sur d'autres
 jours ou d'autres zones en une seule fois (par exemple, du lundi pour tout le reste de la
 semaine).
 
 Pour modifier une valeur, l'intégration se comporte comme votre navigateur : elle lit
 `param.htm`, renvoie le formulaire complet avec la nouvelle valeur, puis relit la page
-pour s'assurer que le régulateur l'a bien enregistrée. Si la modification échoue, Home
+pour s'assurer que la carte de régulation l'a bien enregistrée. Si la modification échoue, Home
 Assistant affiche une erreur.
 
 Les modifications espacées de moins de 1,5 seconde sont regroupées en une seule requête :
-si vous cliquez cinq fois d'affilée sur les flèches d'une consigne, seule la dernière
+si vous cliquez cinq fois d'affilée sur les flèches d'une température, seule la dernière
 valeur est envoyée.
 
 ## Prérequis
 
-- Un régulateur SolisArt accessible sur votre réseau local (testé avec le logiciel
+- Une carte de régulation SolisArt accessible sur votre réseau local (testée avec le logiciel
   `SRB_32MX_vD.50-5` et l'interface web `WEB_vA.98`).
-- Les identifiants de la page Utilisateur de votre régulateur.
+- Les identifiants de la page Utilisateur de votre carte de régulation.
 - Home Assistant 2026.10 ou plus récent. HACS refuse les versions plus anciennes.
 
 ## Installation
@@ -122,41 +122,41 @@ votre configuration Home Assistant, puis redémarrez.
 ### Configuration
 
 Dans Home Assistant, allez dans Paramètres > Appareils et services > Ajouter une
-intégration, cherchez SolisArt et entrez l'adresse IP du régulateur (par exemple
+intégration, cherchez SolisArt et entrez l'adresse IP de la carte de régulation (par exemple
 `192.168.1.20`) ainsi que vos identifiants.
 
-Le régulateur n'expose aucun numéro de série : l'intégration le reconnaît donc à son
+La carte de régulation n'expose aucun numéro de série : l'intégration la reconnaît donc à son
 adresse. Si l'adresse change (nouveau routeur, nouveau bail DHCP), ouvrez le menu de
 l'entrée de l'intégration (les trois points) et choisissez Reconfigurer. Vous pouvez y
 saisir la nouvelle adresse ou un nouvel identifiant, et les entités conservent leur nom
 et leur historique. Laissez le mot de passe vide pour conserver celui enregistré.
 
 Dans les options, vous pouvez régler le rythme de lecture de `status.xml` (30 s par
-défaut) et de `param.htm` (300 s par défaut). Le régulateur met près d'une seconde à
-produire `param.htm` : je ne la lirais pas beaucoup plus souvent. Une autre option
-autorise les modifications sur une version du régulateur non testée (voir plus bas).
+défaut) et de `param.htm` (300 s par défaut). La carte de régulation met près d'une seconde à
+produire `param.htm` : mieux vaut ne pas la lire beaucoup plus souvent. Une autre option
+autorise les modifications sur une version de la carte de régulation non testée (voir plus bas).
 Par défaut, elle reste désactivée. Les derniers champs servent à choisir la sonde de
 température de chaque zone pour les thermostats et le chauffe-eau.
 
 ## À savoir avant de l'utiliser
 
 - Pas d'API officielle : SolisArt ne propose pas d'API. Cette intégration lit et écrit
-  sur les pages de l'interface web. Une mise à jour logicielle du régulateur peut casser
+  sur les pages de l'interface web. Une mise à jour logicielle de la carte de régulation peut casser
   son fonctionnement.
-- Un seul pilote : un seul outil doit modifier les réglages du régulateur. Chaque
+- Un seul pilote : un seul outil doit modifier les réglages de la carte de régulation. Chaque
   modification renvoie tout le formulaire de la page Utilisateur, avec les autres
   réglages tels que l'intégration vient de les lire. Si un autre outil écrit aussi sur
   `param.htm`, chacun écrase ce que l'autre vient de régler.
-- Identifiant en clair : le régulateur ne répond qu'en HTTP simple. L'identifiant de sa
+- Identifiant en clair : la carte de régulation ne répond qu'en HTTP simple. L'identifiant de sa
   page Utilisateur part donc avec chaque lecture de `param.htm` et chaque modification,
-  et toute personne qui peut observer votre réseau local peut le lire. Gardez le
-  régulateur sur un réseau de confiance, avec un mot de passe que vous n'utilisez nulle
+  et toute personne qui peut observer votre réseau local peut le lire. Gardez la
+  carte de régulation sur un réseau de confiance, avec un mot de passe que vous n'utilisez nulle
   part ailleurs.
 - Versions testées : l'intégration ne modifie les réglages qu'avec le logiciel
   `SRB_32MX_vD.50-5` et l'interface web `WEB_vA.98`. Sur une autre version, la lecture
   continue, mais toute modification est refusée, et Home Assistant affiche un message
   dans Paramètres, Système, Réparations avec les versions trouvées. Si tout fonctionne
-  chez vous, ouvrez un ticket avec ces versions pour que je les ajoute à la liste. Les
+  chez vous, ouvrez un ticket avec ces versions pour les faire ajouter à la liste. Les
   options permettent aussi d'autoriser les modifications sur une version non testée, à
   vos risques.
 - Gestion externe : l'intégration donne accès au matériel depuis Home Assistant, mais
