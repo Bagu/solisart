@@ -1,7 +1,6 @@
 {
   "domain": "solisart",
   "name": "SolisArt",
-  "categories": ["climate.thermostats_heating", "climate.water_heaters"],
   "codeowners": ["@Bagu"],
   "config_flow": true,
   "documentation": "https://github.com/Bagu/solisart",
