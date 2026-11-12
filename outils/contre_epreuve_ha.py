@@ -7,6 +7,7 @@ Prouve que les tests Home Assistant attrapent les défauts : chaque sabotage doi
 import os
 import subprocess
 import sys
+from importlib.metadata import version
 
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CC = os.path.join(RACINE, "custom_components", "solisart")
@@ -64,6 +65,27 @@ SABOTAGES = [
     ("version éprouvée oubliée", "const.py", '    ("SRB_32MX_vD.50-5", "WEB_vA.98"),\n', '    ("SRB_32MX_vD.50-5", "WEB_vA.97"),\n'),
 ]
 
+# Noms des températures : chaque sabotage ne mord que sous une famille de versions de Home
+# Assistant, avant 2026.11 (anciens noms seuls lus) ou depuis (noms native_*).
+SABOTAGES_AVANT_2026_11 = [
+    ("anciens noms de température absents", "entity.py", "    if not API_NATIVE:\n        current_temperature", "    if False:\n        current_temperature"),
+    ("ancienne unité du thermostat absente", "climate.py", "    if not API_NATIVE:\n", "    if False:\n"),
+    ("ancienne unité du chauffe-eau absente", "water_heater.py", "    if not API_NATIVE:\n", "    if False:\n"),
+]
+SABOTAGES_DEPUIS_2026_11 = [
+    ("température lue sous son ancien nom", "entity.py", "    def native_current_temperature(self)", "    def current_temperature(self)"),
+    ("consigne sous son ancien nom", "entity.py", "    def native_target_temperature(self)", "    def target_temperature(self)"),
+    ("unité du thermostat sous son ancien nom", "climate.py", "    _attr_native_temperature_unit =", "    _attr_temperature_unit ="),
+    ("unité du chauffe-eau sous son ancien nom", "water_heater.py", "    _attr_native_temperature_unit =", "    _attr_temperature_unit ="),
+    ("anciens noms fournis aussi", "entity.py", "    if not API_NATIVE:\n        current_temperature", "    if True:\n        current_temperature"),
+]
+
+
+def api_native() -> bool:
+    """Vrai sous Home Assistant 2026.11 et après, où les températures sont native_*."""
+    annee, mois = (int(x) for x in version("homeassistant").split(".")[:2])
+    return (annee, mois) >= (2026, 11)
+
 
 def tests_passent() -> bool:
     env = dict(os.environ)
@@ -76,7 +98,8 @@ def tests_passent() -> bool:
 
 def main() -> int:
     rates = []
-    for nom, fichier, avant, apres in SABOTAGES:
+    sabotages = SABOTAGES + (SABOTAGES_DEPUIS_2026_11 if api_native() else SABOTAGES_AVANT_2026_11)
+    for nom, fichier, avant, apres in sabotages:
         chemin = os.path.join(CC, fichier)
         with open(chemin, "rb") as f:
             octets = f.read()
@@ -96,7 +119,7 @@ def main() -> int:
     for r in rates:
         print(r)
     bon = not rates and sain
-    print(f"contre-épreuve HA {'OK' if bon else 'ÉCHEC'} : {len(SABOTAGES) - len(rates)}/{len(SABOTAGES)} sabotages détectés, témoin sain {'OK' if sain else 'en échec'}")
+    print(f"contre-épreuve HA {'OK' if bon else 'ÉCHEC'} : {len(sabotages) - len(rates)}/{len(sabotages)} sabotages détectés (Home Assistant {version("homeassistant")}), témoin sain {'OK' if sain else 'en échec'}")
     return 0 if bon else 1
 
 

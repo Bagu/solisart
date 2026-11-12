@@ -16,7 +16,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .analyse import MODE_ARRET, MODE_SOLEIL, MODE_SOLEIL_APPOINT, Zone
 from .coordinator import SolisartConfigEntry, SolisartCoordinator
-from .entity import SolisartThermostatBase
+from .entity import API_NATIVE, SolisartThermostatBase
 
 PRESETS = {"soleil": MODE_SOLEIL, "soleil_appoint": MODE_SOLEIL_APPOINT}
 PRESET_DU_MODE = {mode: preset for preset, mode in PRESETS.items()}
@@ -40,7 +40,9 @@ class SolisartThermostat(SolisartThermostatBase, ClimateEntity):
     _attr_preset_modes = list(PRESETS)
     _attr_supported_features = (ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
                                 | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF)
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    if not API_NATIVE:
+        _attr_temperature_unit = UnitOfTemperature.CELSIUS
 
     def __init__(self, coordinator: SolisartCoordinator, zone: Zone) -> None:
         super().__init__(coordinator, zone, "thermostat")

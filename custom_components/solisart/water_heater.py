@@ -18,7 +18,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .analyse import MODE_ARRET, MODE_SOLEIL, MODE_SOLEIL_APPOINT, Zone
 from .coordinator import SolisartConfigEntry, SolisartCoordinator
-from .entity import SolisartThermostatBase
+from .entity import API_NATIVE, SolisartThermostatBase
 
 OPERATIONS = {STATE_OFF: MODE_ARRET, STATE_ECO: MODE_SOLEIL, STATE_PERFORMANCE: MODE_SOLEIL_APPOINT}
 OPERATION_DU_MODE = {mode: operation for operation, mode in OPERATIONS.items()}
@@ -41,7 +41,9 @@ class SolisartChauffeEau(SolisartThermostatBase, WaterHeaterEntity):
     _attr_supported_features = (WaterHeaterEntityFeature.TARGET_TEMPERATURE
                                 | WaterHeaterEntityFeature.OPERATION_MODE
                                 | WaterHeaterEntityFeature.ON_OFF)
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    if not API_NATIVE:
+        _attr_temperature_unit = UnitOfTemperature.CELSIUS
 
     def __init__(self, coordinator: SolisartCoordinator, zone: Zone) -> None:
         super().__init__(coordinator, zone, "chauffe_eau")

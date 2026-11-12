@@ -674,6 +674,45 @@ async def test_chauffe_eau(hass, aioclient_mock):
     assert hass.states.get(cible["entity_id"]).state == "eco"
 
 
+NOMS_DEPRECIES = ("current_temperature", "target_temperature", "temperature_unit", "_attr_temperature_unit")
+
+
+def test_noms_de_temperature_selon_la_version():
+    """Sous Home Assistant 2026.11 et après, seuls les noms native_* sont fournis ; avant,
+    les anciens noms le sont aussi, car ce sont les seuls que ces versions lisent."""
+    from homeassistant.components.climate import ClimateEntity
+    from homeassistant.components.water_heater import WaterHeaterEntity
+
+    from custom_components.solisart.climate import SolisartThermostat
+    from custom_components.solisart.entity import API_NATIVE
+    from custom_components.solisart.water_heater import SolisartChauffeEau
+
+    for classe, base in ((SolisartThermostat, ClimateEntity), (SolisartChauffeEau, WaterHeaterEntity)):
+        assert API_NATIVE == hasattr(base, "native_current_temperature")
+        propres = set().union(*(vars(k) for k in classe.__mro__[:classe.__mro__.index(base)]))
+        assert {"native_current_temperature", "native_target_temperature",
+                "_attr_native_temperature_unit"} <= propres
+        assert bool(propres & set(NOMS_DEPRECIES)) == (not API_NATIVE)
+
+
+def test_aucun_avertissement_de_nom_deprecie():
+    """Home Assistant signale les noms dépréciés à la création des classes, donc à
+    l'import : les modules sont importés dans un interpréteur neuf."""
+    import os
+    import subprocess
+    import sys
+
+    racine = Path(__file__).parents[2]
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(racine), env.get("PYTHONPATH")) if p)
+    r = subprocess.run([sys.executable, "-c",
+                        "import logging; logging.basicConfig(level=logging.WARNING); "
+                        "import custom_components.solisart.climate, custom_components.solisart.water_heater"],
+                       cwd=racine, env=env, capture_output=True, text=True, encoding="utf-8")
+    assert r.returncode == 0, r.stderr
+    assert "deprecated" not in r.stderr, r.stderr
+
+
 async def test_thermostat_bloque_sur_version_non_testee(hass, aioclient_mock):
     recus = carte_reglable(aioclient_mock, versions=VERSION_INCONNUE)
     entree = await installer(hass, aioclient_mock, reglable=True)

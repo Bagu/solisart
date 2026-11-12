@@ -2,6 +2,8 @@
 ou par réglage d'une zone de param.htm."""
 from __future__ import annotations
 
+from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.water_heater import WaterHeaterEntity
 from homeassistant.const import CONF_HOST
 from homeassistant.core import Event, EventStateChangedData, callback
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -14,6 +16,11 @@ from .const import DOMAIN, FABRICANT, cle_sonde
 
 MODES_ACTIFS = (MODE_SOLEIL, MODE_SOLEIL_APPOINT)
 from .coordinator import SolisartCoordinator
+
+# Températures en unité native (native_*), apparues en Home Assistant 2026.11 ; les anciens
+# noms ne sont fournis qu'aux versions précédentes, où ils restent seuls lus.
+API_NATIVE = (hasattr(ClimateEntity, "native_current_temperature")
+              and hasattr(WaterHeaterEntity, "native_current_temperature"))
 
 
 def _appareil(coordinator: SolisartCoordinator) -> DeviceInfo:
@@ -124,7 +131,7 @@ class SolisartThermostatBase(SolisartReglage):
         return zone.confort if zone else None
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         etat = self.hass.states.get(self._sonde) if self._sonde else None
         try:
             return float(etat.state) if etat else None
@@ -132,9 +139,13 @@ class SolisartThermostatBase(SolisartReglage):
             return None
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         confort = self.confort
         return confort.valeur if confort else None
+
+    if not API_NATIVE:
+        current_temperature = native_current_temperature
+        target_temperature = native_target_temperature
 
     @property
     def min_temp(self) -> float:
