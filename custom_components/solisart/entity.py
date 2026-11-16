@@ -6,6 +6,7 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.water_heater import WaterHeaterEntity
 from homeassistant.const import CONF_HOST
 from homeassistant.core import Event, EventStateChangedData, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -21,6 +22,14 @@ from .coordinator import SolisartCoordinator
 # noms ne sont fournis qu'aux versions précédentes, où ils restent seuls lus.
 API_NATIVE = (hasattr(ClimateEntity, "native_current_temperature")
               and hasattr(WaterHeaterEntity, "native_current_temperature"))
+
+
+def verifier_mode(mode: str, modes: list[str]) -> None:
+    """Lève ServiceValidationError si `mode` n'est pas l'un des `modes` proposés par
+    l'entité. Home Assistant ne le contrôle pas quand le mode accompagne une consigne."""
+    if mode not in modes:
+        raise ServiceValidationError(translation_domain=DOMAIN, translation_key="mode_non_pris_en_charge",
+                                     translation_placeholders={"mode": str(mode), "modes": ", ".join(modes)})
 
 
 def _appareil(coordinator: SolisartCoordinator) -> DeviceInfo:

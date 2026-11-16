@@ -674,6 +674,23 @@ async def test_chauffe_eau(hass, aioclient_mock):
     assert hass.states.get(cible["entity_id"]).state == "eco"
 
 
+@pytest.mark.parametrize(("domaine", "cle", "mode"), [
+    ("climate", "hvac_mode", "cool"),
+    ("water_heater", "operation_mode", "electric"),
+])
+async def test_consigne_avec_mode_inconnu_refusee(hass, aioclient_mock, domaine, cle, mode):
+    """Un mode hors liste joint à une consigne est refusé sans rien écrire : Home Assistant
+    ne le contrôle que pour le service de mode seul."""
+    recus = carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    cible = thermostat(hass, entree, 0) if domaine == "climate" else entite(hass, entree, "chauffe_eau_6")
+    with pytest.raises(ServiceValidationError) as err:
+        await _appeler(hass, domaine, "set_temperature", {"entity_id": cible, "temperature": 20, cle: mode})
+    assert err.value.translation_key == "mode_non_pris_en_charge"
+    assert err.value.translation_placeholders["mode"] == mode
+    assert recus == []
+
+
 NOMS_DEPRECIES = ("current_temperature", "target_temperature", "temperature_unit", "_attr_temperature_unit")
 
 

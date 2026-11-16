@@ -253,6 +253,9 @@
     "lecture_reglages_impossible": {
       "message": "Lecture de la page des réglages (param.htm) impossible : {detail}"
     },
+    "mode_non_pris_en_charge": {
+      "message": "Mode {mode} non pris en charge ici. Modes possibles : {modes}"
+    },
     "page_inattendue": {
       "message": "La carte de régulation a renvoyé une page inattendue : {detail}"
     },

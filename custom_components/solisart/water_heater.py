@@ -18,7 +18,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .analyse import MODE_ARRET, MODE_SOLEIL, MODE_SOLEIL_APPOINT, Zone
 from .coordinator import SolisartConfigEntry, SolisartCoordinator
-from .entity import API_NATIVE, SolisartThermostatBase
+from .entity import API_NATIVE, SolisartThermostatBase, verifier_mode
 
 OPERATIONS = {STATE_OFF: MODE_ARRET, STATE_ECO: MODE_SOLEIL, STATE_PERFORMANCE: MODE_SOLEIL_APPOINT}
 OPERATION_DU_MODE = {mode: operation for operation, mode in OPERATIONS.items()}
@@ -57,6 +57,8 @@ class SolisartChauffeEau(SolisartThermostatBase, WaterHeaterEntity):
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         operation = kwargs.get(ATTR_OPERATION_MODE)
+        if operation:
+            verifier_mode(operation, self.operation_list)
         await self.ecrire(mode=OPERATIONS[operation] if operation else None,
                           confort=kwargs.get(ATTR_TEMPERATURE))
 

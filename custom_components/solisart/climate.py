@@ -16,7 +16,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .analyse import MODE_ARRET, MODE_SOLEIL, MODE_SOLEIL_APPOINT, Zone
 from .coordinator import SolisartConfigEntry, SolisartCoordinator
-from .entity import API_NATIVE, SolisartThermostatBase
+from .entity import API_NATIVE, SolisartThermostatBase, verifier_mode
 
 PRESETS = {"soleil": MODE_SOLEIL, "soleil_appoint": MODE_SOLEIL_APPOINT}
 PRESET_DU_MODE = {mode: preset for preset, mode in PRESETS.items()}
@@ -73,5 +73,8 @@ class SolisartThermostat(SolisartThermostatBase, ClimateEntity):
         await self.ecrire(mode=PRESETS[preset_mode])
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
-        mode = self._mode_hvac(kwargs[ATTR_HVAC_MODE]) if ATTR_HVAC_MODE in kwargs else None
+        mode = None
+        if ATTR_HVAC_MODE in kwargs:
+            verifier_mode(kwargs[ATTR_HVAC_MODE], self.hvac_modes)
+            mode = self._mode_hvac(kwargs[ATTR_HVAC_MODE])
         await self.ecrire(mode=mode, confort=kwargs.get(ATTR_TEMPERATURE))

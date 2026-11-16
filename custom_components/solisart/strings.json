@@ -253,6 +253,9 @@
     "lecture_reglages_impossible": {
       "message": "Cannot read the settings page (param.htm): {detail}"
     },
+    "mode_non_pris_en_charge": {
+      "message": "Mode {mode} is not supported here. Supported modes: {modes}"
+    },
     "page_inattendue": {
       "message": "The controller sent back an unexpected page: {detail}"
     },
