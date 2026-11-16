@@ -30,10 +30,16 @@ jobs:
         uses: home-assistant/actions/hassfest@master
 
   tests:
-    name: Tests
+    name: Tests (Home Assistant ${{ matrix.homeassistant || 'of the test harness' }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # Empty: the version pinned by the harness. The newer one runs the same tests on
+        # the native_* temperature names until a harness for it is published.
+        homeassistant: ["", "2026.11.1"]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -41,6 +47,11 @@ jobs:
           python-version: "3.14"
       - name: Install
         run: python -m pip install -r requirements_test.txt
+      - name: Newer Home Assistant
+        if: matrix.homeassistant != ''
+        run: python -m pip install "homeassistant==${{ matrix.homeassistant }}"
+      - name: Home Assistant under test
+        run: python -c "from homeassistant.const import __version__ as v; print(v); assert v == '${{ matrix.homeassistant }}' or not '${{ matrix.homeassistant }}', v"
       - name: Page parsing and client
         run: python -m unittest discover tests -v
       - name: Integration in a test Home Assistant

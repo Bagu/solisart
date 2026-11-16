@@ -9,7 +9,7 @@ and limits are read from the controller, nothing about my house is hard-coded.
 ## Disclaimer
 
 I don't work for SolisArt, and this project is not affiliated with the company. The logo
-shown in Home Assistant is theirs. I wrote the integration for my own system and share it
+shown in Home Assistant is theirs, used with their permission. I wrote the integration for my own system and share it
 as is. You use it at your own risk: I take no responsibility for misuse, unsuitable
 settings, damage to your installation, extra energy costs or any other consequence of
 using it. The MIT license says the same.
@@ -69,7 +69,7 @@ and voice assistants:
 The entities take the zone labels set on the controller (for example "Heating mode Ground
 floor").
 
-The `solisart.copier_planning` action copies one schedule day to other days or zones in a
+The `solisart.copy_schedule` action copies one schedule day to other days or zones in a
 single write, for example Monday to the rest of the week.
 
 To change a value, the integration does what your browser does on the User page. It reads
@@ -154,4 +154,4 @@ temperature probe of each zone for the thermostats and the water heater.
 The code is under the MIT license (see [LICENSE](LICENSE) and [NOTICE](NOTICE)). The
 SolisArt name and logo, including the images in `custom_components/solisart/brand`,
 belong to SolisArt. The license does not cover them: they are only there so you
-recognise the controller in Home Assistant.
+recognise the controller in Home Assistant. SolisArt agreed to this use in November 2026.

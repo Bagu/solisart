@@ -213,7 +213,7 @@
     }
   },
   "services": {
-    "copier_planning": {
+    "copy_schedule": {
       "name": "Copier une programmation",
       "description": "Copie les plages de confort d'une journée de programmation SolisArt sur d'autres jours ou d'autres zones, en un seul envoi par carte de régulation.",
       "fields": {
@@ -221,7 +221,7 @@
           "name": "Source",
           "description": "Entité de programmation à copier."
         },
-        "cibles": {
+        "targets": {
           "name": "Cibles",
           "description": "Entités de programmation qui reçoivent les mêmes plages de confort."
         }
@@ -238,6 +238,9 @@
     "ecriture_identifiant_refuse": {
       "message": "Modification impossible : la carte de régulation refuse l'identifiant enregistré"
     },
+    "ecriture_imprevue": {
+      "message": "Modification interrompue par une erreur imprévue, voir le journal : {detail}"
+    },
     "ecriture_non_confirmee": {
       "message": "La carte de régulation n'a pas conservé les valeurs envoyées (demandé → relu) : {detail}"
     },
@@ -246,6 +249,9 @@
     },
     "lecture_etat_impossible": {
       "message": "Lecture des mesures (status.xml) impossible : {detail}"
+    },
+    "lecture_reglages_impossible": {
+      "message": "Lecture de la page des réglages (param.htm) impossible : {detail}"
     },
     "page_inattendue": {
       "message": "La carte de régulation a renvoyé une page inattendue : {detail}"

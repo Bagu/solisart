@@ -175,11 +175,22 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
 
     async def _ecrire_lot(self, demandes: dict[str, str | float], lot: asyncio.Future) -> None:
         """Écrit un lot et publie aussitôt la page relue. Après un échec, param.htm est
-        relue à la relève demandée, car une partie a pu passer."""
+        relue à la relève demandée, car une partie a pu passer. Toute issue, erreur
+        imprévue et annulation comprises, rend la main aux appelants qui attendent le lot."""
         try:
             await self._ecrire(demandes)
         except HomeAssistantError as err:
             lot.set_exception(err)
+        except asyncio.CancelledError:
+            lot.set_exception(HomeAssistantError(translation_domain=DOMAIN,
+                                                 translation_key="ecriture_annulee"))
+            raise
+        except Exception as err:  # noqa: BLE001 - l'erreur est rendue aux appelants
+            _LOGGER.exception("Écriture sur la carte interrompue par une erreur imprévue")
+            self.relire_reglages()
+            lot.set_exception(HomeAssistantError(translation_domain=DOMAIN,
+                                                 translation_key="ecriture_imprevue",
+                                                 translation_placeholders={"detail": repr(err)}))
         else:
             lot.set_result(None)
 
@@ -224,7 +235,13 @@ class SolisartCoordinator(DataUpdateCoordinator[Donnees]):
             except AuthentificationRefusee as err:
                 raise ConfigEntryAuthFailed(translation_domain=DOMAIN,
                                             translation_key="identifiant_refuse") from err
-            except (CarteInjoignable, PageInattendue) as err:
+            except CarteInjoignable as err:
+                if self.data is None:
+                    raise UpdateFailed(translation_domain=DOMAIN,
+                                       translation_key="lecture_reglages_impossible",
+                                       translation_placeholders={"detail": str(err)}) from err
+                _LOGGER.warning("Lecture de param.htm impossible, réglages précédents gardés : %s", err)
+            except PageInattendue as err:
                 _LOGGER.warning("Lecture de param.htm impossible, réglages précédents gardés : %s", err)
             else:
                 self._signaler_version(self._reglages)

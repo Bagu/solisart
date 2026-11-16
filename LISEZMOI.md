@@ -10,7 +10,7 @@ spécifique à ma maison n'est codé en dur.
 ## Avertissement
 
 Je ne travaille pas pour SolisArt, et ce projet n'a aucun lien avec la société. Le logo
-affiché dans Home Assistant est le sien. J'ai écrit l'intégration pour ma propre
+affiché dans Home Assistant est le sien, utilisé avec son accord. J'ai écrit l'intégration pour ma propre
 installation et je la partage telle quelle. Vous l'utilisez à vos risques. Je ne prends
 aucune responsabilité en cas de mauvais usage, de réglage inadapté, de dommage à
 l'installation, de surcoût d'énergie ou de toute autre conséquence de son utilisation.
@@ -77,7 +77,7 @@ pour les tableaux de bord et les assistants vocaux :
 Les entités prennent les libellés des zones saisis sur la carte de régulation (par exemple « Mode de
 chauffage Rez-de-chaussée »).
 
-L'action `solisart.copier_planning` permet de copier la programmation d'un jour sur d'autres
+L'action `solisart.copy_schedule` permet de copier la programmation d'un jour sur d'autres
 jours ou d'autres zones en une seule fois (par exemple, du lundi pour tout le reste de la
 semaine).
 
@@ -175,4 +175,4 @@ Ce projet est sous licence MIT (voir [LICENSE](LICENSE) et [NOTICE](NOTICE)).
 Note concernant la marque : le nom et le logo SolisArt (ainsi que les images du dossier
 `custom_components/solisart/brand`) appartiennent à la société SolisArt. La licence ne
 les couvre pas : ils sont uniquement présents pour vous permettre de reconnaître
-facilement le matériel dans Home Assistant.
+facilement le matériel dans Home Assistant. SolisArt a accepté cet usage en novembre 2026.

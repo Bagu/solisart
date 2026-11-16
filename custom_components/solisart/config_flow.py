@@ -24,6 +24,7 @@ from .const import (
     INTERVALLE_ETAT_MIN,
     INTERVALLE_REGLAGES,
     INTERVALLE_REGLAGES_MIN,
+    PREFIXE_SONDE,
     cle_sonde,
 )
 
@@ -52,13 +53,21 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
     """Adresse de la carte et identifiant de son interface web."""
 
     VERSION = 1
+    MINOR_VERSION = 2
+
+    def _adresse_prise(self, base: str, sauf: str | None = None) -> bool:
+        """Vrai si une autre entrée vise déjà la carte de cette adresse de base. La carte
+        n'expose aucun numéro de série : l'adresse sert au contrôle des doublons, pas
+        d'identifiant unique à l'entrée."""
+        return any(adresse_de_base(autre.data[CONF_HOST]).lower() == base
+                   for autre in self._async_current_entries(include_ignore=False)
+                   if autre.entry_id != sauf)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         erreurs: dict[str, str] = {}
         if user_input is not None:
-            base = adresse_de_base(user_input[CONF_HOST]).lower()
-            await self.async_set_unique_id(base)
-            self._abort_if_unique_id_configured()
+            if self._adresse_prise(adresse_de_base(user_input[CONF_HOST]).lower()):
+                return self.async_abort(reason="already_configured")
             erreur = await essayer(self.hass, user_input[CONF_HOST],
                                    user_input[CONF_USERNAME], user_input[CONF_PASSWORD])
             if erreur is None:
@@ -100,15 +109,13 @@ class SolisartConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             donnees = {**user_input,
                        CONF_PASSWORD: user_input.get(CONF_PASSWORD) or entree.data[CONF_PASSWORD]}
-            base = adresse_de_base(donnees[CONF_HOST]).lower()
-            if any(autre.unique_id == base for autre in self._async_current_entries(include_ignore=False)
-                   if autre.entry_id != entree.entry_id):
+            if self._adresse_prise(adresse_de_base(donnees[CONF_HOST]).lower(), sauf=entree.entry_id):
                 return self.async_abort(reason="already_configured")
             erreur = await essayer(self.hass, donnees[CONF_HOST],
                                    donnees[CONF_USERNAME], donnees[CONF_PASSWORD])
             if erreur is None:
                 return self.async_update_reload_and_abort(
-                    entree, unique_id=base, title=f"{FABRICANT} ({donnees[CONF_HOST]})",
+                    entree, title=f"{FABRICANT} ({donnees[CONF_HOST]})",
                     data_updates=donnees)
             erreurs["base"] = erreur
         schema = vol.Schema({
@@ -135,10 +142,17 @@ class SolisartOptionsFlow(OptionsFlow):
     carte non testée (désactivée par défaut), et sonde de température de chaque zone
     présente pour les entités climate et water_heater (aucune par défaut)."""
 
+    _sondes_proposees = False
+
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if user_input is not None:
-            return self.async_create_entry(data=user_input)
+        """Formulaire des options. Les sondes ne sont proposées que si les zones ont pu
+        être lues ; sinon les sondes déjà choisies sont gardées telles quelles."""
         options = self.config_entry.options
+        if user_input is not None:
+            if not self._sondes_proposees:
+                gardees = {cle: valeur for cle, valeur in options.items() if cle.startswith(PREFIXE_SONDE)}
+                user_input = {**gardees, **user_input}
+            return self.async_create_entry(data=user_input)
         schema = vol.Schema({
             vol.Required(CONF_INTERVALLE_ETAT,
                          default=options.get(CONF_INTERVALLE_ETAT, INTERVALLE_ETAT)):
@@ -150,6 +164,7 @@ class SolisartOptionsFlow(OptionsFlow):
                          default=options.get(CONF_ECRITURE_VERSION_NON_TESTEE, False)): bool,
         })
         zones = self._zones()
+        self._sondes_proposees = bool(zones)
         sonde = EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature"))
         schema = schema.extend({
             vol.Optional(cle_sonde(zone.index),

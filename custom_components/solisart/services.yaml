@@ -1,4 +1,4 @@
-copier_planning:
+copy_schedule:
   fields:
     source:
       required: true
@@ -6,7 +6,7 @@ copier_planning:
         entity:
           integration: solisart
           domain: text
-    cibles:
+    targets:
       required: true
       selector:
         entity:

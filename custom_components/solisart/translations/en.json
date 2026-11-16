@@ -213,7 +213,7 @@
     }
   },
   "services": {
-    "copier_planning": {
+    "copy_schedule": {
       "name": "Copy schedule",
       "description": "Copies the comfort periods of one SolisArt schedule day to other days or zones, in a single write per controller.",
       "fields": {
@@ -221,7 +221,7 @@
           "name": "Source",
           "description": "Schedule entity to copy from."
         },
-        "cibles": {
+        "targets": {
           "name": "Targets",
           "description": "Schedule entities that receive the same comfort periods."
         }
@@ -238,6 +238,9 @@
     "ecriture_identifiant_refuse": {
       "message": "Change failed: the controller rejects the saved login"
     },
+    "ecriture_imprevue": {
+      "message": "Change interrupted by an unexpected error, check the log: {detail}"
+    },
     "ecriture_non_confirmee": {
       "message": "The controller did not keep the values sent (requested → read back): {detail}"
     },
@@ -246,6 +249,9 @@
     },
     "lecture_etat_impossible": {
       "message": "Cannot read the measurements (status.xml): {detail}"
+    },
+    "lecture_reglages_impossible": {
+      "message": "Cannot read the settings page (param.htm): {detail}"
     },
     "page_inattendue": {
       "message": "The controller sent back an unexpected page: {detail}"

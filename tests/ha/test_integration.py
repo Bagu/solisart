@@ -5,6 +5,7 @@
 import asyncio
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import aiohttp
 import pytest
@@ -86,8 +87,7 @@ async def installer(hass, aioclient_mock, reglable=False, options=None, **carte_
     """Ajoute une entrée déjà configurée et la démarre."""
     if not reglable:
         carte(aioclient_mock, **carte_kw)
-    entree = MockConfigEntry(domain=DOMAIN, data=DONNEES, unique_id=f"http://{HOTE}",
-                             options=options or {})
+    entree = MockConfigEntry(domain=DOMAIN, data=DONNEES, minor_version=2, options=options or {})
     entree.add_to_hass(hass)
     await hass.config_entries.async_setup(entree.entry_id)
     await hass.async_block_till_done()
@@ -113,7 +113,7 @@ async def test_ajout_reussi(hass: HomeAssistant, aioclient_mock):
     resultat = await hass.config_entries.flow.async_configure(resultat["flow_id"], DONNEES)
     assert resultat["type"] is FlowResultType.CREATE_ENTRY
     assert resultat["data"] == DONNEES
-    assert resultat["result"].unique_id == f"http://{HOTE}"
+    assert resultat["result"].unique_id is None
 
 
 async def _erreur_du_formulaire(hass, aioclient_mock, **carte_kw):
@@ -369,8 +369,8 @@ async def test_copier_planning(hass, aioclient_mock):
     recus = carte_reglable(aioclient_mock)
     entree = await installer(hass, aioclient_mock, reglable=True)
     cibles = [entite(hass, entree, n) for n in ("planning_1_5", "planning_1_6", "planning_0_6")]
-    await hass.services.async_call(DOMAIN, "copier_planning",
-                                   {"source": entite(hass, entree, "planning_6_0"), "cibles": cibles},
+    await hass.services.async_call(DOMAIN, "copy_schedule",
+                                   {"source": entite(hass, entree, "planning_6_0"), "targets": cibles},
                                    blocking=True)
     assert len(recus) == 1
     attendu = hass.states.get(entite(hass, entree, "planning_6_0")).state
@@ -382,9 +382,9 @@ async def test_copier_planning_vers_autre_entite(hass, aioclient_mock):
     recus = carte_reglable(aioclient_mock)
     entree = await installer(hass, aioclient_mock, reglable=True)
     with pytest.raises(ServiceValidationError):
-        await hass.services.async_call(DOMAIN, "copier_planning",
+        await hass.services.async_call(DOMAIN, "copy_schedule",
                                        {"source": entite(hass, entree, "planning_1_0"),
-                                        "cibles": [entite(hass, entree, "U09_0")]},
+                                        "targets": [entite(hass, entree, "U09_0")]},
                                        blocking=True)
     assert recus == []
 
@@ -403,8 +403,8 @@ async def _toutes_les_ecritures(hass, entree):
         ("select", "select_option", {"entity_id": entite(hass, entree, "U06_0"), "option": "soleil"}),
         ("number", "set_value", {"entity_id": entite(hass, entree, "U09_6"), "value": 55}),
         ("text", "set_value", {"entity_id": entite(hass, entree, "planning_1_2"), "value": "06:00-08:00"}),
-        (DOMAIN, "copier_planning", {"source": entite(hass, entree, "planning_6_0"),
-                                     "cibles": [entite(hass, entree, "planning_6_1")]}),
+        (DOMAIN, "copy_schedule", {"source": entite(hass, entree, "planning_6_0"),
+                                     "targets": [entite(hass, entree, "planning_6_1")]}),
     ]
     erreurs = []
     for domaine, service, donnees in appels:
@@ -528,7 +528,7 @@ async def test_reconfigurer_l_adresse_garde_les_entites(hass, aioclient_mock):
     await hass.async_block_till_done()
     assert resultat["type"] is FlowResultType.ABORT and resultat["reason"] == "reconfigure_successful"
     assert entree.data == {**DONNEES, CONF_HOST: NOUVEL_HOTE}
-    assert entree.unique_id == f"http://{NOUVEL_HOTE}"
+    assert entree.unique_id is None
     assert entree.title == f"SolisArt ({NOUVEL_HOTE})"
     apres = {e.entity_id: e.unique_id for e in er.async_entries_for_config_entry(registre, entree.entry_id)}
     assert apres == avant
@@ -563,7 +563,7 @@ async def test_reconfigurer_identifiant_refuse(hass, aioclient_mock):
 async def test_reconfigurer_vers_l_adresse_d_une_autre_carte(hass, aioclient_mock):
     entree = await installer(hass, aioclient_mock)
     MockConfigEntry(domain=DOMAIN, data={**DONNEES, CONF_HOST: NOUVEL_HOTE},
-                    unique_id=f"http://{NOUVEL_HOTE}").add_to_hass(hass)
+                    minor_version=2).add_to_hass(hass)
     resultat = await _reconfigurer(hass, entree, {CONF_HOST: f"http://{NOUVEL_HOTE}/", CONF_USERNAME: "essai"})
     assert resultat["type"] is FlowResultType.ABORT and resultat["reason"] == "already_configured"
     assert entree.data[CONF_HOST] == HOTE
@@ -757,3 +757,79 @@ async def test_periode_suit_le_planning_ecrit(hass, aioclient_mock):
     entree = await installer(hass, aioclient_mock, reglable=True)
     await _appeler(hass, "text", "set_value", {"entity_id": entite(hass, entree, "planning_0_0"), "value": ""})
     assert hass.states.get(entite(hass, entree, "periode_0")).state == "reduit"
+
+
+async def test_reglages_injoignables_au_demarrage_reessaye(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock, param=500)
+    assert entree.state is ConfigEntryState.SETUP_RETRY
+    carte(aioclient_mock)
+    await hass.config_entries.async_reload(entree.entry_id)
+    await hass.async_block_till_done()
+    assert entree.state is ConfigEntryState.LOADED
+    assert thermostat(hass, entree, 0) is not None
+
+
+async def test_page_de_reglages_inattendue_garde_les_mesures(hass, aioclient_mock):
+    entree = await installer(hass, aioclient_mock, param_corps=b"<html><body>Autre</body></html>")
+    assert entree.state is ConfigEntryState.LOADED
+    assert hass.states.get(entite(hass, entree, "t1")).state == "53.4"
+    assert thermostat(hass, entree, 0) is None
+
+
+async def test_sondes_gardees_quand_l_entree_n_est_pas_chargee(hass, aioclient_mock):
+    options = {CONF_INTERVALLE_ETAT: 30, CONF_INTERVALLE_REGLAGES: 300, "sonde_zone_0": "sensor.salon"}
+    entree = await installer(hass, aioclient_mock, options=options)
+    await hass.config_entries.async_unload(entree.entry_id)
+    resultat = await hass.config_entries.options.async_init(entree.entry_id)
+    assert not {str(c) for c in resultat["data_schema"].schema} & {"sonde_zone_0"}
+    await hass.config_entries.options.async_configure(
+        resultat["flow_id"], {CONF_INTERVALLE_ETAT: 45, CONF_INTERVALLE_REGLAGES: 300})
+    assert entree.options == {**options, CONF_INTERVALLE_ETAT: 45, CONF_ECRITURE_VERSION_NON_TESTEE: False}
+
+
+async def test_sonde_retiree_quand_les_zones_sont_proposees(hass, aioclient_mock):
+    options = {CONF_INTERVALLE_ETAT: 30, CONF_INTERVALLE_REGLAGES: 300, "sonde_zone_0": "sensor.salon"}
+    entree = await installer(hass, aioclient_mock, options=options)
+    resultat = await hass.config_entries.options.async_init(entree.entry_id)
+    await hass.config_entries.options.async_configure(
+        resultat["flow_id"], {CONF_INTERVALLE_ETAT: 30, CONF_INTERVALLE_REGLAGES: 300})
+    assert "sonde_zone_0" not in entree.options
+
+
+async def test_erreur_imprevue_rendue_a_l_appelant(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    with patch.object(entree.runtime_data.client, "ecrire_reglages", side_effect=RuntimeError("panne")):
+        with pytest.raises(HomeAssistantError) as err:
+            await asyncio.wait_for(_appeler(hass, "number", "set_value",
+                                            {"entity_id": entite(hass, entree, "U09_6"), "value": 52}), 5)
+    assert err.value.translation_key == "ecriture_imprevue"
+
+
+async def test_ecriture_en_cours_annulee_au_dechargement(hass, aioclient_mock):
+    carte_reglable(aioclient_mock)
+    entree = await installer(hass, aioclient_mock, reglable=True)
+    partie = asyncio.Event()
+
+    async def sans_fin(*_args):
+        partie.set()
+        await asyncio.Event().wait()
+
+    with patch.object(entree.runtime_data.client, "ecrire_reglages", side_effect=sans_fin):
+        appel = hass.async_create_task(_appeler(hass, "number", "set_value",
+                                                {"entity_id": entite(hass, entree, "U09_6"), "value": 52}))
+        await asyncio.wait_for(partie.wait(), 5)
+        await hass.config_entries.async_unload(entree.entry_id)
+        with pytest.raises(HomeAssistantError) as err:
+            await asyncio.wait_for(appel, 5)
+    assert err.value.translation_key == "ecriture_annulee"
+
+
+async def test_migration_retire_l_adresse_comme_identifiant(hass, aioclient_mock):
+    carte(aioclient_mock)
+    entree = MockConfigEntry(domain=DOMAIN, data=DONNEES, unique_id=f"http://{HOTE}", minor_version=1)
+    entree.add_to_hass(hass)
+    await hass.config_entries.async_setup(entree.entry_id)
+    await hass.async_block_till_done()
+    assert entree.state is ConfigEntryState.LOADED
+    assert (entree.unique_id, entree.minor_version) == (None, 2)

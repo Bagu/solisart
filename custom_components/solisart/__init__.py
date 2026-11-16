@@ -25,10 +25,10 @@ PLATFORMS = [Platform.BINARY_SENSOR, Platform.CLIMATE, Platform.NUMBER, Platform
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-SERVICE_COPIER_PLANNING = "copier_planning"
+SERVICE_COPIER_PLANNING = "copy_schedule"
 SCHEMA_COPIER_PLANNING = vol.Schema({
     vol.Required("source"): cv.entity_id,
-    vol.Required("cibles"): cv.entity_ids,
+    vol.Required("targets"): cv.entity_ids,
 })
 MOTIF_PLANNING = re.compile(r"(.+)_planning_(\d)_(\d)")
 
@@ -42,7 +42,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         texte = texte_planning(entree.runtime_data.data.reglages.plannings[zone][jour])
         par_entree: dict[str, dict[tuple[int, int], str]] = {}
         entrees = {}
-        for cible in appel.data["cibles"]:
+        for cible in appel.data["targets"]:
             entree_cible, zone_cible, jour_cible = _planning(hass, cible)
             entrees[entree_cible.entry_id] = entree_cible
             par_entree.setdefault(entree_cible.entry_id, {})[(zone_cible, jour_cible)] = texte
@@ -86,7 +86,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> 
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> bool:
+    """Retire les entités de l'entrée."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> bool:
+    """Version 1.2 : l'adresse de la carte n'est plus l'identifiant unique de l'entrée
+    (contrôle des doublons par adresse dans le formulaire). Home Assistant refuse de
+    lui-même une entrée d'une version plus récente que l'intégration."""
+    if entry.minor_version < 2:
+        hass.config_entries.async_update_entry(entry, unique_id=None, minor_version=2)
+    return True
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: SolisartConfigEntry) -> None:
