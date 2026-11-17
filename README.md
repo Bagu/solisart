@@ -87,19 +87,34 @@ arrows of a temperature five times sends only the last value.
 
 ## Installation
 
-### With HACS
+### From the Marketplace (Home Assistant 2026.11 and later)
 
-HACS must already be installed in your Home Assistant.
+SolisArt is in the default catalog, so a search is enough.
 
-1. In Home Assistant, open HACS from the sidebar.
-2. Open the menu with the three dots at the top right and choose Custom repositories.
-3. Paste `https://github.com/Bagu/solisart`, pick the type Integration, then click Add.
-4. Search for SolisArt in HACS, open it and click Download.
-5. Restart Home Assistant.
+1. Go to Settings > Marketplace.
+2. Search for SolisArt, open it and select Install.
+3. Check the version, then select Install again.
+4. If Home Assistant asks for a restart (Settings > System > Repairs), restart it.
 
-This button opens the repository straight in your HACS:
+This button opens SolisArt straight in your Marketplace:
 
-[![Open the SolisArt repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Bagu&repository=solisart&category=integration)
+[![Open the SolisArt repository in the Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=Bagu&repository=solisart&category=integration)
+
+### With HACS (before 2026.11)
+
+1. Open HACS from the sidebar.
+2. Search for SolisArt, open it and click Download.
+3. Restart Home Assistant.
+
+### If the search finds nothing
+
+You can still add SolisArt as a custom repository, then install it as above.
+
+- Marketplace: go to Settings > Marketplace, select Add from link at the top right, enter
+  `https://github.com/Bagu/solisart`, then select Add.
+- HACS: open the menu with the three dots at the top right and choose Custom
+  repositories. Paste `https://github.com/Bagu/solisart`, pick the type Integration, then
+  click Add.
 
 ### By hand
 

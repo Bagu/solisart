@@ -99,20 +99,36 @@ valeur est envoyée.
 
 ## Installation
 
-### Via HACS (recommandé)
+### Depuis la Marketplace (Home Assistant 2026.11 et plus récent)
 
-HACS doit déjà être installé dans votre Home Assistant.
+SolisArt fait partie du catalogue par défaut : une recherche suffit.
+
+1. Allez dans Paramètres > Marketplace.
+2. Recherchez SolisArt, ouvrez-la et lancez l'installation.
+3. Vérifiez la version proposée, puis confirmez l'installation.
+4. Si Home Assistant demande un redémarrage (Paramètres > Système > Réparations),
+   redémarrez-le.
+
+Ce bouton ouvre directement SolisArt dans votre Marketplace :
+
+[![Ouvrir le dépôt SolisArt dans la Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=Bagu&repository=solisart&category=integration)
+
+### Via HACS (avant 2026.11)
 
 1. Ouvrez HACS dans la barre latérale de Home Assistant.
-2. Cliquez sur les trois points en haut à droite, puis sur Dépôts personnalisés.
-3. Collez l'adresse `https://github.com/Bagu/solisart`, sélectionnez le type Intégration,
-   puis cliquez sur Ajouter.
-4. Recherchez SolisArt dans HACS et téléchargez-la.
-5. Redémarrez Home Assistant.
+2. Recherchez SolisArt, ouvrez-la et téléchargez-la.
+3. Redémarrez Home Assistant.
 
-Ce bouton ouvre directement le dépôt dans votre HACS :
+### Si la recherche ne trouve rien
 
-[![Ouvrir le dépôt SolisArt dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Bagu&repository=solisart&category=integration)
+Vous pouvez encore ajouter SolisArt comme dépôt personnalisé, puis l'installer comme
+ci-dessus.
+
+- Marketplace : allez dans Paramètres > Marketplace, cliquez en haut à droite sur le
+  bouton d'ajout par lien, entrez `https://github.com/Bagu/solisart`, puis validez.
+- HACS : cliquez sur les trois points en haut à droite, puis sur Dépôts personnalisés.
+  Collez l'adresse `https://github.com/Bagu/solisart`, sélectionnez le type Intégration,
+  puis cliquez sur Ajouter.
 
 ### Installation manuelle
 
